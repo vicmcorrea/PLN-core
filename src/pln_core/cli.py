@@ -15,6 +15,13 @@ from pln_core.samples import (
     LEXICON_SOURCE_OPTIONS,
     MENU_OPTIONS,
     SAMPLE_TEXTS,
+    TOKENIZER_SOURCE_LABELS,
+    TOKENIZER_SOURCE_OPTIONS,
+)
+from pln_core.tokenizers import (
+    CUSTOM_TOKENIZER_SOURCE,
+    NLTK_TWEET_TOKENIZER_SOURCE,
+    get_tokenizer,
 )
 
 MENU_TO_SAMPLE_KEY = {
@@ -25,6 +32,10 @@ MENU_TO_SAMPLE_KEY = {
 MENU_TO_LEXICON_SOURCE = {
     option: source
     for option, source, _label in LEXICON_SOURCE_OPTIONS
+}
+MENU_TO_TOKENIZER_SOURCE = {
+    option: source
+    for option, source, _label in TOKENIZER_SOURCE_OPTIONS
 }
 
 
@@ -50,6 +61,12 @@ def build_parser() -> argparse.ArgumentParser:
         "--sample",
         choices=tuple(SAMPLE_TEXTS),
         help="Analyze one of the built-in sample texts without using the menu.",
+    )
+    parser.add_argument(
+        "--tokenizer-source",
+        choices=(CUSTOM_TOKENIZER_SOURCE, NLTK_TWEET_TOKENIZER_SOURCE),
+        default=CUSTOM_TOKENIZER_SOURCE,
+        help="Choose the built-in regex tokenizer or NLTK TweetTokenizer.",
     )
     parser.add_argument(
         "--interactive",
@@ -134,6 +151,20 @@ def prompt_lexicon_source_choice() -> str:
         print("please choose 1 or 2.")
 
 
+def prompt_tokenizer_source_choice() -> str:
+    """Ask the user which tokenizer source should be used."""
+
+    print("choose the tokenizer source:")
+    for option, _source, label in TOKENIZER_SOURCE_OPTIONS:
+        print(f"{option}. {label}")
+
+    while True:
+        choice = input("tokenizer: ").strip()
+        if choice in MENU_TO_TOKENIZER_SOURCE:
+            return resolve_tokenizer_source_choice(choice)
+        print("please choose 1 or 2.")
+
+
 def prompt_custom_text() -> str:
     """Prompt for a non-empty custom text."""
 
@@ -170,6 +201,12 @@ def resolve_lexicon_source_choice(choice: str) -> str:
     return MENU_TO_LEXICON_SOURCE[choice]
 
 
+def resolve_tokenizer_source_choice(choice: str) -> str:
+    """Map an interactive source choice to the selected tokenizer source."""
+
+    return MENU_TO_TOKENIZER_SOURCE[choice]
+
+
 def resolve_requested_text(args: argparse.Namespace) -> str | None:
     """Resolve the text requested by command line arguments."""
 
@@ -183,6 +220,7 @@ def resolve_requested_text(args: argparse.Namespace) -> str | None:
 def build_analyzer(
     lexicon_source: str,
     lexicon_path: str | None,
+    tokenizer_source: str,
 ) -> SymbolicSentimentAnalyzer:
     """Build an analyzer for the requested lexicon source."""
 
@@ -190,7 +228,8 @@ def build_analyzer(
         print("loading oplexicon v3.0...")
 
     lexicon = load_lexicon(path=lexicon_path, source=lexicon_source)
-    return SymbolicSentimentAnalyzer(lexicon=lexicon)
+    tokenizer = get_tokenizer(tokenizer_source)
+    return SymbolicSentimentAnalyzer(lexicon=lexicon, tokenizer=tokenizer)
 
 
 def render_output(result: AnalysisResult, as_json: bool) -> str:
@@ -208,6 +247,7 @@ def main() -> None:
     args = parser.parse_args()
     requested_text = resolve_requested_text(args)
     lexicon_source = args.lexicon_source
+    tokenizer_source = args.tokenizer_source
 
     if args.json and requested_text is None and not args.interactive:
         parser.error("JSON output requires a direct text or a sample choice.")
@@ -216,14 +256,20 @@ def main() -> None:
         try:
             if args.lexicon is None:
                 lexicon_source = prompt_lexicon_source_choice()
+            tokenizer_source = prompt_tokenizer_source_choice()
 
-            analyzer = build_analyzer(lexicon_source=lexicon_source, lexicon_path=args.lexicon)
+            analyzer = build_analyzer(
+                lexicon_source=lexicon_source,
+                lexicon_path=args.lexicon,
+                tokenizer_source=tokenizer_source,
+            )
 
             while True:
                 requested_text = resolve_interactive_text(prompt_menu_choice())
                 result = analyzer.analyze(requested_text)
                 print()
                 print(f"lexicon source: {LEXICON_SOURCE_LABELS[lexicon_source]}")
+                print(f"tokenizer source: {TOKENIZER_SOURCE_LABELS[tokenizer_source]}")
                 print(render_output(result, as_json=False))
                 print()
                 if not prompt_continue():
@@ -237,7 +283,11 @@ def main() -> None:
             return
 
     try:
-        analyzer = build_analyzer(lexicon_source=lexicon_source, lexicon_path=args.lexicon)
+        analyzer = build_analyzer(
+            lexicon_source=lexicon_source,
+            lexicon_path=args.lexicon,
+            tokenizer_source=tokenizer_source,
+        )
     except LexiconDownloadError:
         parser.error(
             "could not load oplexicon. check your connection or use the built-in dictionary."

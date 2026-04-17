@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pln_core.lexicon import OPLEXICON_LEXICON_SOURCE, SEED_LEXICON_SOURCE
+from pln_core.tokenizers import CUSTOM_TOKENIZER_SOURCE, NLTK_TWEET_TOKENIZER_SOURCE
 
 SAMPLE_TEXTS: dict[str, str] = {
     "positive": "Eu amei o filme, foi muito bom!",
@@ -16,6 +17,20 @@ LEXICON_SOURCE_LABELS: dict[str, str] = {
 LEXICON_SOURCE_OPTIONS: tuple[tuple[str, str, str], ...] = (
     ("1", SEED_LEXICON_SOURCE, LEXICON_SOURCE_LABELS[SEED_LEXICON_SOURCE]),
     ("2", OPLEXICON_LEXICON_SOURCE, LEXICON_SOURCE_LABELS[OPLEXICON_LEXICON_SOURCE]),
+)
+
+TOKENIZER_SOURCE_LABELS: dict[str, str] = {
+    CUSTOM_TOKENIZER_SOURCE: "use the built-in regex tokenizer",
+    NLTK_TWEET_TOKENIZER_SOURCE: "use nltk tweettokenizer",
+}
+
+TOKENIZER_SOURCE_OPTIONS: tuple[tuple[str, str, str], ...] = (
+    ("1", CUSTOM_TOKENIZER_SOURCE, TOKENIZER_SOURCE_LABELS[CUSTOM_TOKENIZER_SOURCE]),
+    (
+        "2",
+        NLTK_TWEET_TOKENIZER_SOURCE,
+        TOKENIZER_SOURCE_LABELS[NLTK_TWEET_TOKENIZER_SOURCE],
+    ),
 )
 
 MENU_OPTIONS: tuple[tuple[str, str], ...] = (

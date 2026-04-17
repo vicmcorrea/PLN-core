@@ -78,7 +78,28 @@ becomes something closer to:
 
 `ameii esse filme!!! perfeito`
 
-### 2.2 tokenization
+### 2.2 tokenization choices
+
+the project now supports two tokenizer backends.
+
+#### custom tokenizer
+
+the custom tokenizer is the main symbolic baseline. after normalization and accent folding, it extracts:
+
+- alphanumeric word tokens
+- basic emoticon tokens such as `:)`, `:(`, `=d`
+
+this is deterministic and easy to explain in a symbolic project report.
+
+#### nltk tweettokenizer
+
+the second option uses `nltk.tokenize.TweetTokenizer`, which is a real tokenizer designed for noisy social-style text.
+
+we still run the same project normalization first, then hand the normalized text to the tokenizer. this gives a more standard tokenizer option without changing the rest of the symbolic pipeline.
+
+it is not specific to brazilian portuguese, but it is a reasonable alternative for short informal text because it handles punctuation and social-style writing better than a naive split.
+
+### 2.3 tokenization details
 
 after normalization, the text is folded to lowercase and accents are removed for matching.
 
@@ -87,14 +108,25 @@ examples:
 - `ótimo` becomes `otimo`
 - `péssimo` becomes `pessimo`
 
-then the tokenizer extracts:
+with the custom tokenizer, the system extracts:
 
 - alphanumeric word tokens
 - basic emoticon tokens such as `:)`, `:(`, `=d`
 
-this is done with regex based tokenization, not with a statistical tokenizer.
+with the nltk option, token boundaries are produced by `TweetTokenizer` after the same project normalization step.
 
-### 2.3 preprocessing flow
+### 2.4 tokenizer selection flow
+
+```mermaid
+flowchart TD
+    A[normalized text] --> B{which tokenizer?}
+    B -->|custom| C[regex tokenizer]
+    B -->|nltk| D[nltk tweettokenizer]
+    C --> E[token list]
+    D --> E[token list]
+```
+
+### 2.5 preprocessing flow
 
 ```mermaid
 flowchart TD
@@ -103,7 +135,7 @@ flowchart TD
     C --> D[compress repeated chars]
     D --> E[normalize whitespace]
     E --> F[lowercase and remove accents]
-    F --> G[regex tokenization for words and basic emoticons]
+    F --> G[pass text to selected tokenizer]
 ```
 
 ## 3. lexical scoring

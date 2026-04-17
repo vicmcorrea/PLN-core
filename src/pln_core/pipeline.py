@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 
 from pln_core.lexicon import load_lexicon
-from pln_core.text_utils import normalize_text, tokenize
+from pln_core.text_utils import normalize_text
+from pln_core.tokenizers import tokenize_custom
 
 NEGATIONS = {"nao", "nem", "nunca", "jamais", "sem"}
 INTENSIFIERS = {
@@ -48,10 +49,12 @@ class SymbolicSentimentAnalyzer:
     def __init__(
         self,
         lexicon: Mapping[str, float] | None = None,
+        tokenizer: Callable[[str], list[str]] | None = None,
         positive_threshold: float = 0.75,
         negative_threshold: float = -0.75,
     ) -> None:
         self.lexicon = dict(lexicon or load_lexicon())
+        self.tokenizer = tokenizer or tokenize_custom
         self.positive_threshold = positive_threshold
         self.negative_threshold = negative_threshold
 
@@ -59,7 +62,7 @@ class SymbolicSentimentAnalyzer:
         """Analyze text and return token matches, score, and final label."""
 
         normalized_text = normalize_text(text)
-        tokens = tokenize(text)
+        tokens = self.tokenizer(text)
         matches: list[MatchDetail] = []
         contrast_index = self._find_contrast_index(tokens)
         exclamation_count = min(text.count("!"), 3)
