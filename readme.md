@@ -2,6 +2,40 @@
 
 symbolic sentiment analysis baseline for portuguese.
 
+
+
+
+# task list by PERSON
+
+
+```bash
+
+
+Pessoa 1, 2 e 3:
+Pré-processamento + tokenização
+Léxicos + CSVs + Emoções (Usar bibliotecas ou criar manualmente?)
+Regras simbólicas
+
+Pessoa 4:
+Recomendação (Usar bibliotecas ou criar manualmente?)
+
+Pessoa 5:
+Relatório + testes
+
+PENDING:
+Esperando o professor confirmar sobre uso de bibliotecas 
+
+
+```
+
+
+
+
+
+
+
+
+
 ## setup
 
 ```bash
