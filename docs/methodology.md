@@ -51,7 +51,7 @@ for example, the project reads rows like:
 - `ruim,adj,-1,A`
 - `:),emot,1,A`
 
-the implementation downloads and caches the raw file locally the first time `oplexicon` is selected.
+the implementation downloads the upstream `lexico_v3.0.txt` and caches it under `data/external/oplexicon_v3.0.txt` the first time `oplexicon` is selected.
 
 ### 1.3 source selection flow
 
@@ -117,19 +117,14 @@ this is different from our custom tokenizer because:
 
 ### 2.3 tokenization details
 
-after normalization, the text is folded to lowercase and accents are removed for matching.
+both backends run the same normalization, then lowercase and strip accents (`fold_text`) before splitting.
 
 examples:
 
 - `ótimo` becomes `otimo`
 - `péssimo` becomes `pessimo`
 
-with the custom tokenizer, the system extracts:
-
-- alphanumeric word tokens
-- basic emoticon tokens such as `:)`, `:(`, `=d`
-
-with the nltk option, token boundaries are produced by `TweetTokenizer` after the same project normalization step.
+the custom tokenizer finds tokens with the project regex. the spaCy path runs `spacy.blank("pt")` on the folded string, then keeps only tokens that match the same pattern the custom tokenizer uses, so lexicon lookup stays consistent across both choices.
 
 ### 2.4 tokenizer selection flow
 
@@ -226,7 +221,7 @@ if you need to explain the current baseline honestly, the cleanest wording is:
 1. the project implements a symbolic sentiment analyzer for short portuguese texts
 2. the baseline uses a manually created seed dictionary designed for prototyping and debugging
 3. the system also supports an external lexical resource, `oplexicon v3.0`, for a broader symbolic lexicon
-4. tokenization is rule based and regex based after lightweight text normalization
+4. tokenization is either the regex tokenizer or spaCy’s Portuguese tokenizer, both after the same normalization and folding
 5. the final prediction comes from lexical polarity plus symbolic rules for negation, intensification, contrast, and punctuation
 
 ## 6. comparison mode
