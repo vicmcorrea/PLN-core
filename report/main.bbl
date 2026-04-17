@@ -1,0 +1,89 @@
+\begin{thebibliography}{11}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Brum and das Gra{\c c}as Volpe~Nunes(2017)]{brum2017tweetsentbr}
+Henrico~Bertini Brum and Maria das Gra{\c c}as Volpe~Nunes.
+\newblock Building a sentiment corpus of tweets in brazilian portuguese, 2017.
+\newblock URL \url{https://arxiv.org/abs/1712.08917}.
+
+\bibitem[{Explosion AI}(2026{\natexlab{a}})]{spacyModels}
+{Explosion AI}.
+\newblock Models and languages, 2026{\natexlab{a}}.
+\newblock URL \url{https://spacy.io/docs/usage/models}.
+\newblock spaCy usage documentation accessed in April 2026.
+
+\bibitem[{Explosion AI}(2026{\natexlab{b}})]{spacyTokenizer}
+{Explosion AI}.
+\newblock Tokenizer api, 2026{\natexlab{b}}.
+\newblock URL \url{https://spacy.io/api/tokenizer}.
+\newblock spaCy API documentation accessed in April 2026.
+
+\bibitem[Hutto and Gilbert(2014)]{hutto2014vader}
+C.~J. Hutto and Eric Gilbert.
+\newblock {VADER}: A parsimonious rule-based model for sentiment analysis of
+  social media text.
+\newblock In \emph{Proceedings of the International AAAI Conference on Web and
+  Social Media}, 2014.
+\newblock URL \url{https://ojs.aaai.org/index.php/ICWSM/article/view/14550}.
+
+\bibitem[Kiritchenko and Mohammad(2016)]{kiritchenko2016effect}
+Svetlana Kiritchenko and Saif~M. Mohammad.
+\newblock The effect of negators, modals, and degree adverbs on sentiment
+  composition.
+\newblock In \emph{Proceedings of the Workshop on Computational Approaches to
+  Subjectivity, Sentiment and Social Media Analysis}, 2016.
+\newblock URL \url{https://aclanthology.org/W16-0410/}.
+
+\bibitem[Kolchyna et~al.(2015)Kolchyna, Souza, Treleaven, and
+  Aste]{kolchyna2015twitter}
+Olga Kolchyna, Th{\'a}rsis T.~P. Souza, Philip Treleaven, and Tomaso Aste.
+\newblock Twitter sentiment analysis: Lexicon method, machine learning method
+  and their combination, 2015.
+\newblock URL \url{https://arxiv.org/abs/1507.00955}.
+
+\bibitem[{PLN PUCRS}(2026)]{oplexiconSite}
+{PLN PUCRS}.
+\newblock Oplexicon, 2026.
+\newblock URL
+  \url{https://www.inf.pucrs.br/linatural/wordpress/recursos-e-ferramentas/oplexicon/}.
+\newblock Official resource page accessed in April 2026.
+
+\bibitem[Silva et~al.(2023)Silva, de~Castro, Silva, Santos, Kulesza, Lima,
+  Madeira, and Wagner]{silva2023social}
+Leo Silva, Mar{\'\i}lia~Gurgel de~Castro, Miriam~Bernardino Silva, Milena
+  Santos, Uir{\'a} Kulesza, Margarida Lima, Henrique Madeira, and Stefan
+  Wagner.
+\newblock Using social media and personality traits to assess software
+  developers' emotional polarity.
+\newblock \emph{PeerJ Computer Science}, 2023.
+\newblock \doi{10.7717/peerj-cs.1498}.
+\newblock URL \url{https://doi.org/10.7717/peerj-cs.1498}.
+
+\bibitem[Souza and Vieira(2012)]{souza2012sentiment}
+Marlo Souza and Renata Vieira.
+\newblock Sentiment analysis on twitter data for portuguese language.
+\newblock In \emph{Computational Processing of the Portuguese Language}, 2012.
+\newblock \doi{10.1007/978-3-642-28885-2_28}.
+\newblock URL \url{https://doi.org/10.1007/978-3-642-28885-2_28}.
+
+\bibitem[Souza et~al.(2011)Souza, Vieira, Busetti, Chishman, and
+  Alves]{souza2011construction}
+Marlo Souza, Renata Vieira, Debora Busetti, Rove Chishman, and Isa~Mara Alves.
+\newblock Construction of a portuguese opinion lexicon from multiple resources.
+\newblock In \emph{Proceedings of the 8th Brazilian Symposium in Information
+  and Human Language Technology}, 2011.
+\newblock URL \url{https://aclanthology.org/W11-4507/}.
+
+\bibitem[Taboada et~al.(2011)Taboada, Brooke, Tofiloski, Voll, and
+  Stede]{taboada2011lexicon}
+Maite Taboada, Julian Brooke, Milan Tofiloski, Kimberly Voll, and Manfred
+  Stede.
+\newblock Lexicon-based methods for sentiment analysis.
+\newblock \emph{Computational Linguistics}, 2011.
+\newblock URL \url{https://aclanthology.org/J11-2001/}.
+
+\end{thebibliography}

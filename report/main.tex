@@ -1,0 +1,218 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{microtype}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usepackage[numbers]{natbib}
+
+\usetikzlibrary{arrows.meta,positioning}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  citecolor=black,
+  urlcolor=blue
+}
+
+\setlength{\parindent}{1.2em}
+\setlength{\parskip}{0.4em}
+\setlist[itemize]{leftmargin=1.8em}
+
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+\tikzset{
+  flowbox/.style={
+    draw,
+    rounded corners=2pt,
+    align=center,
+    minimum height=0.95cm,
+    minimum width=2.35cm,
+    inner sep=4pt
+  },
+  flowarrow/.style={-{Latex[length=2.5mm]}, thick}
+}
+
+\begin{document}
+
+\begin{center}
+{\Large Relatório do projeto prático}\\[0.4em]
+{\large SCC5908 Introdução ao Processamento de Língua Natural}\\[0.2em]
+{\normalsize Rascunho inicial do relatório}
+\end{center}
+
+\section{Nome do projeto}
+
+\textbf{??? (talvez PLN Core): analisador simbólico de sentimentos para português brasileiro}
+
+O projeto propõe um analisador de sentimentos para textos curtos em português brasileiro com foco em interpretabilidade. A solução usa um léxico de polaridade e um conjunto pequeno de regras simbólicas para gerar um escore final e, a partir dele, decidir se a entrada é positiva, negativa ou neutra.
+
+\section{Nomes da equipe e dos integrantes do grupo}
+
+\textbf{Nome da equipe:} GLAVJ
+
+\begin{itemize}
+  \item João Victor M. Correa (17416061)
+  \item Ana Paula de Abreu Batista (N/A)
+  \item Guilherme Vaz de Oliveira Taratá (10817476)
+  \item Victoria Favero Nunes (15698302)
+  \item Leonardo Ferreira Runho (11832958)
+\end{itemize}
+
+\section{Introdução}
+
+Este projeto busca resolver uma tarefa clássica de Processamento de Língua Natural: identificar a polaridade de um texto curto escrito por uma pessoa. No nosso caso, a entrada é uma frase ou pequeno comentário em português brasileiro, como os que aparecem em redes sociais, avaliações de aplicativos ou mensagens rápidas. A saída é um rótulo simples, positivo, negativo ou neutro, acompanhado por um escore numérico e por um registro dos termos que contribuíram para a decisão.
+
+A tarefa é relevante porque opiniões em linguagem natural aparecem em grande volume e costumam ser úteis em análise de produtos, monitoramento de reação pública e experimentos didáticos com textos reais. Ao mesmo tempo, ela é desafiadora porque textos curtos trazem ruído, abreviações, variação ortográfica, ironia, marcas de intensidade e mudanças de sentido causadas por palavras como ``não'', ``muito'' e ``mas'' \cite{taboada2011lexicon,hutto2014vader,kolchyna2015twitter}. Em português, esse cenário também depende da disponibilidade de recursos próprios da língua, como léxicos e bases anotadas \cite{souza2011construction,souza2012sentiment,brum2017tweetsentbr}.
+
+Nossa escolha foi seguir uma solução simbólica. Em vez de treinar um classificador supervisionado, o projeto combina um léxico de polaridade com regras explícitas de negação, intensificação, atenuação, contraste e pontuação. Essa direção é coerente com métodos lexicais interpretáveis e com recursos usados em análises de sentimento para mídia social \cite{taboada2011lexicon,kiritchenko2016effect,silva2023social}. Como sistema análogo, vale citar o VADER, que também combina um léxico com regras de composição para textos curtos, embora tenha sido proposto para inglês \cite{hutto2014vader}. O nosso objetivo não é copiar esse sistema, mas adaptar a ideia geral para uma versão simples e defendível em português brasileiro.
+
+\section{Proposta detalhada da solução simbólica}
+
+\subsection{Arquitetura da solução}
+
+A arquitetura atual é pequena, linear e fácil de explicar em apresentação. Primeiro escolhemos o recurso lexical e o tokenizador. Depois o texto passa por normalização, tokenização e correspondência lexical. Por fim, os termos encontrados recebem ajustes contextuais e são somados para gerar o rótulo final.
+
+\begin{figure}[h]
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tikzpicture}[node distance=0.45cm]
+  \node[flowbox] (input) {texto\\de entrada};
+  \node[flowbox, right=of input] (norm) {normalização};
+  \node[flowbox, right=of norm] (tok) {tokenização};
+  \node[flowbox, right=of tok] (match) {busca no\\léxico};
+  \node[flowbox, right=of match] (rules) {regras\\simbólicas};
+  \node[flowbox, right=of rules] (sum) {soma dos\\escores};
+  \node[flowbox, right=of sum] (label) {rótulo\\final};
+
+  \draw[flowarrow] (input) -- (norm);
+  \draw[flowarrow] (norm) -- (tok);
+  \draw[flowarrow] (tok) -- (match);
+  \draw[flowarrow] (match) -- (rules);
+  \draw[flowarrow] (rules) -- (sum);
+  \draw[flowarrow] (sum) -- (label);
+\end{tikzpicture}
+}
+\caption{Visão geral da arquitetura da solução.}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tikzpicture}[node distance=0.42cm]
+  \node[flowbox] (base) {termo com\\polaridade};
+  \node[flowbox, right=of base] (neg) {negação\\janela de 3 tokens};
+  \node[flowbox, right=of neg] (deg) {intensificador\\ou atenuador};
+  \node[flowbox, right=of deg] (contrast) {contraste\\antes ou depois de ``mas''};
+  \node[flowbox, right=of contrast] (exc) {ênfase por\\exclamação};
+  \node[flowbox, right=of exc] (finalscore) {contribuição\\ajustada};
+
+  \draw[flowarrow] (base) -- (neg);
+  \draw[flowarrow] (neg) -- (deg);
+  \draw[flowarrow] (deg) -- (contrast);
+  \draw[flowarrow] (contrast) -- (exc);
+  \draw[flowarrow] (exc) -- (finalscore);
+\end{tikzpicture}
+}
+\caption{Fluxo local de ajuste para cada termo encontrado no léxico.}
+\end{figure}
+
+\subsection{Breve explicação sobre cada processo da arquitetura}
+
+\paragraph{Escolha do léxico.}
+O projeto já suporta duas fontes. A primeira é um léxico inicial pequeno, armazenado no próprio repositório, pensado para prototipagem e inspeção manual. A segunda é o OpLexicon, um recurso publicado para português que amplia bastante a cobertura lexical \cite{souza2011construction,souza2012sentiment,oplexiconSite}. Essa dupla é útil porque o léxico pequeno facilita explicação em aula, enquanto o recurso maior aproxima a solução de um cenário mais real.
+
+\paragraph{Normalização.}
+Antes da tokenização, o texto passa por limpeza de ruídos frequentes. A implementação remove ou simplifica elementos como links, menções e repetições exageradas de caracteres, além de padronizar espaços. Esse passo reduz variações superficiais que atrapalham a busca lexical, algo comum em textos curtos de mídia social \cite{kolchyna2015twitter,brum2017tweetsentbr}.
+
+\paragraph{Tokenização.}
+Depois da normalização, a solução pode seguir dois caminhos. O primeiro usa um tokenizador local com expressões regulares, bom para um comportamento previsível. O segundo usa o tokenizador em branco de português do spaCy, que já traz regras linguísticas básicas da língua \cite{spacyModels,spacyTokenizer}. Em ambos os casos, a meta é gerar unidades comparáveis ao inventário do léxico.
+
+\paragraph{Correspondência com o léxico.}
+Cada token gerado é comparado com o dicionário escolhido. Se houver correspondência, o token recebe um escore base. Se não houver, ele simplesmente não contribui para o cálculo. Isso mantém a solução simples e interpretável, porque cada decisão pode ser ligada a um termo específico do texto \cite{taboada2011lexicon}.
+
+\paragraph{Regras simbólicas.}
+Os escores básicos são ajustados por regras de contexto. O código atual verifica negação em uma janela curta, intensificadores e atenuadores imediatamente antes do termo, contraste após o último marcador adversativo e um pequeno reforço quando o texto contém exclamações. Em conjunto, essas regras tentam capturar mudanças locais de sentido sem transformar a arquitetura em algo difícil de explicar \cite{kiritchenko2016effect,hutto2014vader}.
+
+\paragraph{Agregação e decisão final.}
+No final, o sistema soma as contribuições ajustadas e aplica limiares fixos para produzir o rótulo. Escores maiores ou iguais a $0{,}75$ são classificados como positivos. Escores menores ou iguais a $-0{,}75$ são classificados como negativos. Os valores entre esses limites ficam na classe neutra. Esta versão do relatório ainda pode ser expandida com uma breve justificativa empírica para esses limiares.
+
+\subsection{Breve descrição dos recursos e ferramentas utilizados}
+
+O código foi escrito em Python e organizado como um pequeno pacote executável a partir da raiz do repositório. O ambiente do projeto usa \texttt{uv} para sincronizar dependências e executar a interface de linha de comando. O núcleo da solução está distribuído em módulos simples: carregamento de léxico, tokenização, utilidades de texto, pipeline simbólico e interface interativa.
+
+Do ponto de vista linguístico, os dois recursos centrais são o léxico inicial do grupo e o OpLexicon. O primeiro serve como base controlada, com poucas entradas e escores graduados. O segundo fornece um recurso já publicado para português, com muito mais cobertura \cite{souza2011construction,souza2012sentiment,oplexiconSite}. Para tokenização alternativa, o projeto usa o spaCy em modo leve, apenas com a infraestrutura necessária para o português \cite{spacyModels,spacyTokenizer}. O repositório remoto do código está em \url{https://github.com/vicmcorrea/PLN-core}.
+
+\subsection{Ilustração de execução do processo para um exemplo}
+
+Um exemplo útil para mostrar a solução é a frase ``O app é muito bom, mas o final ficou confuso!'' porque ela mistura evidência positiva, contraste e pontuação enfática. A arquitetura atual produz a seguinte leitura inicial do caso:
+
+\begin{center}
+\begin{tabularx}{\linewidth}{@{}lY@{}}
+\toprule
+\textbf{Etapa} & \textbf{Resultado resumido} \\
+\midrule
+Texto original & O app é muito bom, mas o final ficou confuso! \\
+Tokens usados no cálculo & \texttt{o, app, e, muito, bom, mas, o, final, ficou, confuso} \\
+Termos encontrados no léxico & \texttt{bom} com escore base $1{,}2$ e \texttt{confuso} com escore base $-1{,}3$ \\
+Regras aplicadas a \texttt{bom} & intensificador \texttt{muito} ($\times 1{,}6$), peso anterior ao contraste ($\times 0{,}7$) e exclamação ($\times 1{,}05$) \\
+Regras aplicadas a \texttt{confuso} & peso posterior ao contraste ($\times 1{,}3$) e exclamação ($\times 1{,}05$) \\
+Contribuições ajustadas & \texttt{bom} $\rightarrow 1{,}411$ \quad ; \quad \texttt{confuso} $\rightarrow -1{,}775$ \\
+Escore final & $1{,}411 + (-1{,}775) = -0{,}364$ \\
+Rótulo final & neutro \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Esse exemplo é bom para o relatório porque mostra uma característica importante da solução: a classe final não depende apenas da contagem de palavras positivas e negativas. A posição dos termos, a presença de contraste e a ênfase dada pela pontuação mudam a contribuição de cada item. Em uma versão final deste relatório, esta subseção ainda pode receber mais um exemplo curto de negação, como ``não gostei do app'', para deixar o comportamento ainda mais claro.
+
+\section{Instruções para execução do código fonte}
+
+O repositório remoto do projeto é:
+
+\begin{quote}
+\url{https://github.com/vicmcorrea/PLN-core}
+\end{quote}
+
+Para executar o projeto em uma máquina nova, o ideal é ter Python 3.10 ou superior instalado. O uso de \texttt{git} ajuda a clonar o repositório, mas também é possível baixar o código como arquivo compactado e extrair a pasta manualmente. O projeto pode ser executado com \texttt{uv}, quando essa ferramenta estiver disponível, ou apenas com o ambiente virtual padrão do Python.
+
+Para simplificar a etapa de preparação do ambiente, o repositório mantém apenas um script de instalação: \texttt{install.sh}. Esse script verifica se \texttt{uv} está disponível. Se estiver, ele sincroniza o projeto por esse caminho. Caso contrário, ele cria a pasta \texttt{.venv}, ativa o ambiente virtual e instala as dependências com Python padrão.
+
+A sequência recomendada para uso em sistemas Unix, como Linux ou macOS, é:
+
+\begin{verbatim}
+./install.sh
+source .venv/bin/activate
+python main.py
+\end{verbatim}
+
+Ao iniciar, a interface pede o modo de uso. O usuário pode escolher entre analisar um texto por vez ou executar exemplos de comparação. No modo de análise, a interface também pede a fonte do léxico e o tokenizador. A primeira opção de léxico usa o dicionário inicial do grupo. A segunda opção usa o OpLexicon. Na primeira vez em que o OpLexicon for selecionado, o arquivo externo é baixado e salvo no diretório do projeto em \texttt{data/external/}.
+
+Também é possível chamar o modo de comparação diretamente:
+
+\begin{verbatim}
+source .venv/bin/activate
+python main.py --compare
+\end{verbatim}
+
+Para rodar os testes atuais do projeto, depois que o ambiente já estiver preparado:
+
+\begin{verbatim}
+source .venv/bin/activate
+python -m unittest discover -s tests
+\end{verbatim}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}
