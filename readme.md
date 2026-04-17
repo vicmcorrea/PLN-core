@@ -14,14 +14,14 @@ uv sync
 uv run python main.py
 ```
 
-## direct use
+after running it, the terminal app opens and shows:
 
-```bash
-uv run python main.py --sample positive
-uv run python main.py --sample negative
-uv run python main.py --sample neutral
-uv run python main.py "nao gostei do app"
-```
+1. write your own text
+2. use a positive sample
+3. use a negative sample
+4. use a neutral sample
+
+then it prints the analysis and asks if you want to analyze another text.
 
 ## tests
 

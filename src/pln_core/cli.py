@@ -85,7 +85,8 @@ def result_to_dict(result: AnalysisResult) -> dict[str, object]:
 def prompt_menu_choice() -> str:
     """Ask the user to choose one of the four interactive menu options."""
 
-    print("Choose one option:")
+    print("pln-core")
+    print("choose one option:")
     for option, label in MENU_OPTIONS:
         print(f"{option}. {label}")
 
@@ -104,6 +105,18 @@ def prompt_custom_text() -> str:
         if text:
             return text
         print("The text cannot be empty.")
+
+
+def prompt_continue() -> bool:
+    """Ask whether the user wants to analyze another text."""
+
+    while True:
+        choice = input("analyze another text? [y/n]: ").strip().lower()
+        if choice in {"y", "yes"}:
+            return True
+        if choice in {"n", "no"}:
+            return False
+        print("please answer y or n.")
 
 
 def resolve_interactive_text(choice: str) -> str:
@@ -146,7 +159,15 @@ def main() -> None:
 
     if args.interactive or requested_text is None:
         try:
-            requested_text = resolve_interactive_text(prompt_menu_choice())
+            while True:
+                requested_text = resolve_interactive_text(prompt_menu_choice())
+                result = analyzer.analyze(requested_text)
+                print()
+                print(render_output(result, as_json=False))
+                print()
+                if not prompt_continue():
+                    return
+                print()
         except KeyboardInterrupt:
             print()
             return
