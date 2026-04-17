@@ -3,14 +3,28 @@ from __future__ import annotations
 import argparse
 import json
 
-from pln_core.lexicon import load_lexicon
+from pln_core.lexicon import (
+    OPLEXICON_LEXICON_SOURCE,
+    SEED_LEXICON_SOURCE,
+    LexiconDownloadError,
+    load_lexicon,
+)
 from pln_core.pipeline import AnalysisResult, SymbolicSentimentAnalyzer
-from pln_core.samples import MENU_OPTIONS, SAMPLE_TEXTS
+from pln_core.samples import (
+    LEXICON_SOURCE_LABELS,
+    LEXICON_SOURCE_OPTIONS,
+    MENU_OPTIONS,
+    SAMPLE_TEXTS,
+)
 
 MENU_TO_SAMPLE_KEY = {
     "2": "positive",
     "3": "negative",
     "4": "neutral",
+}
+MENU_TO_LEXICON_SOURCE = {
+    option: source
+    for option, source, _label in LEXICON_SOURCE_OPTIONS
 }
 
 
@@ -22,7 +36,16 @@ def build_parser() -> argparse.ArgumentParser:
         description="Symbolic sentiment analysis for short Brazilian Portuguese texts.",
     )
     parser.add_argument("text", nargs="?", help="Text to analyze.")
-    parser.add_argument("--lexicon", help="Optional path to a custom .json, .csv, or .tsv lexicon.")
+    parser.add_argument(
+        "--lexicon",
+        help="Optional path to a custom .json, .csv, .tsv, or OpLexicon .txt lexicon.",
+    )
+    parser.add_argument(
+        "--lexicon-source",
+        choices=(SEED_LEXICON_SOURCE, OPLEXICON_LEXICON_SOURCE),
+        default=SEED_LEXICON_SOURCE,
+        help="Choose the built-in seed dictionary or OpLexicon.",
+    )
     parser.add_argument(
         "--sample",
         choices=tuple(SAMPLE_TEXTS),
@@ -97,6 +120,20 @@ def prompt_menu_choice() -> str:
         print("Please choose 1, 2, 3, or 4.")
 
 
+def prompt_lexicon_source_choice() -> str:
+    """Ask the user which lexicon source should be used."""
+
+    print("choose the lexicon source:")
+    for option, _source, label in LEXICON_SOURCE_OPTIONS:
+        print(f"{option}. {label}")
+
+    while True:
+        choice = input("source: ").strip()
+        if choice in MENU_TO_LEXICON_SOURCE:
+            return resolve_lexicon_source_choice(choice)
+        print("please choose 1 or 2.")
+
+
 def prompt_custom_text() -> str:
     """Prompt for a non-empty custom text."""
 
@@ -127,6 +164,12 @@ def resolve_interactive_text(choice: str) -> str:
     return SAMPLE_TEXTS[MENU_TO_SAMPLE_KEY[choice]]
 
 
+def resolve_lexicon_source_choice(choice: str) -> str:
+    """Map an interactive source choice to the selected lexicon source."""
+
+    return MENU_TO_LEXICON_SOURCE[choice]
+
+
 def resolve_requested_text(args: argparse.Namespace) -> str | None:
     """Resolve the text requested by command line arguments."""
 
@@ -135,6 +178,19 @@ def resolve_requested_text(args: argparse.Namespace) -> str | None:
     if args.sample:
         return SAMPLE_TEXTS[args.sample]
     return None
+
+
+def build_analyzer(
+    lexicon_source: str,
+    lexicon_path: str | None,
+) -> SymbolicSentimentAnalyzer:
+    """Build an analyzer for the requested lexicon source."""
+
+    if lexicon_path is None and lexicon_source == OPLEXICON_LEXICON_SOURCE:
+        print("loading oplexicon v3.0...")
+
+    lexicon = load_lexicon(path=lexicon_path, source=lexicon_source)
+    return SymbolicSentimentAnalyzer(lexicon=lexicon)
 
 
 def render_output(result: AnalysisResult, as_json: bool) -> str:
@@ -151,26 +207,41 @@ def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
     requested_text = resolve_requested_text(args)
+    lexicon_source = args.lexicon_source
 
     if args.json and requested_text is None and not args.interactive:
         parser.error("JSON output requires a direct text or a sample choice.")
 
-    analyzer = SymbolicSentimentAnalyzer(lexicon=load_lexicon(args.lexicon))
-
     if args.interactive or requested_text is None:
         try:
+            if args.lexicon is None:
+                lexicon_source = prompt_lexicon_source_choice()
+
+            analyzer = build_analyzer(lexicon_source=lexicon_source, lexicon_path=args.lexicon)
+
             while True:
                 requested_text = resolve_interactive_text(prompt_menu_choice())
                 result = analyzer.analyze(requested_text)
                 print()
+                print(f"lexicon source: {LEXICON_SOURCE_LABELS[lexicon_source]}")
                 print(render_output(result, as_json=False))
                 print()
                 if not prompt_continue():
                     return
                 print()
+        except LexiconDownloadError:
+            print("could not load oplexicon. check your connection or use the built-in dictionary.")
+            return
         except KeyboardInterrupt:
             print()
             return
+
+    try:
+        analyzer = build_analyzer(lexicon_source=lexicon_source, lexicon_path=args.lexicon)
+    except LexiconDownloadError:
+        parser.error(
+            "could not load oplexicon. check your connection or use the built-in dictionary."
+        )
 
     result = analyzer.analyze(requested_text)
     print(render_output(result, as_json=args.json))

@@ -3,7 +3,8 @@ from __future__ import annotations
 import re
 import unicodedata
 
-TOKEN_PATTERN = re.compile(r"[a-z0-9]+")
+EMOTICON_PATTERN = r"(?:[:;=xX8][\-^']?[\)\(\]\[dDpP/@*xX]+|[\)\(\]\[][\-^']?[:;=xX8])"
+TOKEN_PATTERN = re.compile(rf"{EMOTICON_PATTERN}|[a-z0-9]+")
 URL_PATTERN = re.compile(r"https?://\S+|www\.\S+")
 MENTION_PATTERN = re.compile(r"@\w+")
 HASHTAG_PATTERN = re.compile(r"#(\w+)")
@@ -30,7 +31,7 @@ def normalize_text(text: str) -> str:
 
 
 def tokenize(text: str) -> list[str]:
-    """Convert text into normalized alphanumeric tokens."""
+    """Convert text into normalized word and basic emoticon tokens."""
 
     folded = fold_text(normalize_text(text))
     return TOKEN_PATTERN.findall(folded)

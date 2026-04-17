@@ -2,6 +2,7 @@
 .venv/
 .ruff_cache/
 .pytest_cache/
+data/external/
 __pycache__/
 *.pyc
 *.pyo
