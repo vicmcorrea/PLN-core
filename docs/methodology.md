@@ -1,6 +1,8 @@
 # methodology
 
-this file explains how the current baseline works, what was created by us, and what comes from an external lexical resource.
+this file explains the current baseline at a high level, what was created by us, and what comes from an external lexical resource.
+
+for a more detailed step by step breakdown of the pipeline, see `docs/pipeline-processes.md`.
 
 ## 1. lexicon source
 
@@ -28,6 +30,11 @@ this is best described as a hand-built seed lexicon for a minimal symbolic proto
 ### 1.2 oplexicon v3.0
 
 the second option uses `oplexicon v3.0`, which is an external portuguese sentiment lexicon published by the pucrs group.
+
+this is different from our local lexicon in two important ways:
+
+1. the local seed lexicon is manually written by us and intentionally small
+2. `oplexicon` is an external resource with much broader lexical coverage and published polarity annotations
 
 in the code, we load the file `lexico_v3.0.txt` format, whose rows follow this structure:
 
@@ -91,13 +98,20 @@ the custom tokenizer is the main symbolic baseline. after normalization and acce
 
 this is deterministic and easy to explain in a symbolic project report.
 
-#### nltk tweettokenizer
+#### spaCy portuguese tokenizer
 
-the second option uses `nltk.tokenize.TweetTokenizer`, which is a real tokenizer designed for noisy social-style text.
+the second option uses spaCy with `spacy.blank("pt")`.
 
-we still run the same project normalization first, then hand the normalized text to the tokenizer. this gives a more standard tokenizer option without changing the rest of the symbolic pipeline.
+this creates a tokenizer-only portuguese pipeline, so we get a real tokenizer without needing a large pretrained tagging or parsing model.
 
-it is not specific to brazilian portuguese, but it is a reasonable alternative for short informal text because it handles punctuation and social-style writing better than a naive split.
+we still run the same project normalization first, then hand the normalized text to the spaCy tokenizer. this gives a more standard language-aware tokenizer option while keeping the rest of the symbolic pipeline unchanged.
+
+this is different from our custom tokenizer because:
+
+1. the custom tokenizer is fully handcrafted and regex based
+2. the spaCy option uses portuguese-specific tokenization rules provided by spaCy
+3. the custom tokenizer is easier to explain as a pure symbolic baseline
+4. the spaCy tokenizer is useful as a more realistic off-the-shelf comparison
 
 ### 2.3 tokenization details
 
@@ -121,7 +135,7 @@ with the nltk option, token boundaries are produced by `TweetTokenizer` after th
 flowchart TD
     A[normalized text] --> B{which tokenizer?}
     B -->|custom| C[regex tokenizer]
-    B -->|nltk| D[nltk tweettokenizer]
+    B -->|spacy| D[spaCy blank pt tokenizer]
     C --> E[token list]
     D --> E[token list]
 ```
@@ -213,7 +227,34 @@ if you need to explain the current baseline honestly, the cleanest wording is:
 4. tokenization is rule based and regex based after lightweight text normalization
 5. the final prediction comes from lexical polarity plus symbolic rules for negation, intensification, contrast, and punctuation
 
-## 6. important limitation
+## 6. comparison mode
+
+the cli also has a comparison mode for quick qualitative inspection.
+
+instead of analyzing only one configuration, it runs the same example texts through four combinations:
+
+- seed dictionary + custom tokenizer
+- seed dictionary + spaCy portuguese tokenizer
+- oplexicon + custom tokenizer
+- oplexicon + spaCy portuguese tokenizer
+
+this is useful for checking how lexical coverage and token boundaries affect the final label and score.
+
+```mermaid
+flowchart TD
+    A[start comparison mode] --> B[load seed dictionary]
+    A --> C[load oplexicon]
+    B --> D[run custom tokenizer]
+    B --> E[run spaCy tokenizer]
+    C --> F[run custom tokenizer]
+    C --> G[run spaCy tokenizer]
+    D --> H[show side by side outputs]
+    E --> H
+    F --> H
+    G --> H
+```
+
+## 7. important limitation
 
 the built-in seed dictionary is intentionally small. it is useful for a minimal working prototype, but it is not enough to claim broad lexical coverage.
 

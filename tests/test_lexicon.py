@@ -12,7 +12,7 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from pln_core.lexicon import load_oplexicon
-from pln_core.tokenizers import tokenize_custom, tokenize_nltk_tweet
+from pln_core.tokenizers import tokenize_custom, tokenize_spacy_pt
 
 
 class LexiconTests(unittest.TestCase):
@@ -38,11 +38,10 @@ class LexiconTests(unittest.TestCase):
         self.assertIn("bom", tokens)
         self.assertIn(":)", tokens)
 
-    def test_nltk_tokenizer_keeps_social_style_tokens(self) -> None:
-        tokens = tokenize_nltk_tweet("@ana isso foi muuuuito bom :) #cinema")
+    def test_spacy_tokenizer_keeps_portuguese_style_tokens(self) -> None:
+        tokens = tokenize_spacy_pt("@ana isso foi muuuuito bom :) #cinema")
         self.assertIn("muuito", tokens)
         self.assertIn("bom", tokens)
-        self.assertIn(":)", tokens)
         self.assertIn("cinema", tokens)
 
 

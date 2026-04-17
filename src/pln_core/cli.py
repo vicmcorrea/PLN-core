@@ -11,16 +11,20 @@ from pln_core.lexicon import (
 )
 from pln_core.pipeline import AnalysisResult, SymbolicSentimentAnalyzer
 from pln_core.samples import (
+    ANALYZE_MODE,
+    COMPARE_MODE,
+    COMPARISON_EXAMPLES,
     LEXICON_SOURCE_LABELS,
     LEXICON_SOURCE_OPTIONS,
     MENU_OPTIONS,
     SAMPLE_TEXTS,
+    START_MODE_OPTIONS,
     TOKENIZER_SOURCE_LABELS,
     TOKENIZER_SOURCE_OPTIONS,
 )
 from pln_core.tokenizers import (
     CUSTOM_TOKENIZER_SOURCE,
-    NLTK_TWEET_TOKENIZER_SOURCE,
+    SPACY_PT_TOKENIZER_SOURCE,
     get_tokenizer,
 )
 
@@ -36,6 +40,10 @@ MENU_TO_LEXICON_SOURCE = {
 MENU_TO_TOKENIZER_SOURCE = {
     option: source
     for option, source, _label in TOKENIZER_SOURCE_OPTIONS
+}
+MENU_TO_START_MODE = {
+    option: mode
+    for option, mode, _label in START_MODE_OPTIONS
 }
 
 
@@ -64,14 +72,19 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--tokenizer-source",
-        choices=(CUSTOM_TOKENIZER_SOURCE, NLTK_TWEET_TOKENIZER_SOURCE),
+        choices=(CUSTOM_TOKENIZER_SOURCE, SPACY_PT_TOKENIZER_SOURCE),
         default=CUSTOM_TOKENIZER_SOURCE,
-        help="Choose the built-in regex tokenizer or NLTK TweetTokenizer.",
+        help="Choose the built-in regex tokenizer or the spaCy Portuguese tokenizer.",
     )
     parser.add_argument(
         "--interactive",
         action="store_true",
         help="Open the interactive menu even if other modes are available.",
+    )
+    parser.add_argument(
+        "--compare",
+        action="store_true",
+        help="Run the built-in comparison examples instead of a single analysis.",
     )
     parser.add_argument("--json", action="store_true", help="Print the analysis as JSON.")
     return parser
@@ -122,10 +135,24 @@ def result_to_dict(result: AnalysisResult) -> dict[str, object]:
     }
 
 
+def prompt_start_mode_choice() -> str:
+    """Ask the user whether they want analysis mode or comparison mode."""
+
+    print("pln-core")
+    print("choose the cli mode:")
+    for option, _mode, label in START_MODE_OPTIONS:
+        print(f"{option}. {label}")
+
+    while True:
+        choice = input("mode: ").strip()
+        if choice in MENU_TO_START_MODE:
+            return resolve_start_mode_choice(choice)
+        print("please choose 1 or 2.")
+
+
 def prompt_menu_choice() -> str:
     """Ask the user to choose one of the four interactive menu options."""
 
-    print("pln-core")
     print("choose one option:")
     for option, label in MENU_OPTIONS:
         print(f"{option}. {label}")
@@ -207,6 +234,12 @@ def resolve_tokenizer_source_choice(choice: str) -> str:
     return MENU_TO_TOKENIZER_SOURCE[choice]
 
 
+def resolve_start_mode_choice(choice: str) -> str:
+    """Map an interactive mode choice to the selected CLI mode."""
+
+    return MENU_TO_START_MODE[choice]
+
+
 def resolve_requested_text(args: argparse.Namespace) -> str | None:
     """Resolve the text requested by command line arguments."""
 
@@ -221,15 +254,115 @@ def build_analyzer(
     lexicon_source: str,
     lexicon_path: str | None,
     tokenizer_source: str,
+    announce_loading: bool = True,
 ) -> SymbolicSentimentAnalyzer:
     """Build an analyzer for the requested lexicon source."""
 
-    if lexicon_path is None and lexicon_source == OPLEXICON_LEXICON_SOURCE:
+    if announce_loading and lexicon_path is None and lexicon_source == OPLEXICON_LEXICON_SOURCE:
         print("loading oplexicon v3.0...")
 
     lexicon = load_lexicon(path=lexicon_path, source=lexicon_source)
     tokenizer = get_tokenizer(tokenizer_source)
     return SymbolicSentimentAnalyzer(lexicon=lexicon, tokenizer=tokenizer)
+
+
+def build_comparison_results() -> list[dict[str, object]]:
+    """Run built-in examples across lexicon and tokenizer combinations."""
+
+    lexicon_cache = {
+        SEED_LEXICON_SOURCE: load_lexicon(source=SEED_LEXICON_SOURCE),
+    }
+    print("loading oplexicon v3.0...")
+    lexicon_cache[OPLEXICON_LEXICON_SOURCE] = load_lexicon(source=OPLEXICON_LEXICON_SOURCE)
+
+    analyzers: dict[tuple[str, str], SymbolicSentimentAnalyzer] = {}
+    for lexicon_source in (SEED_LEXICON_SOURCE, OPLEXICON_LEXICON_SOURCE):
+        for tokenizer_source in (CUSTOM_TOKENIZER_SOURCE, SPACY_PT_TOKENIZER_SOURCE):
+            analyzers[(lexicon_source, tokenizer_source)] = SymbolicSentimentAnalyzer(
+                lexicon=lexicon_cache[lexicon_source],
+                tokenizer=get_tokenizer(tokenizer_source),
+            )
+
+    comparison_results: list[dict[str, object]] = []
+    for example_name, text in COMPARISON_EXAMPLES:
+        variants: list[dict[str, object]] = []
+        for lexicon_source in (SEED_LEXICON_SOURCE, OPLEXICON_LEXICON_SOURCE):
+            for tokenizer_source in (CUSTOM_TOKENIZER_SOURCE, SPACY_PT_TOKENIZER_SOURCE):
+                result = analyzers[(lexicon_source, tokenizer_source)].analyze(text)
+                variants.append(
+                    {
+                        "lexicon_source": lexicon_source,
+                        "tokenizer_source": tokenizer_source,
+                        "result": result,
+                    }
+                )
+
+        comparison_results.append(
+            {
+                "example_name": example_name,
+                "text": text,
+                "variants": variants,
+            }
+        )
+
+    return comparison_results
+
+
+def render_comparison_results(comparison_results: list[dict[str, object]], as_json: bool) -> str:
+    """Render built-in comparison examples in text or JSON format."""
+
+    if as_json:
+        return json.dumps(
+            [
+                {
+                    "example_name": item["example_name"],
+                    "text": item["text"],
+                    "variants": [
+                        {
+                            "lexicon_source": variant["lexicon_source"],
+                            "tokenizer_source": variant["tokenizer_source"],
+                            "analysis": result_to_dict(variant["result"]),
+                        }
+                        for variant in item["variants"]
+                    ],
+                }
+                for item in comparison_results
+            ],
+            ensure_ascii=False,
+            indent=2,
+        )
+
+    sections: list[str] = []
+    for item in comparison_results:
+        lines = [
+            f"comparison example: {item['example_name']}",
+            f"text: {item['text']}",
+        ]
+        for variant in item["variants"]:
+            result = variant["result"]
+            lexicon_label = LEXICON_SOURCE_LABELS[variant["lexicon_source"]]
+            tokenizer_label = TOKENIZER_SOURCE_LABELS[variant["tokenizer_source"]]
+            lines.extend(
+                [
+                    "",
+                    f"{lexicon_label} + {tokenizer_label}",
+                    f"  tokens: {', '.join(result.tokens) if result.tokens else '(none)'}",
+                    f"  label: {result.label}",
+                    f"  score: {result.score}",
+                ]
+            )
+            if result.matched_terms:
+                matches = ", ".join(
+                    f"{match.token}:{match.adjusted_score}"
+                    for match in result.matched_terms
+                )
+                lines.append(f"  matches: {matches}")
+            else:
+                lines.append("  matches: none")
+
+        sections.append("\n".join(lines))
+
+    return "\n\n".join(sections)
 
 
 def render_output(result: AnalysisResult, as_json: bool) -> str:
@@ -248,12 +381,21 @@ def main() -> None:
     requested_text = resolve_requested_text(args)
     lexicon_source = args.lexicon_source
     tokenizer_source = args.tokenizer_source
+    start_mode = COMPARE_MODE if args.compare else ANALYZE_MODE
 
-    if args.json and requested_text is None and not args.interactive:
+    if args.json and requested_text is None and not args.interactive and not args.compare:
         parser.error("JSON output requires a direct text or a sample choice.")
 
-    if args.interactive or requested_text is None:
+    if (args.interactive or requested_text is None) and not args.compare:
         try:
+            start_mode = prompt_start_mode_choice()
+            print()
+
+            if start_mode == COMPARE_MODE:
+                comparison_results = build_comparison_results()
+                print(render_comparison_results(comparison_results, as_json=False))
+                return
+
             if args.lexicon is None:
                 lexicon_source = prompt_lexicon_source_choice()
             tokenizer_source = prompt_tokenizer_source_choice()
@@ -281,6 +423,16 @@ def main() -> None:
         except KeyboardInterrupt:
             print()
             return
+
+    if start_mode == COMPARE_MODE:
+        try:
+            comparison_results = build_comparison_results()
+        except LexiconDownloadError:
+            parser.error(
+                "could not load oplexicon. check your connection or use the built-in dictionary."
+            )
+        print(render_comparison_results(comparison_results, as_json=args.json))
+        return
 
     try:
         analyzer = build_analyzer(

@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Symbolic sentiment analysis baseline for Brazilian Portuguese"
 requires-python = ">=3.10"
 dependencies = [
-    "nltk>=3.9.4",
+    "spacy",
 ]
 
 [project.scripts]
