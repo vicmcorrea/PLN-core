@@ -4,6 +4,8 @@ this file explains the current baseline at a high level, what was created by us,
 
 for a more detailed step by step breakdown of the pipeline, see `docs/pipeline-processes.md`.
 
+for the new per process documentation set, see `docs/processes/00_index.md`.
+
 ## 1. lexicon source
 
 the project currently supports two lexical sources.

@@ -333,35 +333,86 @@ def render_comparison_results(comparison_results: list[dict[str, object]], as_js
         )
 
     sections: list[str] = []
+    table_rows: list[tuple[str, str, str, str, str]] = []
     for item in comparison_results:
-        lines = [
-            f"comparison example: {item['example_name']}",
-            f"text: {item['text']}",
-        ]
-        for variant in item["variants"]:
+        summary_lines = []
+        detail_lines = []
+
+        for index, variant in enumerate(item["variants"], start=1):
             result = variant["result"]
             lexicon_label = LEXICON_SOURCE_LABELS[variant["lexicon_source"]]
             tokenizer_label = TOKENIZER_SOURCE_LABELS[variant["tokenizer_source"]]
-            lines.extend(
+
+            summary_lines.append(
+                f"  {index}. {lexicon_label} + {tokenizer_label} -> "
+                f"{result.label} ({result.score})"
+            )
+            table_rows.append(
+                (
+                    str(item["example_name"]),
+                    lexicon_label.replace("use ", ""),
+                    tokenizer_label.replace("use ", ""),
+                    result.label,
+                    str(result.score),
+                )
+            )
+
+            detail_lines.extend(
                 [
-                    "",
-                    f"{lexicon_label} + {tokenizer_label}",
-                    f"  tokens: {', '.join(result.tokens) if result.tokens else '(none)'}",
+                    f"configuration {index}",
+                    f"  lexicon: {lexicon_label}",
+                    f"  tokenizer: {tokenizer_label}",
                     f"  label: {result.label}",
                     f"  score: {result.score}",
+                    f"  tokens: {', '.join(result.tokens) if result.tokens else '(none)'}",
                 ]
             )
-            if result.matched_terms:
-                matches = ", ".join(
-                    f"{match.token}:{match.adjusted_score}"
-                    for match in result.matched_terms
-                )
-                lines.append(f"  matches: {matches}")
-            else:
-                lines.append("  matches: none")
 
+            if result.matched_terms:
+                detail_lines.append("  matches:")
+                for match in result.matched_terms:
+                    rules = ", ".join(match.applied_rules) if match.applied_rules else "base"
+                    detail_lines.append(
+                        "    - "
+                        f"{match.token} -> adjusted={match.adjusted_score} "
+                        f"(base={match.base_score}; rules={rules})"
+                    )
+            else:
+                detail_lines.append("  matches: none")
+
+            if index < len(item["variants"]):
+                detail_lines.append("")
+
+        lines = [
+            f"=== comparison: {item['example_name']} ===",
+            f"input text: {item['text']}",
+            "",
+            "quick summary:",
+            *summary_lines,
+            "",
+            "details:",
+        ]
+        lines.extend(detail_lines)
         sections.append("\n".join(lines))
 
+    headers = ("example", "lexicon", "tokenizer", "label", "score")
+    widths = [
+        max(len(headers[i]), *(len(row[i]) for row in table_rows))
+        for i in range(len(headers))
+    ]
+
+    def format_row(row: tuple[str, str, str, str, str]) -> str:
+        return " | ".join(value.ljust(widths[index]) for index, value in enumerate(row))
+
+    separator = "-+-".join("-" * width for width in widths)
+    table_lines = [
+        "results table:",
+        format_row(headers),
+        separator,
+        *(format_row(row) for row in table_rows),
+    ]
+
+    sections.append("\n".join(table_lines))
     return "\n\n".join(sections)
 
 

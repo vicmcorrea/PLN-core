@@ -2,6 +2,8 @@
 
 this file explains each stage of the symbolic pipeline in a more direct way.
 
+for the split version with one file per process and one file per symbolic rule, see `docs/processes/00_index.md`.
+
 ## 1. full pipeline
 
 the application follows a symbolic pipeline. it does not train a classifier. instead, it applies a sequence of deterministic steps.
