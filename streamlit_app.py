@@ -17,6 +17,7 @@ from pln_core.lexicon import (
     load_lexicon,
 )
 from pln_core.pipeline import AnalysisResult, SymbolicSentimentAnalyzer
+from pln_core.recommender import Song, recommend
 from pln_core.samples import ANALYZER_STACK_LABEL, SAMPLE_TEXTS
 from pln_core.tokenizers import SPACY_PT_TOKENIZER_SOURCE, get_tokenizer
 
@@ -143,12 +144,35 @@ def render_matches(result: AnalysisResult) -> None:
     )
 
 
+def render_recommendations(result: AnalysisResult) -> None:
+    songs: tuple[Song, ...] = recommend(result.label, result.score, k=3)
+    if not songs:
+        return
+
+    with st.container(border=True):
+        st.caption("Músicas para esse sentimento")
+        st.markdown(
+            "Sugestões com base no rótulo e na intensidade do escore."
+        )
+        for song in songs:
+            st.markdown(f"**{song.title}** — {song.artist}")
+            st.video(song.youtube_url)
+            st.link_button(
+                "Abrir no YouTube",
+                song.search_url,
+                width="content",
+            )
+            st.space("small")
+
+
 def render_result(result: AnalysisResult) -> None:
     render_label_card(result)
     st.space("medium")
     render_text_card(result)
     st.space("medium")
     render_matches(result)
+    st.space("medium")
+    render_recommendations(result)
 
 
 def main() -> None:
@@ -181,9 +205,8 @@ def main() -> None:
         analyze_clicked = st.button("Analisar", type="primary")
 
     if clear_clicked:
-        st.session_state.text_input = ""
-        st.session_state.sample_choice = None
-        st.session_state.last_result = None
+        for key in ("text_input", "sample_choice", "last_result"):
+            st.session_state.pop(key, None)
         st.rerun()
 
     if analyze_clicked:

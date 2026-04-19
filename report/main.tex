@@ -199,7 +199,9 @@ source .venv/bin/activate
 streamlit run streamlit_app.py
 \end{verbatim}
 
-A página abre em \url{http://localhost:8501} em uma tela única. O usuário pode escolher um dos exemplos prontos (positivo, negativo ou neutro) ou digitar o próprio texto, clicar em \texttt{Analyze} e inspecionar o rótulo, o escore, o texto normalizado, os tokens e os termos do léxico com as regras simbólicas aplicadas.
+A página abre em \url{http://localhost:8501} em uma tela única. O usuário pode escolher um dos exemplos prontos (positivo, negativo ou neutro) ou digitar o próprio texto, clicar em \texttt{Analisar} e inspecionar o rótulo, o escore, o texto normalizado, os tokens e os termos do léxico com as regras simbólicas aplicadas. Logo abaixo da tabela de termos, o aplicativo sugere três músicas brasileiras compatíveis com o sentimento detectado, exibidas com player do YouTube embutido e link alternativo de busca.
+
+A recomendação é feita por um catálogo curado em \texttt{data/recommendations.json}, com trinta músicas (dez por rótulo) anotadas com um \emph{valence} numérico em $[-1, 1]$. Após a análise, o módulo \texttt{pln\_core.recommender} filtra as músicas pelo rótulo previsto e ordena pelas mais próximas do escore retornado pelo analisador, devolvendo as três primeiras.
 
 Para rodar os testes atuais do projeto, depois que o ambiente já estiver preparado:
 
