@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
-from functools import lru_cache
 from pathlib import Path
 from typing import Iterable
 
@@ -58,9 +57,36 @@ def load_catalog(path: Path | None = None) -> tuple[Song, ...]:
     return tuple(_coerce_song(entry) for entry in raw)
 
 
-@lru_cache(maxsize=1)
+_CATALOG_CACHE: dict[tuple[Path, float], tuple[Song, ...]] = {}
+
+
 def _default_catalog() -> tuple[Song, ...]:
-    return load_catalog()
+    target = DEFAULT_CATALOG_PATH
+    key = (target, target.stat().st_mtime)
+    cached = _CATALOG_CACHE.get(key)
+    if cached is not None:
+        return cached
+    _CATALOG_CACHE.clear()
+    catalog = load_catalog(target)
+    _CATALOG_CACHE[key] = catalog
+    return catalog
+
+
+def recommend_ranked(
+    label: str,
+    score: float,
+    catalog: Iterable[Song] | None = None,
+) -> tuple[Song, ...]:
+    """All catalog songs matching ``label``, sorted by valence proximity to ``score``."""
+
+    pool = tuple(catalog) if catalog is not None else _default_catalog()
+    candidates = [song for song in pool if song.sentiment == label]
+    if not candidates:
+        return ()
+
+    target = max(-1.0, min(1.0, float(score)))
+    candidates.sort(key=lambda song: abs(song.valence - target))
+    return tuple(candidates)
 
 
 def recommend(
@@ -71,11 +97,5 @@ def recommend(
 ) -> tuple[Song, ...]:
     """Return up to ``k`` songs that match ``label`` ranked by valence proximity."""
 
-    pool = tuple(catalog) if catalog is not None else _default_catalog()
-    candidates = [song for song in pool if song.sentiment == label]
-    if not candidates:
-        return ()
-
-    target = max(-1.0, min(1.0, float(score)))
-    candidates.sort(key=lambda song: abs(song.valence - target))
-    return tuple(candidates[: max(0, k)])
+    ranked = recommend_ranked(label, score, catalog=catalog)
+    return ranked[: max(0, k)]

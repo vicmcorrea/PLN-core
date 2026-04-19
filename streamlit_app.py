@@ -17,7 +17,7 @@ from pln_core.lexicon import (
     load_lexicon,
 )
 from pln_core.pipeline import AnalysisResult, SymbolicSentimentAnalyzer
-from pln_core.recommender import Song, recommend
+from pln_core.recommender import Song, recommend_ranked
 from pln_core.samples import ANALYZER_STACK_LABEL, SAMPLE_TEXTS
 from pln_core.tokenizers import SPACY_PT_TOKENIZER_SOURCE, get_tokenizer
 
@@ -50,13 +50,14 @@ RULE_TRANSLATIONS: dict[str, str] = {
 
 st.set_page_config(
     page_title="PLN Core",
-    layout="centered",
+    layout="wide",
     initial_sidebar_state="collapsed",
 )
 
 st.session_state.setdefault("text_input", "")
 st.session_state.setdefault("sample_choice", None)
 st.session_state.setdefault("last_result", None)
+st.session_state.setdefault("recommendation_index", 0)
 
 
 @st.cache_resource(show_spinner="Carregando OpLexicon v3.0...")
@@ -144,25 +145,57 @@ def render_matches(result: AnalysisResult) -> None:
     )
 
 
-def render_recommendations(result: AnalysisResult) -> None:
-    songs: tuple[Song, ...] = recommend(result.label, result.score, k=3)
-    if not songs:
-        return
+def _recommendation_prev() -> None:
+    st.session_state.recommendation_index = max(
+        int(st.session_state.recommendation_index) - 1, 0
+    )
 
+
+def _recommendation_next(max_idx: int) -> None:
+    st.session_state.recommendation_index = min(
+        int(st.session_state.recommendation_index) + 1, max_idx
+    )
+
+
+def render_recommendations(result: AnalysisResult) -> None:
+    songs: tuple[Song, ...] = recommend_ranked(result.label, result.score)
+    rec_key = str(id(result))
     with st.container(border=True):
-        st.caption("Músicas para esse sentimento")
-        st.markdown(
-            "Sugestões com base no rótulo e na intensidade do escore."
-        )
-        for song in songs:
-            st.markdown(f"**{song.title}** — {song.artist}")
-            st.video(song.youtube_url)
-            st.link_button(
-                "Abrir no YouTube",
-                song.search_url,
-                width="content",
-            )
-            st.space("small")
+        st.subheader("música recomendada")
+        if not songs:
+            st.caption("nenhuma música disponível para esse rótulo.")
+            return
+
+        idx = int(st.session_state.recommendation_index)
+        if idx >= len(songs):
+            idx = 0
+            st.session_state.recommendation_index = 0
+        song = songs[idx]
+        st.caption(f"{translate_label(result.label)} · escore {result.score}")
+        if len(songs) > 1:
+            st.caption(f"opção {idx + 1} de {len(songs)}")
+        st.markdown(f"### {song.title}")
+        st.caption(song.artist)
+        if len(songs) >= 2:
+            last = len(songs) - 1
+            with st.container(horizontal=True, horizontal_alignment="distribute"):
+                st.button(
+                    "voltar",
+                    on_click=_recommendation_prev,
+                    disabled=idx == 0,
+                    key=f"rec_prev_{rec_key}",
+                    use_container_width=True,
+                )
+                st.button(
+                    "outra sugestão",
+                    on_click=_recommendation_next,
+                    kwargs={"max_idx": last},
+                    disabled=idx >= last,
+                    key=f"rec_next_{rec_key}",
+                    use_container_width=True,
+                )
+        st.video(song.youtube_url)
+        st.link_button("abrir no youtube", song.search_url, width="stretch")
 
 
 def render_result(result: AnalysisResult) -> None:
@@ -171,62 +204,95 @@ def render_result(result: AnalysisResult) -> None:
     render_text_card(result)
     st.space("medium")
     render_matches(result)
-    st.space("medium")
+
+
+def render_recommendation_panel(result: AnalysisResult | None) -> None:
+    if result is None:
+        with st.container(border=True):
+            st.subheader("música recomendada")
+            st.caption("aparece após você analisar um texto.")
+        return
+
     render_recommendations(result)
 
 
 def main() -> None:
-    st.title("PLN Core")
-    st.caption("Análise simbólica de sentimentos para português brasileiro.")
-    st.markdown(f"**Pipeline:** {ANALYZER_STACK_LABEL}")
+    _, page, _ = st.columns([1, 6, 1])
 
-    st.divider()
+    with page:
+        st.title("PLN Core", text_alignment="center")
+        st.caption(
+            "Análise simbólica de sentimentos para português brasileiro.",
+            text_alignment="center",
+        )
+        st.markdown(
+            f"**Pipeline:** {ANALYZER_STACK_LABEL}",
+            text_alignment="center",
+        )
 
-    st.pills(
-        "Exemplos",
-        options=list(SAMPLE_TEXTS.keys()),
-        format_func=lambda key: SAMPLE_LABELS[key],
-        key="sample_choice",
-        on_change=on_sample_change,
-        label_visibility="collapsed",
-        selection_mode="single",
-    )
+        st.space("medium")
 
-    st.text_area(
-        "Texto",
-        key="text_input",
-        height=140,
-        placeholder="Digite uma frase curta em português brasileiro...",
-        label_visibility="collapsed",
-    )
+        recommendation_col, analyzer_col = st.columns(
+            [1, 2], gap="large", vertical_alignment="top"
+        )
 
-    with st.container(horizontal=True, horizontal_alignment="distribute"):
-        clear_clicked = st.button("Limpar")
-        analyze_clicked = st.button("Analisar", type="primary")
+        with analyzer_col:
+            st.pills(
+                "Exemplos",
+                options=list(SAMPLE_TEXTS.keys()),
+                format_func=lambda key: SAMPLE_LABELS[key],
+                key="sample_choice",
+                on_change=on_sample_change,
+                label_visibility="collapsed",
+                selection_mode="single",
+            )
 
-    if clear_clicked:
-        for key in ("text_input", "sample_choice", "last_result"):
-            st.session_state.pop(key, None)
-        st.rerun()
+            st.text_area(
+                "Texto",
+                key="text_input",
+                height=140,
+                placeholder="Digite uma frase curta em português brasileiro...",
+                label_visibility="collapsed",
+            )
 
-    if analyze_clicked:
-        text = st.session_state.text_input.strip()
-        if not text:
-            st.warning("Escreva algum texto antes de rodar o analisador.")
-        else:
-            try:
-                analyzer = get_analyzer()
-                st.session_state.last_result = analyzer.analyze(text)
-            except LexiconDownloadError:
-                st.error(
-                    "Não foi possível carregar o OpLexicon. "
-                    "Verifique a conexão e tente novamente."
-                )
-                st.session_state.last_result = None
+            with st.container(horizontal=True, horizontal_alignment="distribute"):
+                clear_clicked = st.button("Limpar")
+                analyze_clicked = st.button("Analisar", type="primary")
 
-    if st.session_state.last_result is not None:
-        st.divider()
-        render_result(st.session_state.last_result)
+        if clear_clicked:
+            for key in (
+                "text_input",
+                "sample_choice",
+                "last_result",
+                "recommendation_index",
+            ):
+                st.session_state.pop(key, None)
+            st.session_state.setdefault("recommendation_index", 0)
+            st.rerun()
+
+        if analyze_clicked:
+            text = st.session_state.text_input.strip()
+            if not text:
+                st.warning("Escreva algum texto antes de rodar o analisador.")
+            else:
+                try:
+                    analyzer = get_analyzer()
+                    st.session_state.last_result = analyzer.analyze(text)
+                    st.session_state.recommendation_index = 0
+                except LexiconDownloadError:
+                    st.error(
+                        "Não foi possível carregar o OpLexicon. "
+                        "Verifique a conexão e tente novamente."
+                    )
+                    st.session_state.last_result = None
+
+        with recommendation_col:
+            render_recommendation_panel(st.session_state.last_result)
+
+        if st.session_state.last_result is not None:
+            with analyzer_col:
+                st.space("medium")
+                render_result(st.session_state.last_result)
 
 
 main()

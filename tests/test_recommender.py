@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from pln_core.recommender import Song, recommend
+from pln_core.recommender import Song, recommend, recommend_ranked
 
 
 def _song(label: str, valence: float, title: str = "x", artist: str = "y") -> Song:
@@ -52,6 +52,15 @@ class RecommenderTests(unittest.TestCase):
         catalog = tuple(_song("neutral", 0.1 * i, f"s{i}") for i in range(5))
         result = recommend("neutral", 0.0, k=2, catalog=catalog)
         self.assertEqual(len(result), 2)
+
+    def test_recommend_ranked_returns_all_for_label(self) -> None:
+        catalog = (
+            _song("positive", 0.2, "a"),
+            _song("positive", 0.9, "b"),
+            _song("negative", -0.5, "n"),
+        )
+        ranked = recommend_ranked("positive", 0.85, catalog=catalog)
+        self.assertEqual([s.title for s in ranked], ["b", "a"])
 
 
 if __name__ == "__main__":

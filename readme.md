@@ -35,11 +35,11 @@ source .venv/bin/activate
 streamlit run streamlit_app.py
 ```
 
-opens at `http://localhost:8501`. pick a sample or paste text, hit `analisar`, and get the label, score, tokens, matched terms, and three song suggestions matching the sentiment.
+opens at `http://localhost:8501`. pick a sample or paste text, hit `analisar`, and get the label, score, tokens, matched terms, and one song suggestion matching the sentiment.
 
 ## music recommendations
 
-catalog at `data/recommendations.json`: 30 brazilian songs (10 per bucket) with `sentiment` and `valence` in `[-1, 1]`. the recommender filters by label and ranks by valence proximity to the analyzer score. add entries directly in the json.
+catalog at `data/recommendations.json`: 10 brazilian songs with `sentiment` and `valence` in `[-1, 1]`. the recommender filters by label and ranks by valence proximity to the analyzer score. add entries directly in the json.
 
 ## tests
 

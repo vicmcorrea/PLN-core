@@ -1,244 +1,82 @@
 [
   {
-    "title": "Mas Que Nada",
-    "artist": "Sergio Mendes & Brasil '66",
-    "youtube_id": "PkxJBy6jpZA",
-    "sentiment": "positive",
-    "valence": 0.85,
-    "tags": ["bossa", "festivo"]
-  },
-  {
     "title": "País Tropical",
     "artist": "Jorge Ben Jor",
-    "youtube_id": "4D7u5KF7SP8",
+    "youtube_id": "JzByVhWju88",
     "sentiment": "positive",
     "valence": 0.9,
     "tags": ["samba", "festivo"]
   },
   {
-    "title": "Aquarela do Brasil",
-    "artist": "Gal Costa",
-    "youtube_id": "8zSH5XjKT_A",
+    "title": "Mas Que Nada",
+    "artist": "Sergio Mendes & Brasil '66",
+    "youtube_id": "BrZBiqK0p9E",
     "sentiment": "positive",
-    "valence": 0.78,
-    "tags": ["mpb", "clássico"]
-  },
-  {
-    "title": "Tocando em Frente",
-    "artist": "Almir Sater",
-    "youtube_id": "VgVYL8fq43Y",
-    "sentiment": "positive",
-    "valence": 0.6,
-    "tags": ["sertanejo", "esperançoso"]
-  },
-  {
-    "title": "Trevo (Tu)",
-    "artist": "Anavitória feat. Tiago Iorc",
-    "youtube_id": "LFY2xQZY-NQ",
-    "sentiment": "positive",
-    "valence": 0.7,
-    "tags": ["pop", "amor"]
+    "valence": 0.85,
+    "tags": ["bossa", "festivo"]
   },
   {
     "title": "Anunciação",
     "artist": "Alceu Valença",
-    "youtube_id": "WKJyFvSbc1A",
+    "youtube_id": "OR74idpsweg",
     "sentiment": "positive",
     "valence": 0.82,
     "tags": ["mpb", "amor"]
   },
   {
-    "title": "Tempos Modernos",
-    "artist": "Lulu Santos",
-    "youtube_id": "f8hb0xanox4",
+    "title": "Tocando em Frente",
+    "artist": "Almir Sater",
+    "youtube_id": "SWtjTkixv5M",
     "sentiment": "positive",
-    "valence": 0.75,
-    "tags": ["rock", "otimista"]
-  },
-  {
-    "title": "Velha Infância",
-    "artist": "Tribalistas",
-    "youtube_id": "Ya7v91lrsrM",
-    "sentiment": "positive",
-    "valence": 0.68,
-    "tags": ["mpb", "amor"]
-  },
-  {
-    "title": "Já Sei Namorar",
-    "artist": "Tribalistas",
-    "youtube_id": "2x6IzOr4iEg",
-    "sentiment": "positive",
-    "valence": 0.8,
-    "tags": ["mpb", "amor"]
-  },
-  {
-    "title": "Festa",
-    "artist": "Ivete Sangalo",
-    "youtube_id": "Nj4q1mWDkJQ",
-    "sentiment": "positive",
-    "valence": 0.95,
-    "tags": ["axé", "festivo"]
-  },
-
-  {
-    "title": "Construção",
-    "artist": "Chico Buarque",
-    "youtube_id": "wIpCvbKfWhM",
-    "sentiment": "negative",
-    "valence": -0.85,
-    "tags": ["mpb", "crítica social"]
+    "valence": 0.6,
+    "tags": ["sertanejo", "esperançoso"]
   },
   {
     "title": "Cálice",
     "artist": "Chico Buarque & Milton Nascimento",
-    "youtube_id": "169hW2KSOwg",
+    "youtube_id": "RzlniinsBeY",
     "sentiment": "negative",
     "valence": -0.9,
     "tags": ["mpb", "protesto"]
   },
   {
-    "title": "Apesar de Você",
+    "title": "Construção",
     "artist": "Chico Buarque",
-    "youtube_id": "j3ZM1qTIRh8",
+    "youtube_id": "suia_i5dEZc",
     "sentiment": "negative",
-    "valence": -0.7,
-    "tags": ["mpb", "protesto"]
+    "valence": -0.85,
+    "tags": ["mpb", "crítica social"]
   },
   {
     "title": "Tempo Perdido",
     "artist": "Legião Urbana",
-    "youtube_id": "Y-ySdiGFO7I",
+    "youtube_id": "tI9kSZgMLsc",
     "sentiment": "negative",
     "valence": -0.55,
     "tags": ["rock", "melancolia"]
   },
   {
-    "title": "Pais e Filhos",
-    "artist": "Legião Urbana",
-    "youtube_id": "4sbvivJl4Gg",
-    "sentiment": "negative",
-    "valence": -0.75,
-    "tags": ["rock", "melancolia"]
-  },
-  {
-    "title": "Codinome Beija-Flor",
-    "artist": "Cazuza",
-    "youtube_id": "NfJ6xEgjOuU",
-    "sentiment": "negative",
-    "valence": -0.6,
-    "tags": ["rock", "saudade"]
-  },
-  {
-    "title": "O Tempo Não Para",
-    "artist": "Cazuza",
-    "youtube_id": "OUuhfEv6lNU",
-    "sentiment": "negative",
-    "valence": -0.65,
-    "tags": ["rock", "crítica"]
-  },
-  {
-    "title": "Detalhes",
-    "artist": "Roberto Carlos",
-    "youtube_id": "cZxgS-Wy_TA",
-    "sentiment": "negative",
-    "valence": -0.7,
-    "tags": ["romântico", "saudade"]
-  },
-  {
-    "title": "Como Nossos Pais",
-    "artist": "Elis Regina",
-    "youtube_id": "Q2KCJr9JM1g",
-    "sentiment": "negative",
-    "valence": -0.5,
-    "tags": ["mpb", "reflexão"]
-  },
-  {
-    "title": "Travessia",
-    "artist": "Milton Nascimento",
-    "youtube_id": "70TZ8SZU7ZU",
-    "sentiment": "negative",
-    "valence": -0.45,
-    "tags": ["mpb", "saudade"]
-  },
-
-  {
-    "title": "Garota de Ipanema",
-    "artist": "Tom Jobim & Vinicius de Moraes",
-    "youtube_id": "c5QfXjsoNe4",
+    "title": "Sampa",
+    "artist": "Caetano Veloso",
+    "youtube_id": "t4pl079t548",
     "sentiment": "neutral",
-    "valence": 0.2,
-    "tags": ["bossa", "calmo"]
+    "valence": 0.0,
+    "tags": ["mpb", "reflexão"]
   },
   {
     "title": "Águas de Março",
     "artist": "Tom Jobim & Elis Regina",
-    "youtube_id": "QOUcb070Qpk",
+    "youtube_id": "E1tOV7y94DY",
     "sentiment": "neutral",
     "valence": 0.1,
     "tags": ["mpb", "clássico"]
   },
   {
-    "title": "Wave",
-    "artist": "Tom Jobim",
-    "youtube_id": "5fWcsB7Q24w",
-    "sentiment": "neutral",
-    "valence": 0.15,
-    "tags": ["bossa", "calmo"]
-  },
-  {
-    "title": "Carinhoso",
-    "artist": "Pixinguinha",
-    "youtube_id": "jXuSaTl2a_4",
-    "sentiment": "neutral",
-    "valence": 0.05,
-    "tags": ["choro", "clássico"]
-  },
-  {
-    "title": "Sampa",
-    "artist": "Caetano Veloso",
-    "youtube_id": "GzrnIi-i7t4",
-    "sentiment": "neutral",
-    "valence": 0.0,
-    "tags": ["mpb", "reflexão"]
-  },
-  {
-    "title": "Luz do Sol",
-    "artist": "Caetano Veloso",
-    "youtube_id": "W32D0B5bNbI",
-    "sentiment": "neutral",
-    "valence": 0.25,
-    "tags": ["mpb", "calmo"]
-  },
-  {
-    "title": "Coração Vagabundo",
-    "artist": "Caetano Veloso",
-    "youtube_id": "mQvEZDO6Eyo",
-    "sentiment": "neutral",
-    "valence": -0.05,
-    "tags": ["mpb", "calmo"]
-  },
-  {
     "title": "Saudosa Maloca",
     "artist": "Adoniran Barbosa",
-    "youtube_id": "P0zt6acU35E",
+    "youtube_id": "yjjnl1ksG-0",
     "sentiment": "neutral",
     "valence": -0.1,
     "tags": ["samba", "saudade"]
-  },
-  {
-    "title": "Trem das Onze",
-    "artist": "Adoniran Barbosa",
-    "youtube_id": "9lMpuJlywAM",
-    "sentiment": "neutral",
-    "valence": 0.1,
-    "tags": ["samba", "clássico"]
-  },
-  {
-    "title": "Manhã de Carnaval",
-    "artist": "Luiz Bonfá",
-    "youtube_id": "7K6THYPFMYs",
-    "sentiment": "neutral",
-    "valence": 0.0,
-    "tags": ["bossa", "clássico"]
   }
 ]
