@@ -28,6 +28,9 @@ the idea is simple. instead of keeping all explanations in one long document, ea
 4. research workflow file
    1. `09_research_and_sources.md`
 
+5. recommendation file
+   1. `10_song_recommendation.md`
+
 ## visual map
 
 ```mermaid
@@ -39,6 +42,7 @@ flowchart TD
     E --> F[match records]
     F --> G[score calculation]
     G --> H[label assignment]
+    H --> P[song recommendation]
     G --> I[negation rule]
     G --> J[intensifier rule]
     G --> K[diminisher rule]
@@ -58,6 +62,7 @@ flowchart TD
 2. if you want to understand where a score comes from, read `07_score_calculation.md` and the files in `rules/`.
 3. if you want to justify the lexical resource choice, read `01_lexicon_sources.md` and `02_seed_lexicon_design.md`.
 4. if you need to update citations later, read `09_research_and_sources.md`.
+5. if you want to understand how the app chooses songs after classification, read `10_song_recommendation.md`.
 
 ## references
 
