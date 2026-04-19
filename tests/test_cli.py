@@ -14,15 +14,11 @@ if str(SRC_DIR) not in sys.path:
 from pln_core.cli import (
     render_comparison_results,
     resolve_interactive_text,
-    resolve_lexicon_source_choice,
     resolve_requested_text,
     resolve_start_mode_choice,
-    resolve_tokenizer_source_choice,
 )
-from pln_core.lexicon import OPLEXICON_LEXICON_SOURCE, SEED_LEXICON_SOURCE
 from pln_core.pipeline import AnalysisResult, MatchDetail
-from pln_core.samples import ANALYZE_MODE, COMPARE_MODE, SAMPLE_TEXTS
-from pln_core.tokenizers import CUSTOM_TOKENIZER_SOURCE, SPACY_PT_TOKENIZER_SOURCE
+from pln_core.samples import ANALYZE_MODE, ANALYZER_STACK_LABEL, COMPARE_MODE, SAMPLE_TEXTS
 
 
 class CliHelperTests(unittest.TestCase):
@@ -40,21 +36,6 @@ class CliHelperTests(unittest.TestCase):
 
     def test_neutral_menu_choice_uses_neutral_sample(self) -> None:
         self.assertEqual(resolve_interactive_text("4"), SAMPLE_TEXTS["neutral"])
-
-    def test_seed_source_choice_uses_seed_dictionary(self) -> None:
-        self.assertEqual(resolve_lexicon_source_choice("1"), SEED_LEXICON_SOURCE)
-
-    def test_oplexicon_source_choice_uses_oplexicon(self) -> None:
-        self.assertEqual(resolve_lexicon_source_choice("2"), OPLEXICON_LEXICON_SOURCE)
-
-    def test_custom_tokenizer_choice_uses_custom_tokenizer(self) -> None:
-        self.assertEqual(resolve_tokenizer_source_choice("1"), CUSTOM_TOKENIZER_SOURCE)
-
-    def test_spacy_tokenizer_choice_uses_spacy_tokenizer(self) -> None:
-        self.assertEqual(
-            resolve_tokenizer_source_choice("2"),
-            SPACY_PT_TOKENIZER_SOURCE,
-        )
 
     def test_command_line_sample_resolves_without_menu(self) -> None:
         args = Namespace(text=None, sample="neutral")
@@ -82,21 +63,14 @@ class CliHelperTests(unittest.TestCase):
                 {
                     "example_name": "demo",
                     "text": "muito bom",
-                    "variants": [
-                        {
-                            "lexicon_source": SEED_LEXICON_SOURCE,
-                            "tokenizer_source": CUSTOM_TOKENIZER_SOURCE,
-                            "result": result,
-                        }
-                    ],
+                    "result": result,
                 }
             ],
             as_json=False,
         )
 
-        self.assertIn("quick summary:", rendered)
-        self.assertIn("details:", rendered)
-        self.assertIn("configuration 1", rendered)
+        self.assertIn(f"stack: {ANALYZER_STACK_LABEL}", rendered)
+        self.assertIn("=== example: demo ===", rendered)
         self.assertIn("rules=intensifier", rendered)
         self.assertIn("results table:", rendered)
         self.assertIn("example", rendered)

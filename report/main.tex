@@ -173,9 +173,9 @@ O repositório remoto do projeto é:
 \url{https://github.com/vicmcorrea/PLN-core}
 \end{quote}
 
-Para executar o projeto, basta preparar o ambiente com o script \texttt{install.sh}. Depois disso, a execução pode ser feita com os comandos Python do próprio projeto.
+Para executar o projeto, basta preparar o ambiente com o script \texttt{install.sh}. Depois disso, a execução pode ser feita pela linha de comando ou pela interface web.
 
-A sequência recomendada é:
+A sequência recomendada para a CLI é:
 
 \begin{verbatim}
 ./install.sh
@@ -183,14 +183,23 @@ source .venv/bin/activate
 python main.py
 \end{verbatim}
 
-Ao iniciar, a interface pede o modo de uso. O usuário pode escolher entre analisar um texto por vez ou executar exemplos de comparação. No modo de análise, a interface também pede a fonte do léxico e o tokenizador. A primeira opção de léxico usa o dicionário inicial do grupo. A segunda opção usa o OpLexicon. Na primeira vez em que o OpLexicon for selecionado, o arquivo externo é baixado e salvo no diretório do projeto em \texttt{data/external/}.
+Ao iniciar, a CLI usa sempre o mesmo conjunto fixo: OpLexicon v3.0 para a polaridade lexical e o tokenizador de português do spaCy. O usuário escolhe entre analisar um texto único ou rodar o conjunto de exemplos embutido. Na primeira execução, o arquivo do OpLexicon é baixado e salvo em \texttt{data/external/}.
 
-Também é possível chamar o modo de comparação diretamente:
+Também é possível analisar um texto direto pela linha de comando:
 
 \begin{verbatim}
 source .venv/bin/activate
-python main.py --compare
+python main.py "Eu amei o filme, foi muito bom!"
 \end{verbatim}
+
+A mesma análise está disponível em uma pequena interface web feita com Streamlit. Após o \texttt{install.sh}, basta rodar:
+
+\begin{verbatim}
+source .venv/bin/activate
+streamlit run streamlit_app.py
+\end{verbatim}
+
+A página abre em \url{http://localhost:8501} em uma tela única. O usuário pode escolher um dos exemplos prontos (positivo, negativo ou neutro) ou digitar o próprio texto, clicar em \texttt{Analyze} e inspecionar o rótulo, o escore, o texto normalizado, os tokens e os termos do léxico com as regras simbólicas aplicadas.
 
 Para rodar os testes atuais do projeto, depois que o ambiente já estiver preparado:
 

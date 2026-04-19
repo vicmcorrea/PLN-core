@@ -9,6 +9,7 @@ description = "Symbolic sentiment analysis baseline for Brazilian Portuguese"
 requires-python = ">=3.10"
 dependencies = [
     "spacy",
+    "streamlit>=1.50.0",
 ]
 
 [project.scripts]
