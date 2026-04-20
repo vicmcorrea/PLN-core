@@ -1,5 +1,7 @@
 # pln-core
 
+live streamlit: [https://pln-core.streamlit.app/](https://pln-core.streamlit.app/)
+
 symbolic sentiment analysis for brazilian portuguese.
 
 stack: oplexicon v3.0 + spacy pt tokenizer, with rules for negation, intensifiers, diminishers, contrast and exclamation.
