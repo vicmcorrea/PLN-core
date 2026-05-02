@@ -10,9 +10,9 @@ close their valence is to the analyzer score, after the score is clipped to
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable
 
 DEFAULT_CATALOG_PATH = (
     Path(__file__).resolve().parents[2] / "data" / "recommendations.json"

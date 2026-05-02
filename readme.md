@@ -4,7 +4,7 @@ live streamlit: [https://pln-core.streamlit.app/](https://pln-core.streamlit.app
 
 symbolic sentiment analysis for brazilian portuguese.
 
-stack: oplexicon v3.0 + spacy pt tokenizer, with rules for negation, intensifiers, diminishers, contrast and exclamation.
+stack: oplexicon v3.0 + spaCy Portuguese lemmatizer, with rules for negation, intensifiers, diminishers, contrast and exclamation.
 
 ## setup
 
@@ -37,7 +37,7 @@ source .venv/bin/activate
 streamlit run streamlit_app.py
 ```
 
-opens at `http://localhost:8501`. pick a sample or paste text, hit `analisar`, and get the label, score, tokens, matched terms, and one song suggestion matching the sentiment.
+opens at `http://localhost:8501`. pick a sample or paste text, hit `analisar`, and get the label, score, lemmatized tokens, matched terms, and one song suggestion matching the sentiment.
 
 ## music recommendations
 

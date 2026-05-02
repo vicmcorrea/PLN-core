@@ -100,31 +100,31 @@ the custom tokenizer is the main symbolic baseline. after normalization and acce
 
 this is deterministic and easy to explain in a symbolic project report.
 
-#### spaCy portuguese tokenizer
+#### spaCy portuguese lemmatizer
 
-the second option uses spaCy with `spacy.blank("pt")`.
+the main application stack uses spaCy with the `pt_core_news_sm` portuguese model.
 
-this creates a tokenizer-only portuguese pipeline, so we get a real tokenizer without needing a large pretrained tagging or parsing model.
+this creates a real portuguese NLP pipeline with tokenization, morphological analysis and lemmatization.
 
-we still run the same project normalization first, then hand the normalized text to the spaCy tokenizer. this gives a more standard language-aware tokenizer option while keeping the rest of the symbolic pipeline unchanged.
+we still run the same project normalization first, then hand the normalized text to spaCy. after spaCy assigns lemmas, the project lowercases and removes accents from the lemmas so they can be matched against the folded lexicon keys.
 
 this is different from our custom tokenizer because:
 
 1. the custom tokenizer is fully handcrafted and regex based
-2. the spaCy option uses portuguese-specific tokenization rules provided by spaCy
+2. the spaCy option uses a trained portuguese model to produce lemmas such as `gostei` -> `gostar`
 3. the custom tokenizer is easier to explain as a pure symbolic baseline
-4. the spaCy tokenizer is useful as a more realistic off-the-shelf comparison
+4. the spaCy lemmatizer improves lexical coverage without changing the symbolic scoring rules
 
 ### 2.3 tokenization details
 
-both backends run the same normalization, then lowercase and strip accents (`fold_text`) before splitting.
+the custom backend runs the same normalization, then lowercases and strips accents (`fold_text`) before splitting.
 
 examples:
 
 - `ótimo` becomes `otimo`
 - `péssimo` becomes `pessimo`
 
-the custom tokenizer finds tokens with the project regex. the spaCy path runs `spacy.blank("pt")` on the folded string, then keeps only tokens that match the same pattern the custom tokenizer uses, so lexicon lookup stays consistent across both choices.
+the spaCy lemmatizer path runs the portuguese model on normalized text, then folds the resulting lemmas. this means forms such as `gostei` and `gostaram` can be matched as `gostar`, and adjective variants such as `confusas` can be matched as `confuso`. very common auxiliary and copular lemmas such as `ser` and `estar` are filtered because they can appear in OpLexicon but do not carry sentiment in phrases like `foi bom` or `estão confusas`.
 
 ### 2.4 tokenizer selection flow
 
@@ -132,9 +132,10 @@ the custom tokenizer finds tokens with the project regex. the spaCy path runs `s
 flowchart TD
     A[normalized text] --> B{which tokenizer?}
     B -->|custom| C[regex tokenizer]
-    B -->|spacy| D[spaCy blank pt tokenizer]
+    B -->|spacy lemma| D[spaCy pt_core_news_sm]
     C --> E[token list]
-    D --> E[token list]
+    D --> F[lemma list]
+    F --> E
 ```
 
 ### 2.5 preprocessing flow
@@ -221,34 +222,23 @@ if you need to explain the current baseline honestly, the cleanest wording is:
 1. the project implements a symbolic sentiment analyzer for short portuguese texts
 2. the baseline uses a manually created seed dictionary designed for prototyping and debugging
 3. the system also supports an external lexical resource, `oplexicon v3.0`, for a broader symbolic lexicon
-4. tokenization is either the regex tokenizer or spaCy’s Portuguese tokenizer, both after the same normalization and folding
+4. tokenization is either the regex tokenizer or spaCy’s Portuguese lemmatizer, both after the same normalization and folding
 5. the final prediction comes from lexical polarity plus symbolic rules for negation, intensification, contrast, and punctuation
 
 ## 6. comparison mode
 
 the cli also has a comparison mode for quick qualitative inspection.
 
-instead of analyzing only one configuration, it runs the same example texts through four combinations:
+it runs the built-in examples through the same stack used by the Streamlit app: OpLexicon v3.0 plus the spaCy Portuguese lemmatizer.
 
-- seed dictionary + custom tokenizer
-- seed dictionary + spaCy portuguese tokenizer
-- oplexicon + custom tokenizer
-- oplexicon + spaCy portuguese tokenizer
-
-this is useful for checking how lexical coverage and token boundaries affect the final label and score.
+this is useful for checking how normalization, lemmatization, lexical coverage and symbolic rules affect the final label and score.
 
 ```mermaid
 flowchart TD
-    A[start comparison mode] --> B[load seed dictionary]
-    A --> C[load oplexicon]
-    B --> D[run custom tokenizer]
-    B --> E[run spaCy tokenizer]
-    C --> F[run custom tokenizer]
-    C --> G[run spaCy tokenizer]
-    D --> H[show side by side outputs]
-    E --> H
-    F --> H
-    G --> H
+    A[start comparison mode] --> B[load oplexicon]
+    B --> C[run spaCy Portuguese lemmatizer]
+    C --> D[apply symbolic analyzer to examples]
+    D --> E[show summary table and match details]
 ```
 
 ## 7. important limitation

@@ -11,15 +11,15 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from pln_core.lexicon import (
+from pln_core.lexicon import (  # noqa: E402
     OPLEXICON_LEXICON_SOURCE,
     LexiconDownloadError,
     load_lexicon,
 )
-from pln_core.pipeline import AnalysisResult, SymbolicSentimentAnalyzer
-from pln_core.recommender import Song, recommend_ranked
-from pln_core.samples import ANALYZER_STACK_LABEL, SAMPLE_TEXTS
-from pln_core.tokenizers import SPACY_PT_TOKENIZER_SOURCE, get_tokenizer
+from pln_core.pipeline import AnalysisResult, SymbolicSentimentAnalyzer  # noqa: E402
+from pln_core.recommender import Song, recommend_ranked  # noqa: E402
+from pln_core.samples import ANALYZER_STACK_LABEL, SAMPLE_TEXTS  # noqa: E402
+from pln_core.tokenizers import SPACY_PT_LEMMATIZER_SOURCE, get_tokenizer  # noqa: E402
 
 LABEL_COLORS: dict[str, str] = {
     "positive": "green",
@@ -65,7 +65,7 @@ def get_analyzer() -> SymbolicSentimentAnalyzer:
     """Build and cache the project analyzer with the fixed stack."""
 
     lexicon = load_lexicon(source=OPLEXICON_LEXICON_SOURCE)
-    tokenizer = get_tokenizer(SPACY_PT_TOKENIZER_SOURCE)
+    tokenizer = get_tokenizer(SPACY_PT_LEMMATIZER_SOURCE)
     return SymbolicSentimentAnalyzer(lexicon=lexicon, tokenizer=tokenizer)
 
 

@@ -14,8 +14,8 @@ flowchart TD
     B --> C[choose lexicon source]
     C --> D[choose tokenizer source]
     D --> E[normalize text]
-    E --> F[tokenize text]
-    F --> G[lookup tokens in lexicon]
+    E --> F[tokenize and lemmatize text]
+    F --> G[lookup lemmas in lexicon]
     G --> H[apply symbolic rules]
     H --> I[store matches]
     I --> J[sum adjusted scores]
@@ -91,10 +91,10 @@ flowchart TD
 
 ## 4. tokenizer process
 
-after normalization, the application tokenizes the text. there are two tokenizer options.
+after normalization, the application tokenizes the text. the main application stack also lemmatizes the tokens. there are two tokenizer options.
 
 1. custom tokenizer
-2. spaCy portuguese tokenizer
+2. spaCy portuguese lemmatizer
 
 ### tokenizer selection
 
@@ -102,9 +102,10 @@ after normalization, the application tokenizes the text. there are two tokenizer
 flowchart TD
     A[normalized text] --> B{selected tokenizer}
     B -->|custom| C[regex tokenizer]
-    B -->|spacy| D[spaCy blank pt tokenizer]
+    B -->|spacy lemma| D[spaCy pt_core_news_sm]
     C --> E[token list]
-    D --> E[token list]
+    D --> F[lemma list]
+    F --> E
 ```
 
 ### custom tokenizer
@@ -121,26 +122,26 @@ then it extracts:
 1. alphanumeric tokens
 2. basic emoticons like `:)`, `:(`, `=d`
 
-### spaCy portuguese tokenizer
+### spaCy portuguese lemmatizer
 
-the second option uses spaCy with `spacy.blank("pt")`.
+the second option uses spaCy with the `pt_core_news_sm` portuguese model.
 
-this is a tokenizer-only portuguese pipeline. it does not require a large pretrained model just to split text into tokens.
+this is a trained portuguese pipeline that includes tokenization, morphological analysis and lemmatization.
 
-it still uses the project normalization first, then tokenizes the cleaned text using spaCy's portuguese tokenization rules.
+it still uses the project normalization first, then runs spaCy on the cleaned text and folds the resulting lemmas.
 
-after that, the result is filtered so the final token list keeps only tokens compatible with the project token pattern.
+after that, the result is filtered so the final lemma list keeps only items compatible with the project token pattern. common auxiliary and copular lemmas such as `ser` and `estar` are removed because they can create false lexicon matches after lemmatization.
 
 ### how spaCy differs from the custom tokenizer
 
 1. the custom tokenizer is fully handcrafted and regex based
-2. spaCy is an external NLP library with portuguese-aware tokenization rules
+2. spaCy is an external NLP library with a trained portuguese model
 3. the custom tokenizer is simpler and more transparent for a symbolic baseline
-4. spaCy gives a stronger tokenizer baseline for comparison without changing the scoring rules
+4. spaCy gives stronger lexical coverage through lemmas without changing the scoring rules
 
 ## 5. lexicon lookup process
 
-once the text is tokenized, each token is checked against the selected lexicon.
+once the text is tokenized and lemmatized, each final token is checked against the selected lexicon.
 
 ```mermaid
 flowchart TD

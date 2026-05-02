@@ -2,12 +2,12 @@ from __future__ import annotations
 
 ANALYZE_MODE = "analyze"
 COMPARE_MODE = "compare"
-ANALYZER_STACK_LABEL = "OpLexicon v3.0 + spaCy Portuguese tokenizer"
+ANALYZER_STACK_LABEL = "OpLexicon v3.0 + spaCy Portuguese lemmatizer"
 
 SAMPLE_TEXTS: dict[str, str] = {
     "positive": "Eu amei o filme, foi muito bom!",
     "negative": "Nao gostei do app, esta bem confuso e bugado.",
-    "neutral": "Hoje eu fui ao cinema e voltei para casa depois da sessao.",
+    "neutral": "O arquivo tem quatro paginas e duas tabelas.",
 }
 
 COMPARISON_EXAMPLES: tuple[tuple[str, str], ...] = (

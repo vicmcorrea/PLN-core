@@ -14,7 +14,7 @@
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{tikz}
-\usepackage[numbers]{natbib}
+\usepackage[round]{natbib}
 
 \usetikzlibrary{arrows.meta,positioning}
 
@@ -28,6 +28,7 @@
 \setlength{\parindent}{1.2em}
 \setlength{\parskip}{0.4em}
 \setlist[itemize]{leftmargin=1.8em}
+\setlength{\parindent}{0pt}
 
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 
@@ -46,24 +47,22 @@
 \begin{document}
 
 \begin{center}
-{\Large Relatório do projeto prático}\\[0.4em]
+{\Large Relatório do Projeto Prático}\\[0.4em]
+{\large SCC0633 Processamento de Linguagem Natural}\\[0.2em]
 {\large SCC5908 Introdução ao Processamento de Língua Natural}\\[0.2em]
-{\normalsize Rascunho inicial do relatório}
 \end{center}
 
 \section{Nome do projeto}
 
-\textbf{??? (talvez PLN Core): analisador simbólico de sentimentos para português brasileiro}
+\textbf{PLN Core: analisador simbólico de sentimentos para português brasileiro}
 
-Projeto inicial de análise de sentimentos para textos curtos em português brasileiro, com foco em solução simbólica e interpretável.
-
-\section{Nomes da equipe e dos integrantes do grupo}
+\section{Equipe}
 
 \textbf{Nome da equipe:} GLAVJ
 
 \begin{itemize}
   \item João Victor M. Correa (17416061)
-  \item Ana Paula de Abreu Batista (N/A)
+  \item Ana Paula de Abreu Batista (12688424)
   \item Guilherme Vaz de Oliveira Taratá (10817476)
   \item Victoria Favero Nunes (15698302)
   \item Leonardo Ferreira Runho (11832958)
@@ -71,13 +70,29 @@ Projeto inicial de análise de sentimentos para textos curtos em português bras
 
 \section{Introdução}
 
-O objetivo do projeto é classificar textos curtos em português brasileiro como positivos, negativos ou neutros. A entrada é uma frase curta, como um comentário de rede social ou uma avaliação simples, e a saída é um rótulo com um escore numérico. A tarefa é relevante porque opiniões aparecem em grande volume em ambientes digitais e também é uma boa aplicação didática de PLN. Como primeiro passo, o grupo escolheu uma solução simbólica baseada em léxico e regras explícitas \cite{taboada2011lexicon,hutto2014vader,souza2012sentiment}.
+Este projeto tem como objetivo classificar textos curtos em português brasileiro em três categorias de sentimento: positivo, negativo ou neutro. A entrada consiste em frases simples, como comentários de redes sociais, e a saída é um rótulo acompanhado de um escore numérico.
 
-\section{Proposta detalhada da solução simbólica}
+A análise de sentimentos é uma tarefa amplamente utilizada em aplicações como monitoramento de opinião pública, avaliação de produtos e apoio à tomada de decisão. Em ambientes digitais, há um grande volume de opiniões textuais produzidas continuamente, o que torna essa tarefa relevante tanto do ponto de vista prático quanto acadêmico.
 
-\subsection{Arquitetura da solução}
+No contexto do português brasileiro, essa tarefa apresenta desafios adicionais, como variações linguísticas, uso de gírias, ambiguidade semântica e forte dependência de contexto.
 
-A arquitetura atual é simples. O texto entra no sistema, passa por pré-processamento, é tokenizado, comparado com um léxico de polaridade e depois recebe ajustes por regras simbólicas antes da decisão final.
+Entre os principais desafios estão:
+\begin{itemize}
+  \item dependência de contexto (ex.: ironia e sarcasmo)
+  \item ambiguidade lexical
+  \item impacto de negações e intensificadores
+  \item cobertura limitada de léxicos
+\end{itemize}
+
+Além disso, trata-se de um problema didaticamente relevante em Processamento de Língua Natural, pois envolve a modelagem de fenômenos linguísticos complexos de forma estruturada.
+
+Neste trabalho, adotamos uma abordagem simbólica baseada em léxico e regras explícitas, priorizando interpretabilidade em vez de aprendizado automático \citep{taboada2011lexicon,hutto2014vader,souza2012sentiment}.
+
+\section{Proposta da solução}
+
+\subsection{Arquitetura do pipeline}
+
+A aplicação segue um pipeline simbólico determinístico. Diferente de modelos de aprendizado de máquina, não há treinamento: o processamento ocorre por etapas fixas e interpretáveis.
 
 \begin{figure}[h]
 \centering
@@ -85,7 +100,7 @@ A arquitetura atual é simples. O texto entra no sistema, passa por pré-process
 \begin{tikzpicture}[node distance=0.45cm]
   \node[flowbox] (input) {texto\\de entrada};
   \node[flowbox, right=of input] (norm) {normalização};
-  \node[flowbox, right=of norm] (tok) {tokenização};
+  \node[flowbox, right=of norm] (tok) {tokenização e lematização};
   \node[flowbox, right=of tok] (match) {busca no\\léxico};
   \node[flowbox, right=of match] (rules) {regras\\simbólicas};
   \node[flowbox, right=of rules] (sum) {soma dos\\escores};
@@ -123,92 +138,154 @@ A arquitetura atual é simples. O texto entra no sistema, passa por pré-process
 \caption{Fluxo local de ajuste para cada termo encontrado no léxico.}
 \end{figure}
 
-\subsection{Breve explicação sobre cada processo da arquitetura}
+\subsection{Recursos e ferramentas}
 
-\paragraph{Escolha do léxico.}
-O projeto usa um léxico inicial pequeno do grupo e também suporta o OpLexicon como recurso externo para português \cite{souza2011construction,souza2012sentiment,oplexiconSite}.
+O sistema foi desenvolvido em Python e utiliza:
+\begin{itemize}
+  \item expressões regulares para normalização e tokenização
+  \item modelo \texttt{pt\_core\_news\_sm} do spaCy para tokenização e lematização em português
+  \item léxico OpLexicon v3.0 como recurso externo de polaridade
+\end{itemize}
 
-\paragraph{Normalização.}
-Antes da tokenização, o texto passa por uma etapa de limpeza para reduzir ruído e padronizar a entrada.
+\subsection{Descrição dos processos}
 
-\paragraph{Tokenização.}
-Depois da normalização, o sistema pode usar um tokenizador local por expressões regulares ou o tokenizador de português do spaCy \cite{spacyModels,spacyTokenizer}.
+\textbf{Escolha do léxico:}
+O sistema pode utilizar um léxico manual reduzido ou o OpLexicon v3.0 como recurso externo. No caso do OpLexicon v3.0, os dados são carregados automaticamente e entradas duplicadas são agregadas por média de polaridade.
 
-\paragraph{Correspondência com o léxico.}
-Cada token é comparado com o léxico escolhido. Quando há correspondência, o termo recebe um escore base.
+\textbf{Normalização:}
+Consiste na remoção de URLs e menções, além da normalização de espaços e redução de caracteres repetidos.\\
 
-\paragraph{Regras simbólicas.}
-Os escores básicos podem ser alterados por negação, intensificação, atenuação, contraste e exclamação \cite{kiritchenko2016effect,hutto2014vader}.
+\textbf{Tokenização e Lematização:}
+O projeto mantém um tokenizador por expressões regulares para a versão simbólica simples, mas a configuração principal usada na CLI e no Streamlit utiliza o modelo \texttt{pt\_core\_news\_sm} do spaCy \citep{spacyModels}. Nessa configuração, o texto é tokenizado e cada item é convertido para sua forma lematizada, permitindo associar flexões como \texttt{gostei} e \texttt{gostaram} à forma \texttt{gostar} presente no léxico. Lemas auxiliares muito frequentes, como \texttt{ser} e \texttt{estar}, são filtrados para evitar correspondências espúrias no OpLexicon.\\
 
-\paragraph{Agregação e decisão final.}
-No final, o sistema soma os escores ajustados e usa limiares simples para definir o rótulo final: positivo, negativo ou neutro.
+\textbf{Busca no léxico:}
+Os tokens identificados no léxico recebem um escore base de polaridade.\\
 
-\subsection{Breve descrição dos recursos e ferramentas utilizados}
+\textbf{Regras simbólicas:}
+As regras são aplicadas sequencialmente e incluem negação, intensificação, atenuação, contraste e tratamento de exclamações. Essas heurísticas são inspiradas em abordagens descritas na literatura \citep{hutto2014vader,kiritchenko2016effect}.\\
 
-O projeto foi implementado em Python. Os principais recursos usados neste primeiro passo são o léxico inicial do grupo, o OpLexicon e o spaCy para tokenização alternativa \cite{souza2011construction,souza2012sentiment,spacyModels}. O código está disponível em \url{https://github.com/vicmcorrea/PLN-core}.
+\textbf{Agregação e classificação:}
+Os escores ajustados são somados e o resultado final é classificado como positivo, negativo ou neutro.
 
-\subsection{Ilustração de execução do processo para um exemplo}
-
-Como exemplo curto, a frase ``O app é muito bom, mas o final ficou confuso!'' mostra como o sistema combina léxico e regras.
+\subsection{Exemplo de execução}
 
 \begin{center}
 \begin{tabularx}{\linewidth}{@{}lY@{}}
 \toprule
-\textbf{Etapa} & \textbf{Resultado resumido} \\
+\textbf{Etapa} & \textbf{Resultado} \\
 \midrule
-Texto original & O app é muito bom, mas o final ficou confuso! \\
-Termos encontrados & \texttt{bom} e \texttt{confuso} \\
-Regras principais & intensificação, contraste e exclamação \\
-Escore final & $-0{,}364$ \\
-Rótulo final & neutro \\
+Texto & O app é muito bom, mas a tela confusa! \\
+Lemas relevantes & muito, bom, mas, tela, confuso \\
+Regras & intensificação, contraste (pré e pós), exclamação \\
+Escore final & $-1{,}239$ \\
+Rótulo & negativo \\
 \bottomrule
 \end{tabularx}
 \end{center}
 
-\section{Instruções para execução do código fonte}
+Contribuições individuais:
+\begin{itemize}
+  \item \textbf{bom}: escore positivo ampliado por intensificação e ajustado por pré-contraste
+  \item \textbf{mas}: atua como marcador de contraste e também aparece no léxico usado pelo sistema
+  \item \textbf{confuso}: escore negativo intensificado por pós-contraste e exclamação
+\end{itemize}
+
+\section{Execução}
 
 O repositório remoto do projeto é:
 
-\begin{quote}
 \url{https://github.com/vicmcorrea/PLN-core}
-\end{quote}
 
-Para executar o projeto, basta preparar o ambiente com o script \texttt{install.sh}. Depois disso, a execução pode ser feita pela linha de comando ou pela interface web.
+Para executar o projeto, é necessário preparar o ambiente virtual e instalar as dependências.
 
-A sequência recomendada para a CLI é:
+\subsection*{Execução via linha de comando}
 
+Linux/MacOS:
 \begin{verbatim}
 ./install.sh
 source .venv/bin/activate
 python main.py
 \end{verbatim}
 
-Ao iniciar, a CLI usa sempre o mesmo conjunto fixo: OpLexicon v3.0 para a polaridade lexical e o tokenizador de português do spaCy. O usuário escolhe entre analisar um texto único ou rodar o conjunto de exemplos embutido. Na primeira execução, o arquivo do OpLexicon é baixado e salvo em \texttt{data/external/}.
+Windows:
+\begin{verbatim}
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python main.py
+\end{verbatim}
 
-Também é possível analisar um texto direto pela linha de comando:
+Também é possível analisar diretamente um texto:
 
 \begin{verbatim}
-source .venv/bin/activate
 python main.py "Eu amei o filme, foi muito bom!"
 \end{verbatim}
 
-A mesma análise está disponível em uma pequena interface web feita com Streamlit. Após o \texttt{install.sh}, basta rodar:
+O sistema permite dois modos:
+\begin{itemize}
+  \item análise de texto individual
+  \item modo de comparação dos exemplos embutidos usando a mesma configuração principal do aplicativo
+\end{itemize}
+
+\subsection*{Recursos adicionais}
+
+Na primeira execução, o léxico OpLexicon v3.0 é automaticamente baixado e armazenado localmente.
+
+Além da interface em linha de comando, o projeto também oferece uma interface web simples utilizando Streamlit:
 
 \begin{verbatim}
-source .venv/bin/activate
 streamlit run streamlit_app.py
 \end{verbatim}
 
-A página abre em \url{http://localhost:8501} em uma tela única. O usuário pode escolher um dos exemplos prontos (positivo, negativo ou neutro) ou digitar o próprio texto, clicar em \texttt{Analisar} e inspecionar o rótulo, o escore, o texto normalizado, os tokens e os termos do léxico com as regras simbólicas aplicadas. Logo abaixo da tabela de termos, o aplicativo sugere três músicas brasileiras compatíveis com o sentimento detectado, exibidas com player do YouTube embutido e link alternativo de busca.
+ou, via opção acessível diretamente no navegador:
 
-A recomendação é feita por um catálogo curado em \texttt{data/recommendations.json}, com trinta músicas (dez por rótulo) anotadas com um \emph{valence} numérico em $[-1, 1]$. Após a análise, o módulo \texttt{pln\_core.recommender} filtra as músicas pelo rótulo previsto e ordena pelas mais próximas do escore retornado pelo analisador, devolvendo as três primeiras.
+\url{https://pln-core.streamlit.app/}
 
-Para rodar os testes atuais do projeto, depois que o ambiente já estiver preparado:
+
+A interface permite visualizar:
+\begin{itemize}
+  \item rótulo final
+  \item escore
+  \item texto normalizado
+  \item lemas gerados para busca no léxico
+  \item termos encontrados no léxico
+  \item regras simbólicas aplicadas
+\end{itemize}
+
+\subsection*{Testes}
+
+Para executar os testes atuais do projeto, após o ambiente estar preparado:
 
 \begin{verbatim}
-source .venv/bin/activate
 python -m unittest discover -s tests
 \end{verbatim}
+
+\section{Recomendação de músicas}
+
+Como extensão do sistema, foi implementado um módulo de recomendação de músicas baseado no sentimento detectado no texto. A recomendação ocorre após a classificação e utiliza um catálogo local com dez músicas, em que cada música possui um rótulo de sentimento e um valor de valência.
+
+Dado um texto, o sistema filtra músicas com o mesmo rótulo e as ordena pela menor distância entre o escore do texto e a valência das músicas.
+
+Valência (valence) representa o grau de positividade ou negatividade associado a uma música.
+
+A recomendação segue a regra:
+
+\begin{equation}
+d(s) = |\,\text{valence}(s) - \text{score}_{texto}\,|
+\end{equation}
+
+A música recomendada é aquela com menor distância. O módulo é determinístico e não utiliza aprendizado de máquina ou APIs externas. Os valores de valência foram atribuídos manualmente com base na interpretação das letras, sendo uma aproximação simplificada.
+
+\section{Conclusão}
+
+O presente trabalho apresentou um sistema simbólico para análise de sentimentos em português brasileiro, baseado em léxico e regras explícitas, priorizando interpretabilidade ao longo de todo o pipeline.
+
+Embora o sistema seja capaz de capturar padrões relevantes de polaridade em textos curtos, os resultados evidenciam limitações inerentes a essa abordagem. Em particular, a dependência da cobertura do léxico, a simplificação de fenômenos linguísticos complexos por meio de regras heurísticas e a análise predominantemente local do contexto impactam diretamente a qualidade das classificações. Mesmo com o uso de lematização, ainda há dificuldades na representação de nuances semânticas mais profundas.
+
+Além disso, o módulo de recomendação, embora funcional, baseia-se em valores de valência atribuídos manualmente, o que limita a precisão das sugestões.
+
+Essas limitações são esperadas em abordagens simbólicas e apontam caminhos naturais para evolução do sistema, como o enriquecimento do léxico, o refinamento das regras e a incorporação de técnicas mais robustas de modelagem linguística.
+
+Em síntese, o projeto evidencia que, embora abordagens simbólicas ofereçam transparência e controle, sua efetividade depende fortemente da qualidade dos recursos e das simplificações adotadas, reforçando o papel dessas técnicas como um ponto de partida interpretável — mas não definitivo — para a análise de sentimentos.
 
 \bibliographystyle{plainnat}
 \bibliography{references}

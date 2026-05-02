@@ -12,7 +12,7 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from pln_core.lexicon import load_oplexicon
-from pln_core.tokenizers import tokenize_custom, tokenize_spacy_pt
+from pln_core.tokenizers import tokenize_custom, tokenize_spacy_pt, tokenize_spacy_pt_lemmas
 
 
 class LexiconTests(unittest.TestCase):
@@ -43,6 +43,16 @@ class LexiconTests(unittest.TestCase):
         self.assertIn("muuito", tokens)
         self.assertIn("bom", tokens)
         self.assertIn("cinema", tokens)
+
+    def test_spacy_lemmatizer_returns_portuguese_lemmas(self) -> None:
+        tokens = tokenize_spacy_pt_lemmas("Eu gostei do filme e amei o final.")
+        self.assertIn("gostar", tokens)
+        self.assertIn("amar", tokens)
+
+    def test_spacy_lemmatizer_filters_auxiliary_lemmas(self) -> None:
+        tokens = tokenize_spacy_pt_lemmas("As telas estão confusas.")
+        self.assertIn("confuso", tokens)
+        self.assertNotIn("estar", tokens)
 
 
 if __name__ == "__main__":

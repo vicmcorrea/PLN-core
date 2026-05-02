@@ -19,7 +19,7 @@ from pln_core.samples import (
     START_MODE_OPTIONS,
 )
 from pln_core.tokenizers import (
-    SPACY_PT_TOKENIZER_SOURCE,
+    SPACY_PT_LEMMATIZER_SOURCE,
     get_tokenizer,
 )
 
@@ -191,7 +191,7 @@ def build_analyzer(announce_loading: bool = True) -> SymbolicSentimentAnalyzer:
         print("loading oplexicon v3.0...")
 
     lexicon = load_lexicon(source=OPLEXICON_LEXICON_SOURCE)
-    tokenizer = get_tokenizer(SPACY_PT_TOKENIZER_SOURCE)
+    tokenizer = get_tokenizer(SPACY_PT_LEMMATIZER_SOURCE)
     return SymbolicSentimentAnalyzer(lexicon=lexicon, tokenizer=tokenizer)
 
 
