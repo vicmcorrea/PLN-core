@@ -142,7 +142,7 @@ A aplicação segue um pipeline simbólico determinístico. Diferente de modelos
 
 O sistema foi desenvolvido em Python e utiliza:
 \begin{itemize}
-  \item expressões regulares para normalização e tokenização
+  \item expressões regulares para normalização do texto
   \item modelo \texttt{pt\_core\_news\_sm} do spaCy para tokenização e lematização em português
   \item léxico OpLexicon v3.0 como recurso externo de polaridade
 \end{itemize}
@@ -150,13 +150,13 @@ O sistema foi desenvolvido em Python e utiliza:
 \subsection{Descrição dos processos}
 
 \textbf{Escolha do léxico:}
-O sistema pode utilizar um léxico manual reduzido ou o OpLexicon v3.0 como recurso externo. No caso do OpLexicon v3.0, os dados são carregados automaticamente e entradas duplicadas são agregadas por média de polaridade.
+O sistema utiliza o OpLexicon v3.0 como recurso externo de polaridade. Os dados são carregados automaticamente e entradas duplicadas são agregadas por média de polaridade, produzindo o escore lexical usado nas etapas seguintes do pipeline.
 
 \textbf{Normalização:}
 Consiste na remoção de URLs e menções, além da normalização de espaços e redução de caracteres repetidos.\\
 
 \textbf{Tokenização e Lematização:}
-O projeto mantém um tokenizador por expressões regulares para a versão simbólica simples, mas a configuração principal usada na CLI e no Streamlit utiliza o modelo \texttt{pt\_core\_news\_sm} do spaCy \citep{spacyModels}. Nessa configuração, o texto é tokenizado e cada item é convertido para sua forma lematizada, permitindo associar flexões como \texttt{gostei} e \texttt{gostaram} à forma \texttt{gostar} presente no léxico. Lemas auxiliares muito frequentes, como \texttt{ser} e \texttt{estar}, são filtrados para evitar correspondências espúrias no OpLexicon.\\
+A CLI e a interface Streamlit usam o modelo \texttt{pt\_core\_news\_sm} do spaCy \citep{spacyModels}. O texto normalizado é tokenizado pelo modelo e cada item é convertido para sua forma lematizada, permitindo associar flexões como \texttt{gostei} e \texttt{gostaram} à forma \texttt{gostar} presente no léxico. Lemas auxiliares muito frequentes, como \texttt{ser} e \texttt{estar}, são filtrados para evitar correspondências espúrias no OpLexicon.\\
 
 \textbf{Busca no léxico:}
 Os lemas identificados no léxico recebem um escore base de polaridade.\\
@@ -225,7 +225,7 @@ python main.py "Eu amei o filme, foi muito bom!"
 O sistema permite dois modos:
 \begin{itemize}
   \item análise de texto individual
-  \item modo de comparação dos exemplos embutidos usando a mesma configuração principal do aplicativo
+  \item modo de comparação dos exemplos embutidos usando o mesmo pipeline do aplicativo
 \end{itemize}
 
 \subsection*{Recursos adicionais}
