@@ -11,15 +11,22 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from pln_core.lexicon import (  # noqa: E402
+from pln_core.lexicon import (
     OPLEXICON_LEXICON_SOURCE,
     LexiconDownloadError,
     load_lexicon,
 )
-from pln_core.pipeline import AnalysisResult, SymbolicSentimentAnalyzer  # noqa: E402
-from pln_core.recommender import Song, recommend_ranked  # noqa: E402
-from pln_core.samples import ANALYZER_STACK_LABEL, SAMPLE_TEXTS  # noqa: E402
-from pln_core.tokenizers import SPACY_PT_LEMMATIZER_SOURCE, get_tokenizer  # noqa: E402
+from pln_core.pipeline import AnalysisResult, SymbolicSentimentAnalyzer
+from pln_core.recommender import Song, recommend_ranked
+from pln_core.samples import ANALYZER_STACK_LABEL, SAMPLE_TEXTS
+from pln_core.tokenizers import SPACY_PT_LEMMATIZER_SOURCE, get_tokenizer
+
+SESSION_KEYS = (
+    "text_input",
+    "sample_choice",
+    "last_result",
+    "recommendation_index",
+)
 
 LABEL_COLORS: dict[str, str] = {
     "positive": "green",
@@ -54,10 +61,12 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-st.session_state.setdefault("text_input", "")
-st.session_state.setdefault("sample_choice", None)
-st.session_state.setdefault("last_result", None)
-st.session_state.setdefault("recommendation_index", 0)
+
+def initialize_session_state() -> None:
+    st.session_state.setdefault("text_input", "")
+    st.session_state.setdefault("sample_choice", None)
+    st.session_state.setdefault("last_result", None)
+    st.session_state.setdefault("recommendation_index", 0)
 
 
 @st.cache_resource(show_spinner="Carregando OpLexicon v3.0...")
@@ -73,6 +82,30 @@ def on_sample_change() -> None:
     sample = st.session_state.sample_choice
     if sample:
         st.session_state.text_input = SAMPLE_TEXTS[sample]
+        st.session_state.last_result = None
+        st.session_state.recommendation_index = 0
+
+
+def reset_analysis_state() -> None:
+    for key in SESSION_KEYS:
+        st.session_state.pop(key, None)
+    initialize_session_state()
+    st.rerun()
+
+
+def analyze_current_text() -> None:
+    text = st.session_state.text_input.strip()
+    if not text:
+        st.warning("Escreva algum texto antes de rodar o analisador.")
+        return
+
+    try:
+        analyzer = get_analyzer()
+        st.session_state.last_result = analyzer.analyze(text)
+        st.session_state.recommendation_index = 0
+    except LexiconDownloadError:
+        st.error("Não foi possível carregar o OpLexicon. Verifique a conexão e tente novamente.")
+        st.session_state.last_result = None
 
 
 def translate_label(label: str) -> str:
@@ -106,7 +139,7 @@ def render_text_card(result: AnalysisResult) -> None:
         st.caption("Texto normalizado")
         st.write(result.normalized_text or "(vazio)")
 
-        st.caption("Tokens")
+        st.caption("Lemas usados na busca")
         if result.tokens:
             st.markdown(" ".join(f"`{token}`" for token in result.tokens))
         else:
@@ -115,12 +148,12 @@ def render_text_card(result: AnalysisResult) -> None:
 
 def render_matches(result: AnalysisResult) -> None:
     if not result.matched_terms:
-        st.info("Nenhum token encontrado no léxico, o escore é zero.")
+        st.info("Nenhum lema encontrado no léxico, o escore é zero.")
         return
 
     rows = [
         {
-            "token": match.token,
+            "lema": match.token,
             "posição": match.position,
             "escore base": match.base_score,
             "escore ajustado": match.adjusted_score,
@@ -134,21 +167,17 @@ def render_matches(result: AnalysisResult) -> None:
         hide_index=True,
         width="stretch",
         column_config={
-            "token": st.column_config.TextColumn("token", pinned=True),
+            "lema": st.column_config.TextColumn("lema", pinned=True),
             "posição": st.column_config.NumberColumn("posição", format="%d"),
             "escore base": st.column_config.NumberColumn("escore base", format="%.3f"),
-            "escore ajustado": st.column_config.NumberColumn(
-                "escore ajustado", format="%.3f"
-            ),
+            "escore ajustado": st.column_config.NumberColumn("escore ajustado", format="%.3f"),
             "regras": st.column_config.TextColumn("regras"),
         },
     )
 
 
 def _recommendation_prev() -> None:
-    st.session_state.recommendation_index = max(
-        int(st.session_state.recommendation_index) - 1, 0
-    )
+    st.session_state.recommendation_index = max(int(st.session_state.recommendation_index) - 1, 0)
 
 
 def _recommendation_next(max_idx: int) -> None:
@@ -217,6 +246,8 @@ def render_recommendation_panel(result: AnalysisResult | None) -> None:
 
 
 def main() -> None:
+    initialize_session_state()
+
     _, page, _ = st.columns([1, 6, 1])
 
     with page:
@@ -232,9 +263,7 @@ def main() -> None:
 
         st.space("medium")
 
-        recommendation_col, analyzer_col = st.columns(
-            [1, 2], gap="large", vertical_alignment="top"
-        )
+        recommendation_col, analyzer_col = st.columns([1, 2], gap="large", vertical_alignment="top")
 
         with analyzer_col:
             st.pills(
@@ -247,44 +276,24 @@ def main() -> None:
                 selection_mode="single",
             )
 
-            st.text_area(
-                "Texto",
-                key="text_input",
-                height=140,
-                placeholder="Digite uma frase curta em português brasileiro...",
-                label_visibility="collapsed",
-            )
+            with st.form("analysis_form", border=False):
+                st.text_area(
+                    "Texto",
+                    key="text_input",
+                    height=140,
+                    placeholder="Digite uma frase curta em português brasileiro...",
+                    label_visibility="collapsed",
+                )
 
-            with st.container(horizontal=True, horizontal_alignment="distribute"):
-                clear_clicked = st.button("Limpar")
-                analyze_clicked = st.button("Analisar", type="primary")
+                with st.container(horizontal=True, horizontal_alignment="distribute"):
+                    clear_clicked = st.form_submit_button("Limpar")
+                    analyze_clicked = st.form_submit_button("Analisar", type="primary")
 
         if clear_clicked:
-            for key in (
-                "text_input",
-                "sample_choice",
-                "last_result",
-                "recommendation_index",
-            ):
-                st.session_state.pop(key, None)
-            st.session_state.setdefault("recommendation_index", 0)
-            st.rerun()
+            reset_analysis_state()
 
         if analyze_clicked:
-            text = st.session_state.text_input.strip()
-            if not text:
-                st.warning("Escreva algum texto antes de rodar o analisador.")
-            else:
-                try:
-                    analyzer = get_analyzer()
-                    st.session_state.last_result = analyzer.analyze(text)
-                    st.session_state.recommendation_index = 0
-                except LexiconDownloadError:
-                    st.error(
-                        "Não foi possível carregar o OpLexicon. "
-                        "Verifique a conexão e tente novamente."
-                    )
-                    st.session_state.last_result = None
+            analyze_current_text()
 
         with recommendation_col:
             render_recommendation_panel(st.session_state.last_result)
