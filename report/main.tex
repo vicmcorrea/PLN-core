@@ -170,25 +170,23 @@ Os escores ajustados são somados e o resultado final é classificado como posit
 \subsection{Exemplo de execução}
 
 \begin{center}
+\small
 \begin{tabularx}{\linewidth}{@{}lY@{}}
 \toprule
 \textbf{Etapa} & \textbf{Resultado} \\
 \midrule
-Texto & O app é muito bom, mas a tela confusa! \\
-Lemas relevantes & muito, bom, mas, tela, confuso \\
-Regras & intensificação, contraste (pré e pós), exclamação \\
-Escore final & $-1{,}239$ \\
-Rótulo & negativo \\
+Entrada & \texttt{O app é muito bom, mas a tela confusa!} \\
+Normalização & remoção de ruídos e padronização de espaços; neste caso, o texto permanece igual \\
+Tokenização e lematização & \texttt{o, app, muito, bom, mas, o, tela, confuso} \\
+Busca no léxico & \texttt{bom} $(+1{,}0)$, \texttt{mas} $(-1{,}0)$ e \texttt{confuso} $(-1{,}0)$ são encontrados no OpLexicon \\
+Regras aplicadas & \texttt{bom}: intensificação, pré-contraste e exclamação; \texttt{mas}: exclamação; \texttt{confuso}: pós-contraste e exclamação \\
+Contribuições ajustadas & \texttt{bom}: $+1{,}176$; \texttt{mas}: $-1{,}050$; \texttt{confuso}: $-1{,}365$ \\
+Agregação e classificação & soma final $-1{,}239$, classificada como \textbf{negativo} \\
 \bottomrule
 \end{tabularx}
 \end{center}
 
-Contribuições individuais:
-\begin{itemize}
-  \item \textbf{bom}: escore positivo ampliado por intensificação e ajustado por pré-contraste
-  \item \textbf{mas}: atua como marcador de contraste e também aparece no léxico usado pelo sistema
-  \item \textbf{confuso}: escore negativo intensificado por pós-contraste e exclamação
-\end{itemize}
+Esse exemplo ilustra como uma palavra positiva inicial pode ser superada por termos negativos posteriores ao marcador de contraste, produzindo uma decisão final negativa.
 
 \section{Execução}
 
