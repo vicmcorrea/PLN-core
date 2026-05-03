@@ -70,7 +70,7 @@
 
 \section{Introdução}
 
-Este projeto tem como objetivo classificar textos curtos em português brasileiro em três categorias de sentimento: positivo, negativo ou neutro. A entrada consiste em frases simples, como comentários de redes sociais, e a saída é um rótulo acompanhado de um escore numérico.
+Este projeto tem como objetivo classificar textos curtos em português brasileiro como positivos, negativos ou neutros. A entrada consiste em frases simples, como comentários de redes sociais, e a saída é um rótulo acompanhado de um escore numérico.
 
 A análise de sentimentos é uma tarefa amplamente utilizada em aplicações como monitoramento de opinião pública, avaliação de produtos e apoio à tomada de decisão. Em ambientes digitais, há um grande volume de opiniões textuais produzidas continuamente, o que torna essa tarefa relevante tanto do ponto de vista prático quanto acadêmico.
 
@@ -159,7 +159,7 @@ Consiste na remoção de URLs e menções, além da normalização de espaços e
 O projeto mantém um tokenizador por expressões regulares para a versão simbólica simples, mas a configuração principal usada na CLI e no Streamlit utiliza o modelo \texttt{pt\_core\_news\_sm} do spaCy \citep{spacyModels}. Nessa configuração, o texto é tokenizado e cada item é convertido para sua forma lematizada, permitindo associar flexões como \texttt{gostei} e \texttt{gostaram} à forma \texttt{gostar} presente no léxico. Lemas auxiliares muito frequentes, como \texttt{ser} e \texttt{estar}, são filtrados para evitar correspondências espúrias no OpLexicon.\\
 
 \textbf{Busca no léxico:}
-Os tokens identificados no léxico recebem um escore base de polaridade.\\
+Os lemas identificados no léxico recebem um escore base de polaridade.\\
 
 \textbf{Regras simbólicas:}
 As regras são aplicadas sequencialmente e incluem negação, intensificação, atenuação, contraste e tratamento de exclamações. Essas heurísticas são inspiradas em abordagens descritas na literatura \citep{hutto2014vader,kiritchenko2016effect}.\\
@@ -211,6 +211,8 @@ Windows:
 \begin{verbatim}
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip setuptools
+python -m pip install -e .
 python main.py
 \end{verbatim}
 
