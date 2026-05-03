@@ -3,6 +3,7 @@
 .ruff_cache/
 .pytest_cache/
 data/external/
+docs/
 __pycache__/
 *.pyc
 *.pyo
@@ -25,4 +26,3 @@ dist/
 *.synctex.gz
 *.toc
 docs/processes/09_research_and_sources.md
-
