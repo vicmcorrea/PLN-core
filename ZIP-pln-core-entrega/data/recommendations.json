@@ -1,0 +1,82 @@
+[
+  {
+    "title": "País Tropical",
+    "artist": "Jorge Ben Jor",
+    "youtube_id": "JzByVhWju88",
+    "sentiment": "positive",
+    "valence": 0.9,
+    "tags": ["samba", "festivo"]
+  },
+  {
+    "title": "Mas Que Nada",
+    "artist": "Sergio Mendes & Brasil '66",
+    "youtube_id": "BrZBiqK0p9E",
+    "sentiment": "positive",
+    "valence": 0.85,
+    "tags": ["bossa", "festivo"]
+  },
+  {
+    "title": "Anunciação",
+    "artist": "Alceu Valença",
+    "youtube_id": "OR74idpsweg",
+    "sentiment": "positive",
+    "valence": 0.82,
+    "tags": ["mpb", "amor"]
+  },
+  {
+    "title": "Tocando em Frente",
+    "artist": "Almir Sater",
+    "youtube_id": "SWtjTkixv5M",
+    "sentiment": "positive",
+    "valence": 0.6,
+    "tags": ["sertanejo", "esperançoso"]
+  },
+  {
+    "title": "Cálice",
+    "artist": "Chico Buarque & Milton Nascimento",
+    "youtube_id": "RzlniinsBeY",
+    "sentiment": "negative",
+    "valence": -0.9,
+    "tags": ["mpb", "protesto"]
+  },
+  {
+    "title": "Construção",
+    "artist": "Chico Buarque",
+    "youtube_id": "suia_i5dEZc",
+    "sentiment": "negative",
+    "valence": -0.85,
+    "tags": ["mpb", "crítica social"]
+  },
+  {
+    "title": "Tempo Perdido",
+    "artist": "Legião Urbana",
+    "youtube_id": "tI9kSZgMLsc",
+    "sentiment": "negative",
+    "valence": -0.55,
+    "tags": ["rock", "melancolia"]
+  },
+  {
+    "title": "Sampa",
+    "artist": "Caetano Veloso",
+    "youtube_id": "t4pl079t548",
+    "sentiment": "neutral",
+    "valence": 0.0,
+    "tags": ["mpb", "reflexão"]
+  },
+  {
+    "title": "Águas de Março",
+    "artist": "Tom Jobim & Elis Regina",
+    "youtube_id": "E1tOV7y94DY",
+    "sentiment": "neutral",
+    "valence": 0.1,
+    "tags": ["mpb", "clássico"]
+  },
+  {
+    "title": "Saudosa Maloca",
+    "artist": "Adoniran Barbosa",
+    "youtube_id": "yjjnl1ksG-0",
+    "sentiment": "neutral",
+    "valence": -0.1,
+    "tags": ["samba", "saudade"]
+  }
+]

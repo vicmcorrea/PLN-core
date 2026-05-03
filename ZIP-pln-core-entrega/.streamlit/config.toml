@@ -1,0 +1,50 @@
+[server]
+headless = true
+
+[theme.light]
+primaryColor = "#4f46e5"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f8fafc"
+codeBackgroundColor = "#f1f5f9"
+textColor = "#0f172a"
+linkColor = "#4f46e5"
+borderColor = "#e2e8f0"
+showWidgetBorder = true
+baseRadius = "10px"
+buttonRadius = "10px"
+
+font = "Inter:https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+codeFont = "'JetBrains Mono':https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap"
+codeFontSize = "13px"
+headingFontSizes = ["32px", "24px", "20px", "16px", "14px", "12px"]
+headingFontWeights = [600, 600, 600, 500, 500, 500]
+linkUnderline = false
+
+greenColor = "#16a34a"
+redColor = "#dc2626"
+grayColor = "#64748b"
+violetColor = "#7c3aed"
+
+[theme.dark]
+primaryColor = "#818cf8"
+backgroundColor = "#0b1120"
+secondaryBackgroundColor = "#111827"
+codeBackgroundColor = "#0f172a"
+textColor = "#e2e8f0"
+linkColor = "#a5b4fc"
+borderColor = "#1f2937"
+showWidgetBorder = true
+baseRadius = "10px"
+buttonRadius = "10px"
+
+font = "Inter:https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+codeFont = "'JetBrains Mono':https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap"
+codeFontSize = "13px"
+headingFontSizes = ["32px", "24px", "20px", "16px", "14px", "12px"]
+headingFontWeights = [600, 600, 600, 500, 500, 500]
+linkUnderline = false
+
+greenColor = "#4ade80"
+redColor = "#f87171"
+grayColor = "#94a3b8"
+violetColor = "#a78bfa"

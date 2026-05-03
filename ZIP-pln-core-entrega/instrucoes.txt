@@ -1,0 +1,35 @@
+instruções de execução
+
+requisitos:
+python 3.10 ou superior
+conexão com a internet para instalar as dependências
+
+preparação no linux ou macos:
+abra um terminal dentro desta pasta e execute:
+
+./install.sh
+source .venv/bin/activate
+
+preparação no windows:
+abra o powershell dentro desta pasta e execute:
+
+python -m venv .venv
+.\.venv\scripts\activate.ps1
+python -m pip install --upgrade pip setuptools
+python -m pip install -e .
+
+execução pela linha de comando:
+
+python main.py
+
+ou com um texto direto:
+
+python main.py "eu amei o filme, foi muito bom!"
+
+execução do web app:
+
+streamlit run streamlit_app.py
+
+dados incluídos:
+o catálogo de músicas está em data/recommendations.json
+o arquivo do oplexicon v3.0 está em data/external/oplexicon_v3.0.txt

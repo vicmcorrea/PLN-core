@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pln-core"
+version = "0.1.0"
+description = "Symbolic sentiment analysis baseline for Brazilian Portuguese"
+requires-python = ">=3.10"
+dependencies = [
+    "pt-core-news-sm @ https://github.com/explosion/spacy-models/releases/download/pt_core_news_sm-3.8.0/pt_core_news_sm-3.8.0-py3-none-any.whl",
+    "spacy",
+    "streamlit>=1.50.0",
+]
+
+[project.scripts]
+pln-sentiment = "pln_core.cli:main"
+
+[dependency-groups]
+dev = [
+    "ruff",
+]
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+pln_core = ["data/*.json"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*.py" = ["E402"]
+"streamlit_app.py" = ["E402"]
