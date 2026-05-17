@@ -15,8 +15,11 @@
 \usepackage{amsmath}
 \usepackage{tikz}
 \usepackage[round]{natbib}
+\usepackage{xcolor}
 
 \usetikzlibrary{arrows.meta,positioning}
+
+\definecolor{newblue}{HTML}{1565C0}
 
 \hypersetup{
   colorlinks=true,
@@ -45,6 +48,9 @@
   flowarrow/.style={-{Latex[length=2.5mm]}, thick}
 }
 
+\newcommand{\new}[1]{\textcolor{newblue}{#1}}
+\newenvironment{newblock}{\par\color{newblue}}{\par\color{black}}
+
 \begin{document}
 
 \begin{center}
@@ -52,6 +58,8 @@
 {\large SCC0633 Processamento de Linguagem Natural}\\[0.2em]
 {\large SCC5908 Introdução ao Processamento de Língua Natural}\\[0.2em]
 \end{center}
+
+\noindent\textit{\small Versão com destaques: trechos em \new{azul} foram adicionados ou reescritos após a revisão da professora.}
 
 \section{Nome do projeto}
 
@@ -69,6 +77,7 @@
   \item Leonardo Ferreira Runho (11832958)
 \end{itemize}
 
+\begin{newblock}
 \subsection{Autoria do grupo e recursos externos}
 
 A Tabela~\ref{tab:autoria} separa o que foi implementado pela equipe do que foi reaproveitado de recursos externos. Todo o pipeline simbólico, a normalização, as regras, o módulo de recomendação, o catálogo de músicas e os testes automatizados são autoria do grupo. Os recursos externos limitam-se ao léxico OpLexicon v3.0 e ao modelo spaCy \texttt{pt\_core\_news\_sm}.
@@ -91,6 +100,7 @@ Conjunto de 24 testes unitários (\texttt{tests/}) e \emph{script} de avaliaçã
 \caption{Separação entre autoria do grupo e recursos externos reaproveitados.}
 \label{tab:autoria}
 \end{table}
+\end{newblock}
 
 \section{Introdução}
 
@@ -101,10 +111,10 @@ A análise de sentimentos é uma tarefa amplamente utilizada em aplicações com
 No contexto do português brasileiro, essa tarefa apresenta desafios adicionais, como variações linguísticas, uso de gírias, ambiguidade semântica e forte dependência de contexto. Entre os principais desafios estão:
 
 \begin{itemize}
-  \item \textbf{Dependência de contexto} (ironia e sarcasmo): em ``adorei ficar duas horas esperando no aeroporto'', todas as palavras polarizadas são positivas, mas a intenção é negativa.
-  \item \textbf{Ambiguidade lexical}: uma mesma palavra carrega polaridades distintas conforme o contexto \citep{navigli2009wsd}. Em português brasileiro, ``duro'' pode ser físico (neutro), financeiro (``estou duro'', negativo) ou de personalidade (negativo); ``bomba'' pode ser elogio em academia (``bombou no treino'') ou crítica em outro contexto.
-  \item \textbf{Negações e intensificadores}: alteram ou amplificam a polaridade dentro de uma janela curta de tokens, como em ``não foi bom'' (inversão) ou ``muito bom'' (ampliação).
-  \item \textbf{Cobertura limitada de léxicos}: gírias frequentes em redes sociais (``top'', ``mara'', ``show de bola'', ``irado'') raramente aparecem em léxicos tradicionais, mesmo nos mais amplos como o OpLexicon v3.0 (31\,944 termos).
+  \item \textbf{Dependência de contexto} (ironia e sarcasmo)\new{: em ``adorei ficar duas horas esperando no aeroporto'', todas as palavras polarizadas são positivas, mas a intenção é negativa.}
+  \item \textbf{Ambiguidade lexical}\new{: uma mesma palavra carrega polaridades distintas conforme o contexto \citep{navigli2009wsd}. Em português brasileiro, ``duro'' pode ser físico (neutro), financeiro (``estou duro'', negativo) ou de personalidade (negativo); ``bomba'' pode ser elogio em academia (``bombou no treino'') ou crítica em outro contexto.}
+  \item \textbf{Negações e intensificadores}\new{: alteram ou amplificam a polaridade dentro de uma janela curta de tokens, como em ``não foi bom'' (inversão) ou ``muito bom'' (ampliação).}
+  \item \textbf{Cobertura limitada de léxicos}\new{: gírias frequentes em redes sociais (``top'', ``mara'', ``show de bola'', ``irado'') raramente aparecem em léxicos tradicionais, mesmo nos mais amplos como o OpLexicon v3.0 (31\,944 termos).}
 \end{itemize}
 
 Além disso, trata-se de um problema didaticamente relevante em Processamento de Língua Natural, pois envolve a modelagem de fenômenos linguísticos complexos de forma estruturada. Neste trabalho, adotamos uma abordagem simbólica baseada em léxico e regras explícitas, priorizando interpretabilidade em vez de aprendizado automático \citep{taboada2011lexicon,hutto2014vader,souza2012sentiment}.
@@ -161,6 +171,7 @@ A aplicação segue um pipeline simbólico determinístico. Diferente de modelos
 
 \subsection{Recursos e ferramentas}
 
+\begin{newblock}
 A Tabela~\ref{tab:recursos} detalha os três recursos do sistema: a função, a origem (própria do grupo ou externa), o detalhamento técnico e a versão.
 
 \begin{table}[h]
@@ -178,11 +189,12 @@ OpLexicon v3.0 & Polaridade lexical & Léxico com 31\,944 termos distintos após
 \caption{Recursos utilizados pelo sistema, com função, detalhamento e origem.}
 \label{tab:recursos}
 \end{table}
+\end{newblock}
 
 \subsection{Descrição dos processos}
 
 \textbf{Escolha do léxico.}
-O sistema utiliza o OpLexicon v3.0 como recurso externo de polaridade. Os dados são carregados automaticamente e entradas duplicadas são agregadas por média de polaridade, produzindo o \emph{escore base} usado nas etapas seguintes.
+O sistema utiliza o OpLexicon v3.0 como recurso externo de polaridade. Os dados são carregados automaticamente e entradas duplicadas são agregadas por média de polaridade, produzindo o \new{\emph{escore base}} usado nas etapas seguintes.
 
 \textbf{Normalização.}
 Consiste na remoção de URLs e menções, normalização de espaços e redução de caracteres repetidos.
@@ -191,9 +203,10 @@ Consiste na remoção de URLs e menções, normalização de espaços e reduçã
 A CLI e a interface Streamlit usam o modelo \texttt{pt\_core\_news\_sm} do spaCy \citep{spacyModels}. O texto normalizado é tokenizado pelo modelo e cada item é convertido para sua forma lematizada, permitindo associar flexões como \texttt{gostei} e \texttt{gostaram} à forma \texttt{gostar} presente no léxico. Lemas auxiliares muito frequentes, como \texttt{ser} e \texttt{estar}, são filtrados para evitar correspondências espúrias no OpLexicon.
 
 \textbf{Busca no léxico.}
-Cada lema localizado no recurso recebe um \emph{escore base} de polaridade, ou seja, o valor anotado para aquele termo antes de qualquer ajuste por regra. No OpLexicon v3.0 esse valor é discreto no conjunto $\{-1, 0, +1\}$; quando o mesmo termo aparece em múltiplas entradas, a média entre elas é usada. Marcadores funcionais (negações e contrastes) são identificados nesta etapa mas não recebem polaridade própria: eles atuam apenas como gatilhos das regras descritas a seguir.
+\new{Cada lema localizado no recurso recebe um \emph{escore base} de polaridade, ou seja, o valor anotado para aquele termo antes de qualquer ajuste por regra. No OpLexicon v3.0 esse valor é discreto no conjunto $\{-1, 0, +1\}$; quando o mesmo termo aparece em múltiplas entradas, a média entre elas é usada. Marcadores funcionais (negações e contrastes) são identificados nesta etapa mas não recebem polaridade própria: eles atuam apenas como gatilhos das regras descritas a seguir.}
 
 \textbf{Regras simbólicas.}
+\begin{newblock}
 A Tabela~\ref{tab:regras} resume cada regra com gatilho, janela de aplicação, efeito numérico e exemplo. Os pesos foram calibrados manualmente pela equipe e seguem o espírito de abordagens como o VADER \citep{hutto2014vader} e a análise de negadores e modais de \citet{kiritchenko2016effect}.
 
 \begin{table}[h]
@@ -213,10 +226,12 @@ Exclamação & ``!'' no texto bruto (até 3) & toda a frase & Multiplica por $1+
 \caption{Regras simbólicas, com gatilho, janela, efeito numérico e exemplo.}
 \label{tab:regras}
 \end{table}
+\end{newblock}
 
 \textbf{Agregação e classificação.}
-O escore final da frase é a soma dos escores ajustados de todos os termos casados. A classificação aplica dois limiares simétricos sobre essa soma:
+\new{O escore final da frase é a soma dos escores ajustados de todos os termos casados. A classificação aplica dois limiares simétricos sobre essa soma:}
 
+\begin{newblock}
 \begin{equation}
 \text{score} = \sum_{i} \text{adjusted}(t_i), \qquad
 \text{rótulo} =
@@ -228,10 +243,11 @@ O escore final da frase é a soma dos escores ajustados de todos os termos casad
 \end{equation}
 
 Quando nenhum termo é encontrado no léxico, o rótulo é \texttt{neutro} por definição.
+\end{newblock}
 
 \subsection{Exemplo de execução}
 
-A Tabela~\ref{tab:exemplo} ilustra o pipeline completo para a entrada \texttt{O app é muito bom, mas a tela confusa!}. Cada contribuição ajustada é o produto do escore base pelos fatores das regras aplicadas, conforme a Tabela~\ref{tab:regras}.
+\new{A Tabela~\ref{tab:exemplo} ilustra o pipeline completo para a entrada} \texttt{O app é muito bom, mas a tela confusa!}. \new{Cada contribuição ajustada é o produto do escore base pelos fatores das regras aplicadas, conforme a Tabela~\ref{tab:regras}.}
 
 \begin{table}[h]
 \small
@@ -243,17 +259,17 @@ A Tabela~\ref{tab:exemplo} ilustra o pipeline completo para a entrada \texttt{O 
 Entrada & \texttt{O app é muito bom, mas a tela confusa!} \\
 Normalização & remoção de ruídos e padronização de espaços; neste caso o texto permanece igual \\
 Tokenização e lematização & \texttt{o, app, muito, bom, mas, o, tela, confuso} \\
-Busca no léxico & \texttt{bom} $(+1{,}0)$ e \texttt{confuso} $(-1{,}0)$ encontrados no OpLexicon; \texttt{mas} é tratado como marcador funcional de contraste, sem polaridade própria \\
+Busca no léxico & \texttt{bom} $(+1{,}0)$ e \texttt{confuso} $(-1{,}0)$ encontrados no OpLexicon; \new{\texttt{mas} é tratado como marcador funcional de contraste, sem polaridade própria} \\
 Regras aplicadas & \texttt{bom}: intensificação (\texttt{muito}), pré-contraste, exclamação; \texttt{confuso}: pós-contraste, exclamação \\
-Contribuições ajustadas & \texttt{bom}: $1{,}0 \times 1{,}6 \times 0{,}7 \times 1{,}05 = +1{,}176$; \texttt{confuso}: $-1{,}0 \times 1{,}3 \times 1{,}05 = -1{,}365$ \\
-Agregação e classificação & soma final $-0{,}189$; como $|-0{,}189| < 0{,}75$, classificada como \textbf{neutro} \\
+Contribuições ajustadas & \new{\texttt{bom}: $1{,}0 \times 1{,}6 \times 0{,}7 \times 1{,}05 = +1{,}176$; \texttt{confuso}: $-1{,}0 \times 1{,}3 \times 1{,}05 = -1{,}365$} \\
+Agregação e classificação & \new{soma final $-0{,}189$; como $|-0{,}189| < 0{,}75$, classificada como \textbf{neutro}} \\
 \bottomrule
 \end{tabularx}
-\caption{Aplicação completa do pipeline para \texttt{O app é muito bom, mas a tela confusa!}.}
+\caption{\new{Aplicação completa do pipeline para} \texttt{O app é muito bom, mas a tela confusa!}.}
 \label{tab:exemplo}
 \end{table}
 
-Esse exemplo mostra como evidências positivas e negativas podem se equilibrar: a palavra positiva inicial (\texttt{bom}, com intensificador) é atenuada pelo pré-contraste, enquanto a palavra negativa final (\texttt{confuso}) é amplificada pelo pós-contraste. A soma fica próxima de zero e o sistema, prudentemente, devolve \texttt{neutro}, em linha com a leitura humana de que a frase oscila entre elogio e crítica.
+\new{Esse exemplo mostra como evidências positivas e negativas podem se equilibrar: a palavra positiva inicial (\texttt{bom}, com intensificador) é atenuada pelo pré-contraste, enquanto a palavra negativa final (\texttt{confuso}) é amplificada pelo pós-contraste. A soma fica próxima de zero e o sistema, prudentemente, devolve \texttt{neutro}, em linha com a leitura humana de que a frase oscila entre elogio e crítica.}
 
 \section{Execução}
 
@@ -330,11 +346,13 @@ python -m unittest discover -s tests
 
 Como extensão do sistema, foi implementado um módulo de recomendação de músicas baseado no sentimento detectado no texto.
 
+\begin{newblock}
 \textbf{Catálogo.} O catálogo, descrito em \texttt{data/recommendations.json}, é um pequeno conjunto curado pela equipe com 10 músicas brasileiras de domínio reconhecido, distribuídas em 4 positivas, 3 negativas e 3 neutras. Cada entrada traz título, artista, identificador no YouTube, rótulo de sentimento (os mesmos três do classificador) e valor de valência. Os rótulos e as valências foram atribuídos manualmente pelo grupo, considerando letra e clima geral da gravação. Nenhum modelo externo, API ou serviço de \emph{streaming} foi utilizado.
 
 \textbf{Valência.} O conceito vem da psicologia do afeto \citep{russell1980circumplex} e é também o nome do atributo de mesma natureza na Spotify Web API. Trata-se de uma medida do grau de positividade emocional de uma faixa: valência alta indica clima alegre e brilhante, valência baixa indica clima triste ou melancólico. Para casar com o escore do classificador, usamos o intervalo $[-1, +1]$. Trata-se de uma aproximação deliberadamente simples, e por isso a rotulagem manual é registrada como limitação na Seção~\ref{sec:conclusao}.
 
 \textbf{Regra de recomendação.} Dado um texto, o sistema filtra músicas com o mesmo rótulo e as ordena pela menor distância entre o escore do texto e a valência da música:
+\end{newblock}
 
 \begin{equation}
 d(s) = |\,\text{valence}(s) - \text{score}_{\text{texto}}\,|
@@ -342,6 +360,7 @@ d(s) = |\,\text{valence}(s) - \text{score}_{\text{texto}}\,|
 
 A música recomendada é aquela com menor $d(s)$. O módulo é determinístico e não utiliza aprendizado de máquina.
 
+\begin{newblock}
 \textbf{Resultados.} A Tabela~\ref{tab:recomendacoes} mostra a saída real do sistema para quatro entradas representativas, cada uma processada pelo pipeline completo (OpLexicon v3.0 + spaCy + módulo de recomendação).
 
 \begin{table}[h]
@@ -360,7 +379,9 @@ A música recomendada é aquela com menor $d(s)$. O módulo é determinístico e
 \caption{Saídas reais do módulo de recomendação para quatro entradas representativas.}
 \label{tab:recomendacoes}
 \end{table}
+\end{newblock}
 
+\begin{newblock}
 \section{Resultados}
 
 \textbf{Testes unitários.} O projeto inclui 24 testes automatizados em \texttt{tests/}, cobrindo o pipeline simbólico, o carregamento do léxico, os tokenizadores, o módulo de recomendação e a CLI. Todos passam (\texttt{Ran 24 tests in 0.27s OK}).
@@ -383,19 +404,20 @@ OpLexicon v3.0 + spaCy \texttt{pt\_core\_news\_sm} (produção) & 14/20 & 70\% \
 \end{table}
 
 \textbf{Análise dos erros.} Os 6 erros do pipeline de produção concentram-se em três padrões: (i) gírias frequentes em português brasileiro que não estão no OpLexicon (``top'', ``mara''), produzindo falsos neutros; (ii) substantivos comuns que recebem polaridade no léxico, gerando falsos positivos em frases neutras (``produto'', ``pedido''); e (iii) palavras com polaridade pequena que ficam abaixo do limiar de $0{,}75$ mesmo com regras aplicadas. Esses padrões dão pistas claras para evoluções futuras: ampliação do léxico com gírias, depuração de substantivos de alto uso e ajuste fino dos limiares por classe.
+\end{newblock}
 
 \section{Conclusão}
 \label{sec:conclusao}
 
 O presente trabalho apresentou um sistema simbólico para análise de sentimentos em português brasileiro, baseado em léxico e regras explícitas, priorizando interpretabilidade ao longo de todo o pipeline.
 
-Os números da Seção~5 mostram que a abordagem captura padrões claros de polaridade em sentenças curtas (70\% de acurácia no pipeline de produção e 95\% no léxico-semente didático), mas também evidenciam limitações inerentes: a dependência da cobertura lexical, a simplificação de fenômenos linguísticos complexos por meio de regras heurísticas e a análise predominantemente local do contexto impactam diretamente a qualidade das classificações.
+\new{Os números da Seção~5 mostram que a abordagem captura padrões claros de polaridade em sentenças curtas (70\% de acurácia no pipeline de produção e 95\% no léxico-semente didático), mas também evidenciam limitações inerentes:} a dependência \new{da cobertura lexical}, a simplificação de fenômenos linguísticos complexos por meio de regras heurísticas e a análise predominantemente local do contexto impactam diretamente a qualidade das classificações.
 
-Além disso, o módulo de recomendação, embora funcional, baseia-se em valores de valência atribuídos manualmente pela equipe, o que limita a precisão das sugestões fora do catálogo curado.
+Além disso, o módulo de recomendação, embora funcional, baseia-se em valores de valência atribuídos manualmente \new{pela equipe}, o que limita a precisão das sugestões \new{fora do catálogo curado}.
 
-Essas limitações são esperadas em abordagens simbólicas e apontam caminhos naturais para evolução do sistema, como o enriquecimento do léxico com gírias e termos de domínio, o refinamento das regras com base em análise sistemática dos erros e a incorporação de técnicas mais robustas de modelagem linguística.
+Essas limitações são esperadas em abordagens simbólicas e apontam caminhos naturais para evolução do sistema, como o enriquecimento do léxico \new{com gírias e termos de domínio}, o refinamento das regras \new{com base em análise sistemática dos erros} e a incorporação de técnicas mais robustas de modelagem linguística.
 
-Em síntese, o projeto evidencia que, embora abordagens simbólicas ofereçam transparência e controle, sua efetividade depende fortemente da qualidade dos recursos e das simplificações adotadas, reforçando o papel dessas técnicas como um ponto de partida interpretável, mas não definitivo, para a análise de sentimentos.
+Em síntese, o projeto evidencia que, embora abordagens simbólicas ofereçam transparência e controle, sua efetividade depende fortemente da qualidade dos recursos e das simplificações adotadas, reforçando o papel dessas técnicas como um ponto de partida interpretável\new{, mas não definitivo,} para a análise de sentimentos.
 
 \bibliographystyle{plainnat}
 \bibliography{references}

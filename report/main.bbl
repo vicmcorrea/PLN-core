@@ -5,17 +5,11 @@
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
 
-\bibitem[{Explosion AI}(2026{\natexlab{a}})]{spacyModels}
+\bibitem[{Explosion AI}(2026)]{spacyModels}
 {Explosion AI}.
-\newblock Models and languages, 2026{\natexlab{a}}.
+\newblock Models and languages, 2026.
 \newblock URL \url{https://spacy.io/docs/usage/models}.
 \newblock spaCy usage documentation accessed in April 2026.
-
-\bibitem[{Explosion AI}(2026{\natexlab{b}})]{spacyTokenizer}
-{Explosion AI}.
-\newblock Tokenizer api, 2026{\natexlab{b}}.
-\newblock URL \url{https://spacy.io/api/tokenizer}.
-\newblock spaCy API documentation accessed in April 2026.
 
 \bibitem[Hutto and Gilbert(2014)]{hutto2014vader}
 C.~J. Hutto and Eric Gilbert.
@@ -33,12 +27,20 @@ Svetlana Kiritchenko and Saif~M. Mohammad.
   Subjectivity, Sentiment and Social Media Analysis}, 2016.
 \newblock URL \url{https://aclanthology.org/W16-0410/}.
 
-\bibitem[{PLN PUCRS}(2026)]{oplexiconSite}
-{PLN PUCRS}.
-\newblock Oplexicon, 2026.
-\newblock URL
-  \url{https://www.inf.pucrs.br/linatural/wordpress/recursos-e-ferramentas/oplexicon/}.
-\newblock Official resource page accessed in April 2026.
+\bibitem[Navigli(2009)]{navigli2009wsd}
+Roberto Navigli.
+\newblock Word sense disambiguation: A survey.
+\newblock \emph{ACM Computing Surveys}, 41\penalty0 (2), 2009.
+\newblock \doi{10.1145/1459352.1459355}.
+\newblock URL \url{https://doi.org/10.1145/1459352.1459355}.
+
+\bibitem[Russell(1980)]{russell1980circumplex}
+James~A. Russell.
+\newblock A circumplex model of affect.
+\newblock \emph{Journal of Personality and Social Psychology}, 39\penalty0
+  (6):\penalty0 1161--1178, 1980.
+\newblock \doi{10.1037/h0077714}.
+\newblock URL \url{https://doi.org/10.1037/h0077714}.
 
 \bibitem[Souza and Vieira(2012)]{souza2012sentiment}
 Marlo Souza and Renata Vieira.

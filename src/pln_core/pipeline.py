@@ -69,6 +69,9 @@ class SymbolicSentimentAnalyzer:
         exclamation_multiplier = 1 + (0.05 * exclamation_count) if exclamation_count else 1.0
 
         for index, token in enumerate(tokens):
+            if token in CONTRAST_MARKERS or token in NEGATIONS:
+                continue
+
             base_score = self.lexicon.get(token)
             if base_score is None:
                 continue
