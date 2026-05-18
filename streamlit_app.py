@@ -68,7 +68,7 @@ def initialize_session_state() -> None:
     st.session_state.setdefault("recommendation_index", 0)
 
 
-@st.cache_resource(show_spinner="Carregando léxicos (OpLexicon + SentiLex-PT 02 + gírias)...")
+@st.cache_resource(show_spinner="Carregando OpLexicon v3.0...")
 def get_analyzer() -> SymbolicSentimentAnalyzer:
     """Build and cache the project's production analyzer."""
 

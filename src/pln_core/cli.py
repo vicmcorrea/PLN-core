@@ -182,7 +182,7 @@ def resolve_requested_text(args: argparse.Namespace) -> str | None:
 
 
 def build_analyzer(announce_loading: bool = True) -> SymbolicSentimentAnalyzer:
-    """Build the production analyzer (multi-lexicon + tweet-aware tokenizer)."""
+    """Build the production analyzer (OpLexicon v3.0 + spaCy lemmas)."""
 
     if announce_loading:
         print(f"loading {PRODUCTION_ANALYZER_LABEL}...")
