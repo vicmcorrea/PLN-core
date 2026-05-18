@@ -1,0 +1,7 @@
+# OpLexicon v3.0 + ~250 entry slang/emoji extension + tweet-aware tokenizer.
+# Default thresholds are loosened to +/-0.5 to undo the neutral bias caused by
+# short tweets accumulating fewer matched terms than longer reviews.
+name: oplexicon_tweet
+kwargs:
+  positive_threshold: 0.5
+  negative_threshold: -0.5

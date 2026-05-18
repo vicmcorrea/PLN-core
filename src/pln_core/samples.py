@@ -2,7 +2,9 @@ from __future__ import annotations
 
 ANALYZE_MODE = "analyze"
 COMPARE_MODE = "compare"
-ANALYZER_STACK_LABEL = "OpLexicon v3.0 + spaCy Portuguese lemmatizer"
+ANALYZER_STACK_LABEL = (
+    "OpLexicon v3.0 + SentiLex-PT 02 + slang/emoji lexicon (tweet-aware)"
+)
 
 SAMPLE_TEXTS: dict[str, str] = {
     "positive": "Eu amei o filme, foi muito bom!",

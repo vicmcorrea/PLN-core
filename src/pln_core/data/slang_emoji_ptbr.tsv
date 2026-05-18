@@ -1,0 +1,290 @@
+token	score	notes
+amei	1.0	informal love (1st person)
+amo	1.0	informal love
+amooo	1.0	emphatic love
+amar	0.8	verb root
+adoro	0.8	informal positive
+adorei	0.9	past tense positive
+adoravel	0.8	endearment
+top	0.9	internet slang positive
+demais	0.8	intensifier-positive
+massa	0.8	slang positive (br)
+maneiro	0.7	slang positive
+maneira	0.5	context-dependent positive
+dahora	0.8	slang positive
+daora	0.8	variant spelling
+irado	0.8	slang positive (br)
+foda	0.8	slang positive (br, context)
+brabo	0.7	slang positive (br, modern)
+lindo	0.9	beauty positive
+linda	0.9	beauty positive
+lindao	0.9	emphatic positive
+lindona	0.9	emphatic positive
+fofo	0.7	cute
+fofa	0.7	cute
+fofinho	0.7	cute diminutive
+mito	0.9	slang positive (legend)
+mitou	0.9	slang positive (past)
+lacrou	0.9	slang positive (slay)
+arrasou	0.9	slang positive
+arraso	0.8	slang positive
+sensa	0.8	short for sensacional
+sensacional	1.0	strong positive
+perfeito	1.0	strong positive
+perfeita	1.0	strong positive
+perfeitin	0.9	diminutive positive
+gostei	0.8	past tense positive
+curti	0.8	informal positive (liked)
+curto	0.6	informal positive (i like)
+recomendo	0.8	positive verb
+parabens	0.8	congratulations
+obrigado	0.5	thanks (mildly positive)
+valeu	0.5	informal thanks
+maravilha	1.0	wonderful
+maravilhoso	1.0	wonderful
+maravilhosa	1.0	wonderful
+incrivel	0.9	amazing
+espetacular	0.9	spectacular
+otimo	0.9	great
+otima	0.9	great
+melhor	0.7	best/better
+bom	0.6	good
+boa	0.6	good
+felicidade	0.9	happiness
+feliz	0.9	happy
+alegria	0.9	joy
+animado	0.7	excited
+empolgado	0.7	excited
+kkk	0.5	laughter
+kkkk	0.5	laughter
+haha	0.5	laughter
+hehe	0.5	mild laughter
+rsrs	0.4	mild laughter
+hahaha	0.6	strong laughter
+chato	-0.7	annoying
+chatice	-0.7	annoyance
+pessimo	-1.0	terrible
+pessima	-1.0	terrible
+horrivel	-1.0	horrible
+horroroso	-0.9	horrible
+horrorosa	-0.9	horrible
+lixo	-0.9	trash slang negative
+bosta	-0.9	informal negative
+merda	-0.9	informal negative
+droga	-0.6	mild negative interjection
+porra	-0.5	mild negative interjection (context)
+odeio	-1.0	hate (1st person)
+odiei	-1.0	hated
+odio	-1.0	hate noun
+fdp	-1.0	strong insult
+fdps	-1.0	strong insult plural
+idiota	-0.8	insult
+babaca	-0.8	insult
+otario	-0.7	insult
+arrombado	-0.9	strong insult
+fudido	-0.8	negative slang
+ferrado	-0.7	negative slang
+triste	-0.8	sad
+tristeza	-0.8	sadness
+deprimente	-0.9	depressing
+deprimido	-0.8	depressed
+revoltado	-0.7	angry
+revoltante	-0.8	outrageous
+nojento	-0.8	gross
+nojo	-0.7	disgust
+asco	-0.8	disgust
+fake	-0.6	fake/negative quality
+falso	-0.6	false
+mentira	-0.6	lie
+mentiroso	-0.7	liar
+ridiculo	-0.8	ridiculous
+patetico	-0.8	pathetic
+vergonha	-0.7	shame
+vergonhoso	-0.8	shameful
+absurdo	-0.7	outrageous
+inutil	-0.7	useless
+fracasso	-0.8	failure
+decepcao	-0.8	disappointment
+decepcionante	-0.8	disappointing
+decepcionado	-0.7	disappointed
+pior	-0.7	worst/worse
+ruim	-0.7	bad
+horrenda	-0.9	horrible
+horrendo	-0.9	horrible
+fed	-0.5	informal short for fudido
+ng	-0.2	nothing (mild)
+nada	-0.2	nothing (mild)
+problema	-0.4	problem (mild)
+defeito	-0.4	defect
+quebrou	-0.5	broke (negative in product context)
+demorou	-0.5	took too long (negative in product context)
+atrasou	-0.5	delayed (negative)
+cancelado	-0.5	cancelled (negative)
+furada	-0.7	bad deal slang
+caro	-0.4	expensive (mild negative)
+barato	0.4	cheap (mild positive in product context)
+rapido	0.5	fast (positive in product context)
+funcional	0.4	functional (mild positive)
+funcionou	0.5	it worked (positive)
+satisfeito	0.8	satisfied
+satisfeita	0.8	satisfied
+insatisfeito	-0.8	unsatisfied
+recomendado	0.7	recommended
+❤	1.0	red heart
+❤️	1.0	red heart (variant selector)
+🧡	0.9	orange heart
+💛	0.9	yellow heart
+💚	0.9	green heart
+💙	0.9	blue heart
+💜	0.9	purple heart
+🖤	0.4	black heart (context)
+🤍	0.7	white heart
+💕	0.9	two hearts
+💖	0.9	sparkling heart
+💗	0.9	growing heart
+💓	0.9	beating heart
+💞	0.9	revolving hearts
+💝	0.9	heart with ribbon
+💘	0.8	heart with arrow
+😍	1.0	heart eyes
+🥰	1.0	smiling with hearts
+😘	0.9	kiss
+😗	0.6	kissing
+😚	0.6	closed eyes kiss
+😙	0.6	smile kiss
+😂	0.7	tears of joy
+🤣	0.7	rolling laughing
+😆	0.7	squinting laugh
+😄	0.7	grinning
+😃	0.7	grinning
+😀	0.6	grinning
+😁	0.7	beaming
+🙂	0.4	slight smile
+😊	0.8	smiling blush
+🙃	-0.1	upside down (irony)
+☺	0.6	relaxed smile
+😇	0.6	smiling halo
+🤩	0.9	star eyes
+🥳	0.8	partying
+😎	0.6	cool
+👏	0.8	clapping
+🙌	0.8	raising hands
+👍	0.7	thumbs up
+💪	0.6	muscle
+✨	0.7	sparkles
+🌟	0.7	glowing star
+⭐	0.6	star
+🔥	0.7	fire (excited)
+💯	0.8	hundred points (strong positive)
+😡	-1.0	pouting
+😠	-0.9	angry
+🤬	-1.0	swearing
+🤮	-1.0	vomiting
+🤢	-0.9	nauseated
+😢	-0.8	crying
+😭	-0.8	loudly crying
+😞	-0.7	disappointed
+😔	-0.6	pensive
+😩	-0.8	weary
+😫	-0.8	tired
+😖	-0.7	confounded
+😣	-0.6	persevering
+😤	-0.7	steam from nose
+😒	-0.6	unamused
+🙄	-0.5	eye roll
+😑	-0.3	expressionless
+😐	-0.2	neutral face
+😕	-0.5	confused
+😟	-0.6	worried
+☹	-0.6	frowning
+😦	-0.6	frowning open
+😧	-0.6	anguished
+😨	-0.6	fearful
+😰	-0.6	anxious
+😥	-0.5	sad smile
+👎	-0.7	thumbs down
+💔	-1.0	broken heart
+😱	-0.5	face screaming (context dependent)
+🤗	0.8	hugging face
+🥺	0.3	pleading face (mildly positive)
+🤔	-0.1	thinking face
+🙏	0.5	folded hands
+🤦	-0.4	facepalm
+🤷	-0.1	shrug
+😏	0.2	smirking
+😅	0.3	sweat smile (relieved)
+😬	-0.3	grimace
+🤡	-0.5	clown (insult slang)
+😴	-0.2	sleepy (boredom)
+🤤	0.4	drooling (desire)
+🥵	0.2	hot face
+🥶	-0.3	cold face
+😬	-0.3	grimace
+🤯	0.4	mind blown (excited)
+😈	0.2	smiling devil
+😼	0.2	cat smirk
+🤓	0.2	nerd
+🥱	-0.4	yawning (bored)
+🫶	0.9	heart hands
+🫠	-0.2	melting face
+🥲	-0.3	smiling tear
+curtindo	0.7	gerund of curtir (enjoying)
+curte	0.6	informal positive
+curtir	0.7	verb base
+curtiu	0.7	past 3rd
+curti	0.8	past 1st (already)
+amando	0.9	gerund of amar
+ameio	0.9	informal variant
+amooo	1.0	emphatic
+amor	0.7	noun love
+amora	0.5	endearment
+rainha	0.8	queen (positive informal)
+rei	0.6	king (positive informal)
+gata	0.6	attractive (positive br slang)
+gato	0.6	attractive (positive br slang)
+piriguete	0.0	context neutral
+fera	0.7	great (informal)
+genial	0.8	brilliant
+genio	0.8	genius
+musa	0.6	muse (positive)
+deusa	0.8	goddess (positive)
+deus	0.4	god (often emphatic positive)
+mara	0.9	short for maravilhoso
+maraaa	0.9	emphatic variant
+zica	0.5	good vibes slang
+zueira	0.3	joking (mildly positive)
+zoeira	0.3	joking
+tristinho	-0.6	mild sad diminutive
+tristinha	-0.6	mild sad diminutive
+perdi	-0.5	i lost (negative)
+perdeu	-0.5	lost (negative)
+perdendo	-0.5	losing
+perdedor	-0.7	loser
+ganhei	0.7	won (positive)
+ganhou	0.7	won (positive)
+ganhamos	0.7	we won
+vencemos	0.7	we won
+vencer	0.6	to win
+vitoria	0.8	victory
+derrota	-0.8	defeat
+fome	-0.3	hungry (mild negative)
+cansaço	-0.5	tired noun
+cansado	-0.6	tired
+cansada	-0.6	tired
+exausto	-0.7	exhausted
+exausta	-0.7	exhausted
+saudade	0.3	missing (Brazilian-specific mild positive)
+saudades	0.3	missing
+prazer	0.7	pleasure
+delicia	0.9	delicious
+delicioso	0.9	delicious
+deliciosa	0.9	delicious
+gostoso	0.8	tasty
+gostosa	0.8	tasty
+chega	-0.3	enough (impatience)
+chega de	-0.5	enough of (negative)
+pqp	-0.4	exasperation
+vsf	-0.7	go away (strong negative)
+caralho	-0.3	expletive (context)
+fudeu	-0.7	screwed
+ferrou	-0.7	screwed

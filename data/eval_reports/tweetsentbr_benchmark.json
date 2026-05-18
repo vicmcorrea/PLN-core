@@ -1,0 +1,163 @@
+[
+  {
+    "analyzer": "majority baseline",
+    "accuracy": 0.35231943628890194,
+    "macro_f1": 0.1736864958749457,
+    "per_class_f1": {
+      "positive": 0.5210594876248371,
+      "negative": 0.0,
+      "neutral": 0.0
+    },
+    "confusion": {
+      "positive->positive": 600,
+      "positive->negative": 0,
+      "positive->neutral": 0,
+      "negative->positive": 587,
+      "negative->negative": 0,
+      "negative->neutral": 0,
+      "neutral->positive": 516,
+      "neutral->negative": 0,
+      "neutral->neutral": 0
+    },
+    "elapsed_seconds": 0.002002207998884842,
+    "notes": "always predicts the majority class"
+  },
+  {
+    "analyzer": "seed lexicon",
+    "accuracy": 0.39107457428068115,
+    "macro_f1": 0.325986019943254,
+    "per_class_f1": {
+      "positive": 0.34234234234234234,
+      "negative": 0.14618973561430793,
+      "neutral": 0.48942598187311176
+    },
+    "confusion": {
+      "positive->positive": 133,
+      "positive->negative": 5,
+      "positive->neutral": 462,
+      "negative->positive": 18,
+      "negative->negative": 47,
+      "negative->neutral": 522,
+      "neutral->positive": 26,
+      "neutral->negative": 4,
+      "neutral->neutral": 486
+    },
+    "elapsed_seconds": 0.031665292000980116,
+    "notes": "30-word didactic seed lexicon + regex tokenizer"
+  },
+  {
+    "analyzer": "OpLexicon (regex)",
+    "accuracy": 0.42337052260716385,
+    "macro_f1": 0.42473052360544505,
+    "per_class_f1": {
+      "positive": 0.4608208955223881,
+      "negative": 0.4098360655737705,
+      "neutral": 0.40353460972017674
+    },
+    "confusion": {
+      "positive->positive": 247,
+      "positive->negative": 63,
+      "positive->neutral": 290,
+      "negative->positive": 109,
+      "negative->negative": 200,
+      "negative->neutral": 278,
+      "neutral->positive": 116,
+      "neutral->negative": 126,
+      "neutral->neutral": 274
+    },
+    "elapsed_seconds": 0.0343315829995845,
+    "notes": "OpLexicon v3.0 + regex tokenizer"
+  },
+  {
+    "analyzer": "OpLexicon (spaCy lemmas)",
+    "accuracy": 0.4345273047563124,
+    "macro_f1": 0.4338781513863501,
+    "per_class_f1": {
+      "positive": 0.47570332480818417,
+      "negative": 0.413510747185261,
+      "neutral": 0.4124203821656051
+    },
+    "confusion": {
+      "positive->positive": 279,
+      "positive->negative": 72,
+      "positive->neutral": 249,
+      "negative->positive": 153,
+      "negative->negative": 202,
+      "negative->neutral": 232,
+      "neutral->positive": 141,
+      "neutral->negative": 116,
+      "neutral->neutral": 259
+    },
+    "elapsed_seconds": 6.133891084002244,
+    "notes": "OpLexicon v3.0 + spaCy pt_core_news_sm"
+  },
+  {
+    "analyzer": "LeIA (Almeida 2018, PT-BR VADER)",
+    "accuracy": 0.4997064004697592,
+    "macro_f1": 0.5001579980783531,
+    "per_class_f1": {
+      "positive": 0.4817244611059044,
+      "negative": 0.5454545454545454,
+      "neutral": 0.4732949876746097
+    },
+    "confusion": {
+      "positive->positive": 257,
+      "positive->negative": 107,
+      "positive->neutral": 236,
+      "negative->positive": 104,
+      "negative->negative": 306,
+      "negative->neutral": 177,
+      "neutral->positive": 106,
+      "neutral->negative": 122,
+      "neutral->neutral": 288
+    },
+    "elapsed_seconds": 0.1196558340016054,
+    "notes": "external lexicon-based tool, default thresholds (\u00b10.05)"
+  },
+  {
+    "analyzer": "OpLexicon + tweet rules",
+    "accuracy": 0.5079271873165003,
+    "macro_f1": 0.501614997940335,
+    "per_class_f1": {
+      "positive": 0.601526717557252,
+      "negative": 0.4949698189134809,
+      "neutral": 0.40834845735027225
+    },
+    "confusion": {
+      "positive->positive": 394,
+      "positive->negative": 51,
+      "positive->neutral": 155,
+      "negative->positive": 135,
+      "negative->negative": 246,
+      "negative->neutral": 206,
+      "neutral->positive": 181,
+      "neutral->negative": 110,
+      "neutral->neutral": 225
+    },
+    "elapsed_seconds": 0.04789366700060782,
+    "notes": "OpLexicon v3.0 + slang/emoji + tweet normalization"
+  },
+  {
+    "analyzer": "OpLexicon + SentiLex + tweet (best)",
+    "accuracy": 0.5231943628890193,
+    "macro_f1": 0.5112900378128719,
+    "per_class_f1": {
+      "positive": 0.6070381231671554,
+      "negative": 0.533457249070632,
+      "neutral": 0.39337474120082816
+    },
+    "confusion": {
+      "positive->positive": 414,
+      "positive->negative": 66,
+      "positive->neutral": 120,
+      "negative->positive": 160,
+      "negative->negative": 287,
+      "negative->neutral": 140,
+      "neutral->positive": 190,
+      "neutral->negative": 136,
+      "neutral->neutral": 190
+    },
+    "elapsed_seconds": 0.05645887499849778,
+    "notes": "Multi-lexicon fusion (OpLexicon + SentiLex-PT 02 + slang/emoji)"
+  }
+]

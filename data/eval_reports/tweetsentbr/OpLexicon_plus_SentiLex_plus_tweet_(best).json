@@ -1,0 +1,34 @@
+{
+  "analyzer": "oplexicon_tweet_plus",
+  "dataset": "tweetsentbr[test]@600per_class",
+  "dataset_description": "TweetSentBR (Brum and Volpe Nunes, LREC 2018) - few-shot release via eduagarcia/tweetsentbr_fewshot, split=test",
+  "elapsed_seconds": 0.05645887499849778,
+  "metrics": {
+    "total": 1703,
+    "correct": 891,
+    "accuracy": 0.5231943628890193,
+    "macro_f1": 0.5112900378128719,
+    "per_class_f1": {
+      "positive": 0.6070381231671554,
+      "negative": 0.533457249070632,
+      "neutral": 0.39337474120082816
+    },
+    "support": {
+      "positive": 600,
+      "neutral": 516,
+      "negative": 587
+    },
+    "confusion": {
+      "positive->positive": 414,
+      "positive->negative": 66,
+      "positive->neutral": 120,
+      "negative->positive": 160,
+      "negative->negative": 287,
+      "negative->neutral": 140,
+      "neutral->positive": 190,
+      "neutral->negative": 136,
+      "neutral->neutral": 190
+    },
+    "classification_report": "              precision    recall  f1-score   support\n\n    positive      0.542     0.690     0.607       600\n    negative      0.587     0.489     0.533       587\n     neutral      0.422     0.368     0.393       516\n\n    accuracy                          0.523      1703\n   macro avg      0.517     0.516     0.511      1703\nweighted avg      0.521     0.523     0.517      1703\n"
+  }
+}

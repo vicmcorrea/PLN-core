@@ -1,0 +1,3 @@
+# OpLexicon v3.0 with the plain regex tokenizer (no spaCy lemmatization).
+name: oplexicon_regex
+kwargs: {}

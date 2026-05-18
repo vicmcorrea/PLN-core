@@ -3,25 +3,22 @@ from __future__ import annotations
 import argparse
 import json
 
-from pln_core.lexicon import (
-    OPLEXICON_LEXICON_SOURCE,
-    LexiconDownloadError,
-    load_lexicon,
+from pln_core.factory import (
+    PRODUCTION_ANALYZER_LABEL,
+    build_production_analyzer,
 )
+from pln_core.lexicon import LexiconDownloadError
 from pln_core.pipeline import AnalysisResult, SymbolicSentimentAnalyzer
 from pln_core.samples import (
     ANALYZE_MODE,
-    ANALYZER_STACK_LABEL,
     COMPARE_MODE,
     COMPARISON_EXAMPLES,
     MENU_OPTIONS,
     SAMPLE_TEXTS,
     START_MODE_OPTIONS,
 )
-from pln_core.tokenizers import (
-    SPACY_PT_LEMMATIZER_SOURCE,
-    get_tokenizer,
-)
+
+ANALYZER_STACK_LABEL = PRODUCTION_ANALYZER_LABEL
 
 MENU_TO_SAMPLE_KEY = {
     "2": "positive",
@@ -185,14 +182,12 @@ def resolve_requested_text(args: argparse.Namespace) -> str | None:
 
 
 def build_analyzer(announce_loading: bool = True) -> SymbolicSentimentAnalyzer:
-    """Build the analyzer with the fixed project stack."""
+    """Build the production analyzer (multi-lexicon + tweet-aware tokenizer)."""
 
     if announce_loading:
-        print("loading oplexicon v3.0...")
+        print(f"loading {PRODUCTION_ANALYZER_LABEL}...")
 
-    lexicon = load_lexicon(source=OPLEXICON_LEXICON_SOURCE)
-    tokenizer = get_tokenizer(SPACY_PT_LEMMATIZER_SOURCE)
-    return SymbolicSentimentAnalyzer(lexicon=lexicon, tokenizer=tokenizer)
+    return build_production_analyzer()
 
 
 def build_comparison_results() -> list[dict[str, object]]:

@@ -1,103 +1,49 @@
-"""Qualitative benchmark of the symbolic sentiment pipeline.
+"""Legacy entry point that reproduces the original 20-sentence smoke test.
 
-Runs a fixed set of short Brazilian Portuguese sentences through both the
-seed lexicon and the OpLexicon + spaCy production stack, prints per-sentence
-results, and reports accuracy for each configuration. The same sentences and
-expected labels are reported in the project report under section "Resultados".
+The actual logic lives in :mod:`pln_core.eval`; this script is kept so callers
+who relied on ``python scripts/evaluate.py`` keep working. For new experiments
+prefer the Hydra entry point at ``run/pipeline/analysis/run_evaluation.py``.
 """
 
 from __future__ import annotations
 
-from collections import Counter
-from dataclasses import dataclass
+import sys
+from pathlib import Path
 
-from pln_core.lexicon import OPLEXICON_LEXICON_SOURCE, load_lexicon
-from pln_core.pipeline import SymbolicSentimentAnalyzer
-from pln_core.tokenizers import tokenize_spacy_pt_lemmas
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+SRC_DIR = PROJECT_ROOT / "src"
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
 
-BENCHMARK_CASES: tuple[tuple[str, str], ...] = (
-    ("Eu amei o filme, foi muito bom!", "positive"),
-    ("Nao gostei do app, esta bem confuso e bugado.", "negative"),
-    ("O arquivo tem quatro paginas e duas tabelas.", "neutral"),
-    ("O comeco foi ruim, mas o final foi otimo.", "positive"),
-    ("Nao foi bom.", "negative"),
-    ("Adorei o atendimento, super rapido!", "positive"),
-    ("Pessimo produto, nao recomendo.", "negative"),
-    ("Maravilhoso, amei demais!", "positive"),
-    ("O servico esta horrivel, horrivel mesmo.", "negative"),
-    ("Recebi o pedido hoje.", "neutral"),
-    ("Top demais, recomendo!", "positive"),
-    ("Que dia chato.", "negative"),
-    ("Filme muito bom, recomendo!", "positive"),
-    ("App lento e travando.", "negative"),
-    ("A entrega foi tranquila.", "positive"),
-    ("Estou triste com o resultado.", "negative"),
-    ("O produto chegou na data.", "neutral"),
-    ("Nao gostei nem um pouco.", "negative"),
-    ("Maravilha, ficou perfeito!", "positive"),
-    ("Confuso, mal feito e caro.", "negative"),
-)
+from pln_core.eval.runner import run_evaluation  # noqa: E402
 
 
-@dataclass(frozen=True, slots=True)
-class CaseResult:
-    text: str
-    expected: str
-    predicted: str
-    score: float
-
-
-def _run(name: str, analyzer: SymbolicSentimentAnalyzer) -> list[CaseResult]:
-    print(f"\n=== {name} ===")
-    results: list[CaseResult] = []
-    for text, expected in BENCHMARK_CASES:
-        prediction = analyzer.analyze(text)
-        hit = prediction.label == expected
-        marker = "OK " if hit else "X  "
-        print(
-            f"  {marker} pred={prediction.label:8s} exp={expected:8s} "
-            f"score={prediction.score:+.3f} | {text}"
-        )
-        results.append(
-            CaseResult(
-                text=text,
-                expected=expected,
-                predicted=prediction.label,
-                score=prediction.score,
-            )
-        )
-    return results
-
-
-def _summary(name: str, results: list[CaseResult]) -> None:
-    total = len(results)
-    correct = sum(1 for case in results if case.predicted == case.expected)
-    print(f"\n  {name}: {correct}/{total} = {correct / total:.0%}")
-    errors = [case for case in results if case.predicted != case.expected]
-    if not errors:
-        return
-    print("  errors by (expected -> predicted):")
-    counter = Counter((case.expected, case.predicted) for case in errors)
-    for (expected, predicted), count in counter.most_common():
-        print(f"    {expected:8s} -> {predicted:8s} : {count}")
+def _print_summary(name: str, accuracy: float, correct: int, total: int) -> None:
+    print(f"\n  {name}: {correct}/{total} = {accuracy:.0%}")
 
 
 def main() -> None:
-    seed_analyzer = SymbolicSentimentAnalyzer()
-    seed_results = _run("SEED (didactic baseline)", seed_analyzer)
-
-    op_lexicon = load_lexicon(source=OPLEXICON_LEXICON_SOURCE)
-    production_analyzer = SymbolicSentimentAnalyzer(
-        lexicon=op_lexicon,
-        tokenizer=tokenize_spacy_pt_lemmas,
-    )
-    production_results = _run(
-        "OpLexicon v3.0 + spaCy pt_core_news_sm (production)",
-        production_analyzer,
-    )
-
-    _summary("SEED", seed_results)
-    _summary("OpLexicon + spaCy", production_results)
+    for analyzer_name, label in (
+        ("seed", "SEED (didactic baseline)"),
+        ("oplexicon", "OpLexicon v3.0 + spaCy pt_core_news_sm (production)"),
+    ):
+        report = run_evaluation(
+            analyzer_name=analyzer_name,
+            dataset_name="sample",
+        )
+        print(f"\n=== {label} ===")
+        for case in report.predictions:
+            marker = "OK " if case.predicted == case.expected else "X  "
+            print(
+                f"  {marker} pred={case.predicted:8s} exp={case.expected:8s} "
+                f"score={case.score:+.3f} | {case.text}"
+            )
+        _print_summary(
+            analyzer_name,
+            report.metrics.accuracy,
+            report.metrics.correct,
+            report.metrics.total,
+        )
 
 
 if __name__ == "__main__":

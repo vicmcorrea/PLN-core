@@ -1,0 +1,23 @@
+# Hydra root config for the evaluation harness.
+#
+# Usage:
+#   uv run python run/pipeline/analysis/run_evaluation.py
+#   uv run python run/pipeline/analysis/run_evaluation.py dataset=tweetsentbr analyzer=oplexicon
+#   uv run python run/pipeline/analysis/run_evaluation.py --multirun analyzer=seed,oplexicon dataset=tweetsentbr
+defaults:
+  - dataset: tweetsentbr
+  - analyzer: oplexicon
+  - _self_
+
+output_dir: outputs/evaluation
+save_predictions: false
+seed: 42
+
+hydra:
+  run:
+    dir: ${output_dir}/${dataset.name}/${analyzer.name}
+  sweep:
+    dir: ${output_dir}/${dataset.name}
+    subdir: ${analyzer.name}
+  job:
+    chdir: false

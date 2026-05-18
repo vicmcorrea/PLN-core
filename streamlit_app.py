@@ -11,15 +11,14 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from pln_core.lexicon import (
-    OPLEXICON_LEXICON_SOURCE,
-    LexiconDownloadError,
-    load_lexicon,
+from pln_core.factory import (
+    PRODUCTION_ANALYZER_LABEL as ANALYZER_STACK_LABEL,
+    build_production_analyzer,
 )
+from pln_core.lexicon import LexiconDownloadError
 from pln_core.pipeline import AnalysisResult, SymbolicSentimentAnalyzer
 from pln_core.recommender import Song, recommend_ranked
-from pln_core.samples import ANALYZER_STACK_LABEL, SAMPLE_TEXTS
-from pln_core.tokenizers import SPACY_PT_LEMMATIZER_SOURCE, get_tokenizer
+from pln_core.samples import SAMPLE_TEXTS
 
 SESSION_KEYS = (
     "text_input",
@@ -69,13 +68,11 @@ def initialize_session_state() -> None:
     st.session_state.setdefault("recommendation_index", 0)
 
 
-@st.cache_resource(show_spinner="Carregando OpLexicon v3.0...")
+@st.cache_resource(show_spinner="Carregando léxicos (OpLexicon + SentiLex-PT 02 + gírias)...")
 def get_analyzer() -> SymbolicSentimentAnalyzer:
-    """Build and cache the project analyzer with the fixed stack."""
+    """Build and cache the project's production analyzer."""
 
-    lexicon = load_lexicon(source=OPLEXICON_LEXICON_SOURCE)
-    tokenizer = get_tokenizer(SPACY_PT_LEMMATIZER_SOURCE)
-    return SymbolicSentimentAnalyzer(lexicon=lexicon, tokenizer=tokenizer)
+    return build_production_analyzer()
 
 
 def on_sample_change() -> None:
