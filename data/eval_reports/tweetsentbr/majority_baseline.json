@@ -2,7 +2,7 @@
   "analyzer": "majority",
   "dataset": "tweetsentbr[test]@600per_class",
   "dataset_description": "TweetSentBR (Brum and Volpe Nunes, LREC 2018) - few-shot release via eduagarcia/tweetsentbr_fewshot, split=test",
-  "elapsed_seconds": 0.002002207998884842,
+  "elapsed_seconds": 0.0022758330014767125,
   "metrics": {
     "total": 1703,
     "correct": 600,

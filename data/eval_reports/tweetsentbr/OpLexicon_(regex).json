@@ -2,16 +2,16 @@
   "analyzer": "oplexicon_regex",
   "dataset": "tweetsentbr[test]@600per_class",
   "dataset_description": "TweetSentBR (Brum and Volpe Nunes, LREC 2018) - few-shot release via eduagarcia/tweetsentbr_fewshot, split=test",
-  "elapsed_seconds": 0.0343315829995845,
+  "elapsed_seconds": 0.035420791999058565,
   "metrics": {
     "total": 1703,
-    "correct": 721,
-    "accuracy": 0.42337052260716385,
-    "macro_f1": 0.42473052360544505,
+    "correct": 722,
+    "accuracy": 0.42395772166764534,
+    "macro_f1": 0.42586352978537717,
     "per_class_f1": {
-      "positive": 0.4608208955223881,
-      "negative": 0.4098360655737705,
-      "neutral": 0.40353460972017674
+      "positive": 0.45411542100283825,
+      "negative": 0.42052313883299797,
+      "neutral": 0.4029520295202952
     },
     "support": {
       "positive": 600,
@@ -19,16 +19,16 @@
       "negative": 587
     },
     "confusion": {
-      "positive->positive": 247,
-      "positive->negative": 63,
-      "positive->neutral": 290,
-      "negative->positive": 109,
-      "negative->negative": 200,
-      "negative->neutral": 278,
-      "neutral->positive": 116,
-      "neutral->negative": 126,
-      "neutral->neutral": 274
+      "positive->positive": 240,
+      "positive->negative": 67,
+      "positive->neutral": 293,
+      "negative->positive": 105,
+      "negative->negative": 209,
+      "negative->neutral": 273,
+      "neutral->positive": 112,
+      "neutral->negative": 131,
+      "neutral->neutral": 273
     },
-    "classification_report": "              precision    recall  f1-score   support\n\n    positive      0.523     0.412     0.461       600\n    negative      0.514     0.341     0.410       587\n     neutral      0.325     0.531     0.404       516\n\n    accuracy                          0.423      1703\n   macro avg      0.454     0.428     0.425      1703\nweighted avg      0.460     0.423     0.426      1703\n"
+    "classification_report": "              precision    recall  f1-score   support\n\n    positive      0.525     0.400     0.454       600\n    negative      0.514     0.356     0.421       587\n     neutral      0.325     0.529     0.403       516\n\n    accuracy                          0.424      1703\n   macro avg      0.455     0.428     0.426      1703\nweighted avg      0.461     0.424     0.427      1703\n"
   }
 }

@@ -19,7 +19,7 @@
       "neutral->negative": 0,
       "neutral->neutral": 0
     },
-    "elapsed_seconds": 0.002002207998884842,
+    "elapsed_seconds": 0.0022758330014767125,
     "notes": "always predicts the majority class"
   },
   {
@@ -42,53 +42,53 @@
       "neutral->negative": 4,
       "neutral->neutral": 486
     },
-    "elapsed_seconds": 0.031665292000980116,
+    "elapsed_seconds": 0.03353699999934179,
     "notes": "30-word didactic seed lexicon + regex tokenizer"
   },
   {
     "analyzer": "OpLexicon (regex)",
-    "accuracy": 0.42337052260716385,
-    "macro_f1": 0.42473052360544505,
+    "accuracy": 0.42395772166764534,
+    "macro_f1": 0.42586352978537717,
     "per_class_f1": {
-      "positive": 0.4608208955223881,
-      "negative": 0.4098360655737705,
-      "neutral": 0.40353460972017674
+      "positive": 0.45411542100283825,
+      "negative": 0.42052313883299797,
+      "neutral": 0.4029520295202952
     },
     "confusion": {
-      "positive->positive": 247,
-      "positive->negative": 63,
-      "positive->neutral": 290,
-      "negative->positive": 109,
-      "negative->negative": 200,
-      "negative->neutral": 278,
-      "neutral->positive": 116,
-      "neutral->negative": 126,
-      "neutral->neutral": 274
+      "positive->positive": 240,
+      "positive->negative": 67,
+      "positive->neutral": 293,
+      "negative->positive": 105,
+      "negative->negative": 209,
+      "negative->neutral": 273,
+      "neutral->positive": 112,
+      "neutral->negative": 131,
+      "neutral->neutral": 273
     },
-    "elapsed_seconds": 0.0343315829995845,
+    "elapsed_seconds": 0.035420791999058565,
     "notes": "OpLexicon v3.0 + regex tokenizer"
   },
   {
     "analyzer": "OpLexicon (spaCy lemmas)",
-    "accuracy": 0.4345273047563124,
-    "macro_f1": 0.4338781513863501,
+    "accuracy": 0.4374633000587199,
+    "macro_f1": 0.4375309846685545,
     "per_class_f1": {
-      "positive": 0.47570332480818417,
-      "negative": 0.413510747185261,
-      "neutral": 0.4124203821656051
+      "positive": 0.4728213977566868,
+      "negative": 0.42570281124497994,
+      "neutral": 0.4140687450039968
     },
     "confusion": {
-      "positive->positive": 279,
-      "positive->negative": 72,
-      "positive->neutral": 249,
-      "negative->positive": 153,
-      "negative->negative": 202,
-      "negative->neutral": 232,
-      "neutral->positive": 141,
-      "neutral->negative": 116,
+      "positive->positive": 274,
+      "positive->negative": 76,
+      "positive->neutral": 250,
+      "negative->positive": 149,
+      "negative->negative": 212,
+      "negative->neutral": 226,
+      "neutral->positive": 136,
+      "neutral->negative": 121,
       "neutral->neutral": 259
     },
-    "elapsed_seconds": 6.133891084002244,
+    "elapsed_seconds": 6.678799916997377,
     "notes": "OpLexicon v3.0 + spaCy pt_core_news_sm"
   },
   {
@@ -111,53 +111,53 @@
       "neutral->negative": 122,
       "neutral->neutral": 288
     },
-    "elapsed_seconds": 0.1196558340016054,
+    "elapsed_seconds": 0.16861283300022478,
     "notes": "external lexicon-based tool, default thresholds (\u00b10.05)"
   },
   {
     "analyzer": "OpLexicon + tweet rules",
-    "accuracy": 0.5079271873165003,
-    "macro_f1": 0.501614997940335,
+    "accuracy": 0.5102759835584263,
+    "macro_f1": 0.5052178001791615,
     "per_class_f1": {
-      "positive": 0.601526717557252,
-      "negative": 0.4949698189134809,
-      "neutral": 0.40834845735027225
+      "positive": 0.6009316770186336,
+      "negative": 0.5,
+      "neutral": 0.414721723518851
     },
     "confusion": {
-      "positive->positive": 394,
-      "positive->negative": 51,
-      "positive->neutral": 155,
-      "negative->positive": 135,
-      "negative->negative": 246,
-      "negative->neutral": 206,
-      "neutral->positive": 181,
-      "neutral->negative": 110,
-      "neutral->neutral": 225
+      "positive->positive": 387,
+      "positive->negative": 54,
+      "positive->neutral": 159,
+      "negative->positive": 128,
+      "negative->negative": 251,
+      "negative->neutral": 208,
+      "neutral->positive": 173,
+      "neutral->negative": 112,
+      "neutral->neutral": 231
     },
-    "elapsed_seconds": 0.04789366700060782,
+    "elapsed_seconds": 0.049774541999795474,
     "notes": "OpLexicon v3.0 + slang/emoji + tweet normalization"
   },
   {
     "analyzer": "OpLexicon + SentiLex + tweet (best)",
-    "accuracy": 0.5231943628890193,
-    "macro_f1": 0.5112900378128719,
+    "accuracy": 0.5237815619495009,
+    "macro_f1": 0.512043708962915,
     "per_class_f1": {
-      "positive": 0.6070381231671554,
-      "negative": 0.533457249070632,
-      "neutral": 0.39337474120082816
+      "positive": 0.6057906458797327,
+      "negative": 0.541970802919708,
+      "neutral": 0.3883696780893043
     },
     "confusion": {
-      "positive->positive": 414,
-      "positive->negative": 66,
-      "positive->neutral": 120,
-      "negative->positive": 160,
-      "negative->negative": 287,
-      "negative->neutral": 140,
-      "neutral->positive": 190,
-      "neutral->negative": 136,
-      "neutral->neutral": 190
+      "positive->positive": 408,
+      "positive->negative": 70,
+      "positive->neutral": 122,
+      "negative->positive": 152,
+      "negative->negative": 297,
+      "negative->neutral": 138,
+      "neutral->positive": 187,
+      "neutral->negative": 142,
+      "neutral->neutral": 187
     },
-    "elapsed_seconds": 0.05645887499849778,
+    "elapsed_seconds": 0.046286875000078,
     "notes": "Multi-lexicon fusion (OpLexicon + SentiLex-PT 02 + slang/emoji)"
   }
 ]

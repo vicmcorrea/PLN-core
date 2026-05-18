@@ -94,9 +94,6 @@ class SymbolicSentimentAnalyzer:
         negation_active_until = -1
 
         for index, token in enumerate(tokens):
-            if token in CONTRAST_MARKERS:
-                continue
-
             if self.use_negation and token in NEGATIONS:
                 negation_active_until = index + NEGATION_SCOPE_TOKENS
                 continue
