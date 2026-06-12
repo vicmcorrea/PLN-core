@@ -1,7 +1,0 @@
-# TweetSentBR (Brum and Volpe Nunes, LREC 2018) - few-shot release.
-# Source: https://huggingface.co/datasets/eduagarcia/tweetsentbr_fewshot
-name: tweetsentbr
-kwargs:
-  split: test
-  max_examples: null   # set to e.g. 500 for a quick subset
-  seed: ${seed}
