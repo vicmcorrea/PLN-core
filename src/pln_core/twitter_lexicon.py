@@ -11,8 +11,8 @@ Polarity convention:
     -1.0  strong negative  (e.g., "pessimo", "horrivel", "😡")
 
 Sources:
-    - Brazilian Portuguese social-media usage observed in the TweetSentBR
-      development partition (Brum & Volpe Nunes, LREC 2018).
+    - Brazilian Portuguese social-media usage observed during project
+      development and corpus inspection.
     - Common emoji polarity from Novak et al. (2015) "Sentiment of Emojis",
       restricted to the high-confidence subset.
 """

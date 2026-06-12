@@ -1,0 +1,11 @@
+name: distilbert_multilingual
+kind: transformer
+model_id: distilbert/distilbert-base-multilingual-cased
+role: light_transformer_optional
+training:
+  max_length: 128
+  learning_rate: 2e-5
+  epochs: 3
+  batch_size: 16
+  weight_decay: 0.01
+  seed: 42

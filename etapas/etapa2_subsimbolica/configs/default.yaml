@@ -1,0 +1,23 @@
+# Hydra root config planejada para os experimentos da etapa 2.
+defaults:
+  - dataset: kaggle_portuguese_tweets
+  - model: tfidf_logreg
+  - _self_
+
+output_dir: outputs/etapa2_subsymbolic
+seed: 42
+
+metrics:
+  - accuracy
+  - macro_f1
+  - per_class_f1
+  - confusion_matrix
+
+hydra:
+  run:
+    dir: ${output_dir}/${model.name}
+  sweep:
+    dir: ${output_dir}
+    subdir: ${model.name}
+  job:
+    chdir: false

@@ -1,8 +1,4 @@
-"""Hand-curated benchmark used as a quick smoke test for the pipeline.
-
-The same twenty sentences originally lived in ``scripts/evaluate.py`` and are
-referenced in the project report as the didactic baseline.
-"""
+"""Hand-curated benchmark used as a quick smoke test for the pipeline."""
 
 from __future__ import annotations
 

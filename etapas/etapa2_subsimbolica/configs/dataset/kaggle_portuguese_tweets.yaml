@@ -1,0 +1,14 @@
+# corpus comum para etapa 1 corrigida e etapa 2
+name: kaggle_portuguese_tweets
+source: kaggle
+slug: augustop/portuguese-tweets-for-sentiment-analysis
+root_dir: data/raw/portuguese-tweets-for-sentiment-analysis
+train_file: TrainingDatasets/Train3Classes.csv
+test_file: TestDatasets/Test3classes.csv
+text_column: tweet_text
+label_column: sentiment
+labels:
+  "0": negative
+  "1": positive
+  "2": neutral
+seed: 42

@@ -66,7 +66,7 @@ def tokenize_spacy_pt_lemmas(text: str) -> list[str]:
 
 
 def get_tokenizer(source: str) -> Callable[[str], list[str]]:
-    """Return the tokenizer function requested by the CLI or pipeline."""
+    """Return the tokenizer function requested by a pipeline."""
 
     if source == CUSTOM_TOKENIZER_SOURCE:
         return tokenize_custom

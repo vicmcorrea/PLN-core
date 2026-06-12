@@ -1,0 +1,11 @@
+# Kaggle Portuguese Tweets for Sentiment Analysis.
+# Download source:
+# https://www.kaggle.com/datasets/augustop/portuguese-tweets-for-sentiment-analysis
+name: kaggle_tweets
+kwargs:
+  split: test
+  source_dir: data/raw/portuguese-tweets-for-sentiment-analysis
+  max_examples: null
+  per_class: null
+  balanced: false
+  seed: ${seed}

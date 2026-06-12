@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -22,10 +23,10 @@ from pln_core.eval.runner import run_evaluation  # noqa: E402
 
 
 class RegistriesTests(unittest.TestCase):
-    def test_dataset_registry_exposes_sample_and_tweetsentbr(self) -> None:
+    def test_dataset_registry_exposes_sample_and_kaggle_tweets(self) -> None:
         names = DATASET_REGISTRY.names()
         self.assertIn("sample", names)
-        self.assertIn("tweetsentbr", names)
+        self.assertIn("kaggle_tweets", names)
 
     def test_analyzer_registry_exposes_seed_and_oplexicon(self) -> None:
         names = ANALYZER_REGISTRY.names()
@@ -45,6 +46,28 @@ class SampleDatasetTests(unittest.TestCase):
         for example in dataset.examples:
             self.assertIsInstance(example, EvalExample)
             self.assertIn(example.label, {"positive", "negative", "neutral"})
+
+
+class KaggleTweetsDatasetTests(unittest.TestCase):
+    def test_kaggle_loader_normalizes_three_class_labels(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "tweets.csv"
+            path.write_text(
+                "tweet_text,sentiment\n"
+                "Amei esse filme,1\n"
+                "Odiei esse app,0\n"
+                "Recebi o pedido hoje,2\n",
+                encoding="utf-8",
+            )
+
+            dataset = create_dataset("kaggle_tweets", file_path=str(path))
+
+        self.assertEqual(dataset.name, "kaggle_tweets[test]")
+        self.assertEqual(
+            [example.label for example in dataset.examples],
+            ["positive", "negative", "neutral"],
+        )
+        self.assertEqual(dataset.examples[0].text, "Amei esse filme")
 
 
 class MetricsTests(unittest.TestCase):

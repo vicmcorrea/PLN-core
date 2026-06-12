@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "pln-core"
 version = "0.1.0"
-description = "Symbolic sentiment analysis baseline for Brazilian Portuguese"
+description = "Brazilian Portuguese sentiment analysis with symbolic and subsymbolic experiments"
 requires-python = ">=3.10"
 dependencies = [
     "datasets>=2.14",
@@ -16,11 +16,9 @@ dependencies = [
     "streamlit>=1.50.0",
 ]
 
-[project.scripts]
-pln-sentiment = "pln_core.cli:main"
-
 [dependency-groups]
 dev = [
+    "pytest",
     "ruff",
 ]
 
@@ -31,7 +29,7 @@ dev = [
 where = ["src"]
 
 [tool.setuptools.package-data]
-pln_core = ["data/*.json"]
+pln_core = ["data/*.json", "data/*.tsv"]
 
 [tool.ruff]
 line-length = 100

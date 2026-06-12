@@ -1,0 +1,23 @@
+# Hydra root config for Etapa 1 symbolic evaluation.
+#
+# Usage:
+#   uv run python etapas/etapa1_simbolica/pipelines/run_symbolic_evaluation.py
+#   uv run python etapas/etapa1_simbolica/pipelines/run_symbolic_evaluation.py dataset=kaggle_tweets analyzer=oplexicon
+#   uv run python etapas/etapa1_simbolica/pipelines/run_symbolic_evaluation.py --multirun analyzer=seed,oplexicon dataset=kaggle_tweets
+defaults:
+  - dataset: kaggle_tweets
+  - analyzer: oplexicon
+  - _self_
+
+output_dir: outputs/etapa1_symbolic
+save_predictions: false
+seed: 42
+
+hydra:
+  run:
+    dir: ${output_dir}/${dataset.name}/${analyzer.name}
+  sweep:
+    dir: ${output_dir}/${dataset.name}
+    subdir: ${analyzer.name}
+  job:
+    chdir: false

@@ -1,17 +1,17 @@
-"""Hydra entry point for the evaluation harness.
+"""Etapa 1 symbolic evaluation pipeline.
 
 Examples:
-    # Run the production stack on the full TweetSentBR test split
-    uv run python run/pipeline/analysis/run_evaluation.py
+    # Run the production stack on the Kaggle tweets test split
+    uv run python etapas/etapa1_simbolica/pipelines/run_symbolic_evaluation.py
 
     # Run the seed baseline on the hand-curated sample
-    uv run python run/pipeline/analysis/run_evaluation.py \\
+    uv run python etapas/etapa1_simbolica/pipelines/run_symbolic_evaluation.py \\
         analyzer=seed dataset=sample
 
-    # Sweep both analyzers on a 500-tweet subset of TweetSentBR
-    uv run python run/pipeline/analysis/run_evaluation.py \\
+    # Sweep both analyzers on a 500-tweet subset of the Kaggle corpus
+    uv run python etapas/etapa1_simbolica/pipelines/run_symbolic_evaluation.py \\
         --multirun analyzer=seed,oplexicon \\
-        dataset=tweetsentbr dataset.kwargs.max_examples=500
+        dataset=kaggle_tweets dataset.kwargs.max_examples=500
 """
 
 from __future__ import annotations
@@ -21,7 +21,7 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 SRC_DIR = PROJECT_ROOT / "src"
-CONFIG_DIR = PROJECT_ROOT / "run" / "conf" / "evaluation"
+CONFIG_DIR = PROJECT_ROOT / "etapas" / "etapa1_simbolica" / "configs"
 
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))

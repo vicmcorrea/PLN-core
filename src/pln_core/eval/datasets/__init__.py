@@ -8,8 +8,8 @@ Each loader lives in its own module and registers itself via
 from __future__ import annotations
 
 from pln_core.eval.datasets import (  # noqa: F401  (side-effect registers loaders)
+    kaggle_tweets,
     sample,
-    tweetsentbr,
 )
 from pln_core.eval.datasets.base import EvalDataset, EvalExample
 from pln_core.eval.datasets.registry import DATASET_REGISTRY, create_dataset

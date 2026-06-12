@@ -1,0 +1,11 @@
+name: albertina_ptbr_100m
+kind: transformer
+model_id: PORTULAN/albertina-100m-portuguese-ptbr-encoder
+role: portuguese_specific_candidate
+training:
+  max_length: 128
+  learning_rate: 2e-5
+  epochs: 3
+  batch_size: 16
+  weight_decay: 0.01
+  seed: 42
