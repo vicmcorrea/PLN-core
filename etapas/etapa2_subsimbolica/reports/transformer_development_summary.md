@@ -15,6 +15,7 @@ consolidada, idealmente com mais dados de treino e registro de hardware/tempo.
 | `cue_only_logreg` | 100000 | 4999 | 0.9970 | 0.9970 | 0.9961 | 0.9991 | 0.9958 |
 | `distilbert_multilingual` dev | 3000 | 999 | 0.9970 | 0.9970 | 0.9955 | 0.9985 | 0.9970 |
 | `distilbert_multilingual` dev/full-test | 3000 | 4999 | 0.9950 | 0.9950 | 0.9925 | 0.9979 | 0.9946 |
+| `distilbert_multilingual` sem emoticons/URLs | 3000 | 4999 | 0.7465 | 0.7385 | 0.5785 | 0.6944 | 0.9425 |
 | `xlm_roberta_base` dev/full-test | 3000 | 4999 | 0.9968 | 0.9968 | 0.9952 | 0.9985 | 0.9967 |
 | `albertina_ptbr_100m` dev/full-test | 3000 | 4999 | 0.9972 | 0.9972 | 0.9958 | 0.9973 | 0.9985 |
 
@@ -44,6 +45,14 @@ e 99,70% dos tweets neutros contem URL. O diagnostico de vazamento
 validos para o split Kaggle original, mas nao devem ser apresentados como prova
 forte de aprendizagem semantica sem uma condicao sem emoticons/URLs.
 
+A primeira execucao transformer nessa condicao, `20260612_132142_936441`,
+usou `distilbert_multilingual` com 1000 exemplos por classe no treino e removeu
+emoticons/URLs tanto no treino quanto no teste. A acuracia caiu de `0,9950`
+para `0,7465` e a macro-F1 caiu de `0,9950` para `0,7385`, confirmando que os
+atalhos de rotulagem explicam grande parte do resultado bruto. A classe neutra
+continua forte (`F1=0,9425`), enquanto positivo e negativo perdem muito mais
+desempenho.
+
 Artefatos locais principais:
 
 - `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_113749_208484/reports/summary_metrics.md`;
@@ -55,8 +64,12 @@ Artefatos locais principais:
 - `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_113749_208484/cases/distilbert_multilingual_errors.csv`;
 - `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_115913_159120/cases/xlm_roberta_base_errors.csv`;
 - `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_121606_196690/cases/albertina_ptbr_100m_errors.csv`;
+- `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_132142_936441/reports/summary_metrics.md`;
+- `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_132142_936441/predictions/distilbert_multilingual.csv`;
+- `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_132142_936441/cases/distilbert_multilingual_errors.csv`;
 - `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_113749_208484/figures/confusion_distilbert_multilingual.png`;
 - `../../data/models/etapa2_subsymbolic/transformers/20260612_113749_208484/distilbert_multilingual/`.
+- `../../data/models/etapa2_subsymbolic/transformers/20260612_132142_936441/distilbert_multilingual/`.
 - `../../data/models/etapa2_subsymbolic/transformers/20260612_115913_159120/xlm_roberta_base/`.
 - `../../data/models/etapa2_subsymbolic/transformers/20260612_121606_196690/albertina_ptbr_100m/`.
 - `../../outputs/etapa2_subsymbolic/data_artifacts/20260612_131841_753357/reports/artifact_analysis.md`.

@@ -272,3 +272,38 @@ Implicacao para o relatorio: resultados neurais brutos devem ser descritos como
 validos para o split Kaggle original, mas fracos como evidencia de semantica de
 sentimento. A tabela final da etapa 2 deve incluir resultados sem emoticons/URLs
 e a baseline cue-only.
+
+## transformer sem emoticons/URLs 20260612_132142_936441
+
+Comando:
+
+```bash
+uv run --extra transformers python etapas/etapa2_subsimbolica/pipelines/run_transformer_benchmark.py model=distilbert_multilingual train_per_class=1000 model.training.epochs=1 trainer.use_cpu=true text_treatment=strip_emoticons_urls
+```
+
+Execucao em CPU com `distilbert_multilingual`, 1000 exemplos por classe no
+treino, teste comum completo, 1 epoca, batch size 4, gradient accumulation 4 e
+remocao de emoticons/URLs antes da tokenizacao.
+
+| Modelo | Tratamento | Treino | Teste | Acuracia | Macro-F1 | F1 positivo | F1 negativo | F1 neutro |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `distilbert_multilingual` | raw | 3000 | 4999 | 0.9950 | 0.9950 | 0.9925 | 0.9979 | 0.9946 |
+| `distilbert_multilingual` | sem emoticons/URLs | 3000 | 4999 | 0.7465 | 0.7385 | 0.5785 | 0.6944 | 0.9425 |
+
+Confusao principal sem emoticons/URLs:
+
+- positivo -> negativo: 700; positivo -> neutro: 125;
+- negativo -> positivo: 368; negativo -> neutro: 39;
+- neutro -> positivo: 34; neutro -> negativo: 1.
+
+Artefatos locais:
+
+- resumo: `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_132142_936441/reports/summary_metrics.md`;
+- relatorio JSON: `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_132142_936441/reports/distilbert_multilingual/report.json`;
+- predicoes e erros: `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_132142_936441/`;
+- modelo: `../../data/models/etapa2_subsymbolic/transformers/20260612_132142_936441/distilbert_multilingual/`.
+
+Implicacao: remover os atalhos reduz a acuracia neural em aproximadamente
+24,8 pontos percentuais e a macro-F1 em aproximadamente 25,7 pontos. Isso
+confirma que a comparacao final deve separar "Kaggle bruto" de "robustez sem
+pistas de rotulagem".
