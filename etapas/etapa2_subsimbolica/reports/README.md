@@ -7,3 +7,4 @@ A pasta `latex/` fica reservada para a versao LaTeX. As referencias bibliografic
 Resumo ja consolidado para a escrita futura:
 
 - `classical_benchmark_summary.md`: primeira comparacao entre o baseline simbolico da etapa 1 e os baselines TF-IDF da etapa 2 no split Kaggle comum.
+- `transformer_development_summary.md`: validacao do pipeline transformer e primeiro resultado neural de desenvolvimento no teste comum.

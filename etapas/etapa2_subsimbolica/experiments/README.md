@@ -90,3 +90,48 @@ Observacao operacional: tentativas anteriores em MPS com 3000/999 exemplos e
 600/300 exemplos falharam por falta de memoria compartilhada. O pipeline agora
 possui `trainer.use_cpu=true` para smoke tests e configura lotes menores nos
 modelos transformer.
+
+### desenvolvimento 20260612_113411_308889
+
+Execucao intermediaria em CPU com `distilbert_multilingual`, 1000 exemplos por
+classe no treino, 333 exemplos por classe no teste, 1 epoca, batch size 4 e
+gradient accumulation 4. Esta execucao valida o comportamento do modelo em uma
+amostra estratificada maior, mas ainda nao usa o teste comum completo.
+
+| Modelo | Treino | Teste | Acuracia | Macro-F1 | F1 positivo | F1 negativo | F1 neutro |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `distilbert_multilingual` dev | 3000 | 999 | 0.9970 | 0.9970 | 0.9955 | 0.9985 | 0.9970 |
+
+Artefatos locais:
+
+- resumo: `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_113411_308889/reports/summary_metrics.md`;
+- modelo: `../../data/models/etapa2_subsymbolic/transformers/20260612_113411_308889/distilbert_multilingual/`.
+
+### desenvolvimento 20260612_113749_208484
+
+Execucao intermediaria em CPU com o mesmo treino estratificado de 3000 exemplos,
+mas avaliada no teste comum completo de 4999 exemplos. Este e o primeiro
+resultado neural de desenvolvimento diretamente comparavel ao teste usado pela
+etapa 1 e pelos baselines TF-IDF, embora ainda nao seja o treino transformer
+final no corpus completo.
+
+| Modelo | Treino | Teste | Acuracia | Macro-F1 | F1 positivo | F1 negativo | F1 neutro |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `distilbert_multilingual` dev/full-test | 3000 | 4999 | 0.9950 | 0.9950 | 0.9925 | 0.9979 | 0.9946 |
+
+Artefatos locais:
+
+- resumo: `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_113749_208484/reports/summary_metrics.md`;
+- predicoes e erros: `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_113749_208484/`;
+- modelo: `../../data/models/etapa2_subsymbolic/transformers/20260612_113749_208484/distilbert_multilingual/`.
+
+Observacao para o relatorio: a pontuacao muito alta deve ser acompanhada por
+uma checagem de duplicatas entre treino/teste e de artefatos lexicais dos
+rotulos antes de ser interpretada como desempenho final do modelo.
+
+Checagem inicial de duplicatas exatas normalizadas:
+
+- treino: 99043 textos unicos em 100000 linhas;
+- teste: 4996 textos unicos em 4999 linhas;
+- interseccao treino/teste: 9 textos unicos, cobrindo 10 linhas do teste;
+- conflitos de rotulo na interseccao: 0.
