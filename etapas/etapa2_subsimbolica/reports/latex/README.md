@@ -1,3 +1,30 @@
 # LaTeX da etapa 2
 
-Coloque aqui os arquivos `.tex`, `.bib`, figuras e tabelas finais do relatorio da segunda etapa. Arquivos auxiliares de compilacao e PDFs gerados continuam ignorados pelo Git.
+Esta pasta contem o rascunho estrutural do relatorio da segunda etapa. O texto
+segue o formato do relatorio revisado da Etapa 1, mas ainda nao deve ser tratado
+como versao final: faltam selecionar exemplos reais de sucesso/insucesso,
+decidir o modelo que entrara na interface Streamlit e revisar as referencias
+bibliograficas finais.
+
+Arquivos principais:
+
+- `main.tex`: estrutura geral do relatorio em portugues.
+- `references.bib`: referencias iniciais para corpus, baselines, transformers e
+  diagnosticos de artefatos.
+- `scripts/build_figures.py`: gera as figuras locais do relatorio.
+- `figures/`: figuras PDF/PNG usadas pelo LaTeX.
+
+Para regenerar as figuras:
+
+```bash
+uv run python etapas/etapa2_subsimbolica/reports/latex/scripts/build_figures.py
+```
+
+Para compilar o relatorio:
+
+```bash
+cd etapas/etapa2_subsimbolica/reports/latex
+latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex
+```
+
+Arquivos auxiliares de compilacao e PDFs gerados continuam ignorados pelo Git.

@@ -1,0 +1,169 @@
+"""Build publication-style figures for the Etapa 2 report draft."""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+REPORT_DIR = Path(__file__).resolve().parents[1]
+FIGURE_DIR = REPORT_DIR / "figures"
+
+OKABE_ITO = {
+    "blue": "#0072B2",
+    "orange": "#E69F00",
+    "green": "#009E73",
+    "red": "#D55E00",
+    "purple": "#CC79A7",
+    "sky": "#56B4E9",
+    "black": "#000000",
+}
+
+
+def _configure() -> None:
+    plt.rcParams.update(
+        {
+            "font.family": "sans-serif",
+            "font.sans-serif": ["Arial", "Helvetica", "DejaVu Sans"],
+            "font.size": 9,
+            "axes.labelsize": 9,
+            "axes.titlesize": 10,
+            "xtick.labelsize": 8,
+            "ytick.labelsize": 8,
+            "legend.fontsize": 8,
+            "figure.dpi": 120,
+            "savefig.dpi": 300,
+        }
+    )
+
+
+def _save(fig: plt.Figure, name: str) -> None:
+    FIGURE_DIR.mkdir(parents=True, exist_ok=True)
+    for suffix in ("pdf", "png"):
+        fig.savefig(FIGURE_DIR / f"{name}.{suffix}", bbox_inches="tight")
+    plt.close(fig)
+
+
+def plot_macro_f1_tracks() -> None:
+    systems = [
+        "Cue-only",
+        "OpLexicon\nregex",
+        "TF-IDF\nLogReg",
+        "TF-IDF\nSVM",
+        "DistilBERT",
+        "XLM-R",
+        "Albertina",
+    ]
+    raw = np.array([0.9970, 0.5960, 0.8164, 0.8084, 0.9950, 0.9968, 0.9972])
+    stripped = np.array([0.1666, np.nan, 0.8094, 0.8030, 0.7385, 0.7494, 0.7808])
+    strict = np.array([0.1666, np.nan, 0.8030, 0.7962, np.nan, np.nan, np.nan])
+
+    x = np.arange(len(systems))
+    width = 0.25
+    fig, ax = plt.subplots(figsize=(7.2, 3.7))
+    ax.bar(x - width, raw, width, label="Kaggle bruto", color=OKABE_ITO["blue"])
+    ax.bar(x, stripped, width, label="sem emoticons/URLs", color=OKABE_ITO["orange"])
+    ax.bar(
+        x + width,
+        strict,
+        width,
+        label="sem pistas sociais/fontes",
+        color=OKABE_ITO["green"],
+    )
+
+    ax.set_ylabel("F1 macro")
+    ax.set_ylim(0, 1.08)
+    ax.set_xticks(x, systems)
+    ax.grid(axis="y", alpha=0.25)
+    ax.legend(frameon=False, ncol=3, loc="upper center", bbox_to_anchor=(0.5, 1.18))
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+
+    for container in ax.containers:
+        for bar in container:
+            height = bar.get_height()
+            if np.isfinite(height):
+                ax.text(
+                    bar.get_x() + bar.get_width() / 2,
+                    height + 0.015,
+                    f"{height:.2f}",
+                    ha="center",
+                    va="bottom",
+                    fontsize=7,
+                    rotation=90,
+                )
+
+    _save(fig, "macro_f1_tracks")
+
+
+def plot_cue_prevalence() -> None:
+    labels = ["Positivo", "Negativo", "Neutro"]
+    cues = ["Emoticon +", "Emoticon -", "URL", "Menção", "Hashtag"]
+    values = np.array(
+        [
+            [0.9928, 0.0066, 0.2346, 0.5135, 0.0312],
+            [0.0000, 0.9988, 0.1849, 0.4724, 0.0132],
+            [0.0006, 0.0000, 0.9970, 0.0222, 0.0900],
+        ]
+    )
+
+    fig, ax = plt.subplots(figsize=(5.5, 2.7))
+    image = ax.imshow(values, cmap="cividis", vmin=0, vmax=1)
+    cbar = fig.colorbar(image, ax=ax, fraction=0.046, pad=0.04)
+    cbar.set_label("Proporção no teste")
+    ax.set_xticks(np.arange(len(cues)), cues, rotation=25, ha="right")
+    ax.set_yticks(np.arange(len(labels)), labels)
+    ax.set_title("Pistas superficiais por classe no teste Kaggle")
+
+    for row in range(values.shape[0]):
+        for col in range(values.shape[1]):
+            value = values[row, col]
+            color = "white" if value > 0.55 else "black"
+            ax.text(col, row, f"{value:.2f}", ha="center", va="center", color=color)
+
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    _save(fig, "cue_prevalence_heatmap")
+
+
+def plot_transformer_drop() -> None:
+    systems = ["DistilBERT", "XLM-R", "Albertina"]
+    raw = np.array([0.9950, 0.9968, 0.9972])
+    stripped = np.array([0.7385, 0.7494, 0.7808])
+    colors = [OKABE_ITO["sky"], OKABE_ITO["red"], OKABE_ITO["purple"]]
+
+    fig, ax = plt.subplots(figsize=(4.8, 3.2))
+    for index, system in enumerate(systems):
+        ax.plot([0, 1], [raw[index], stripped[index]], marker="o", color=colors[index])
+        ax.text(-0.03, raw[index], f"{raw[index]:.3f}", ha="right", va="center", fontsize=8)
+        ax.text(
+            1.03,
+            stripped[index],
+            f"{system}: {stripped[index]:.3f}",
+            ha="left",
+            va="center",
+            fontsize=8,
+        )
+
+    ax.set_xlim(-0.2, 1.55)
+    ax.set_ylim(0.68, 1.03)
+    ax.set_xticks([0, 1], ["bruto", "sem emoticons/URLs"])
+    ax.set_ylabel("F1 macro")
+    ax.set_title("Queda dos transformers após remover pistas de rótulo")
+    ax.grid(axis="y", alpha=0.25)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    _save(fig, "transformer_drop")
+
+
+def main() -> None:
+    _configure()
+    plot_macro_f1_tracks()
+    plot_cue_prevalence()
+    plot_transformer_drop()
+    print(f"Figures written to {FIGURE_DIR}")
+
+
+if __name__ == "__main__":
+    main()
