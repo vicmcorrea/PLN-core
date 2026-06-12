@@ -2,14 +2,15 @@
 
 ## sequência de implementação
 
-1. Criar loader local do corpus Kaggle.
-2. Rodar a solução simbólica da etapa 1 no teste comum.
-3. Separar os pipelines/configs/experimentos/relatórios da etapa 2 dos artefatos da etapa 1.
-4. Implementar TF-IDF + Regressão Logística.
-5. Implementar TF-IDF + Linear SVM.
-6. Implementar treino/fine-tuning de `FacebookAI/xlm-roberta-base`.
-7. Avaliar `PORTULAN/albertina-100m-portuguese-ptbr-encoder` se houver tempo de execução.
-8. Consolidar tabela comparativa final.
+1. Criar loader local do corpus Kaggle: concluido no nucleo compartilhado.
+2. Rodar a solução simbólica da etapa 1 no teste comum: concluido com `oplexicon_regex`.
+3. Separar os pipelines/configs/experimentos/relatórios da etapa 2 dos artefatos da etapa 1: concluido.
+4. Implementar TF-IDF + Regressão Logística: implementado na suite classica.
+5. Implementar TF-IDF + Linear SVM: implementado na suite classica.
+6. Executar e registrar a suite classica da etapa 2.
+7. Implementar treino/fine-tuning de `FacebookAI/xlm-roberta-base`.
+8. Avaliar `PORTULAN/albertina-100m-portuguese-ptbr-encoder` se houver tempo de execução.
+9. Consolidar tabela comparativa final.
 
 ## divisão treino/teste
 
@@ -43,8 +44,8 @@ A comparação deve deixar explícito:
 ## organização dos artefatos
 
 - Configs da etapa 2: `configs/`.
-- Pipelines futuros: `pipelines/`.
-- Logs, checkpoints e tabelas locais: `../../outputs/etapa2_subsymbolic/runs/<run_id>/`.
+- Pipelines: `pipelines/`.
+- Logs, tabelas, predicoes e figuras da suite classica: `../../outputs/etapa2_subsymbolic/benchmark_suite/<run_id>/`.
 - Modelos treinados exportados: `../../data/models/etapa2_subsymbolic/<run_id>/`, quando forem pequenos o suficiente para armazenamento local.
 - Relatório e LaTeX: `reports/`.
 - Dados brutos compartilhados: `../../data/raw/portuguese-tweets-for-sentiment-analysis/`.

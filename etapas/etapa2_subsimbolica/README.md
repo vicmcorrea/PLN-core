@@ -15,7 +15,7 @@ Comparar a solução simbólica da etapa 1 com abordagens treinadas no mesmo cor
 ## estrutura
 
 - `configs/`: dataset comum, baselines TF-IDF e modelos neurais candidatos.
-- `pipelines/`: futuros scripts de treino, avaliação e consolidação.
+- `pipelines/`: scripts de treino, avaliação e consolidação.
 - `experiments/`: índice dos experimentos da etapa 2.
 - `reports/`: espaço do relatório e LaTeX desta etapa.
 - `especificacao_etapa2.md`: leitura da especificação oficial da segunda etapa.
@@ -31,6 +31,24 @@ Arquivos planejados:
 
 - `TrainingDatasets/Train3Classes.csv` para treino dos modelos estatísticos e neurais.
 - `TestDatasets/Test3classes.csv` para avaliação comum contra a etapa 1.
+
+O carregamento e o download opcional usam a configuração Hydra
+`configs/dataset/kaggle_portuguese_tweets.yaml`.
+
+## suite clássica atual
+
+A suite inicial da etapa 2 treina e avalia os dois baselines TF-IDF no mesmo
+split usado pela etapa 1:
+
+```bash
+uv run python etapas/etapa2_subsimbolica/pipelines/run_classical_benchmark_suite.py
+```
+
+Cada execução cria uma pasta com `run_id` próprio em
+`../../outputs/etapa2_subsymbolic/benchmark_suite/<run_id>/`, contendo
+configuração resolvida, manifesto do dataset, métricas por modelo, tabela
+comparativa, predições, casos de erro e figuras. Os modelos `.joblib` ficam em
+`../../data/models/etapa2_subsymbolic/<run_id>/`, que também é ignorado pelo Git.
 
 ## arquitetura planejada
 

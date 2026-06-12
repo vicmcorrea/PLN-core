@@ -64,6 +64,12 @@ Rodar uma avaliacao simbolica individual no corpus comum:
 uv run python etapas/etapa1_simbolica/pipelines/run_symbolic_evaluation.py
 ```
 
+Rodar os baselines classicos da etapa 2 no mesmo split Kaggle usado pela etapa 1:
+
+```bash
+uv run python etapas/etapa2_subsimbolica/pipelines/run_classical_benchmark_suite.py
+```
+
 Rodar avaliação rápida no dataset didático:
 
 ```bash
@@ -75,7 +81,7 @@ Os resultados experimentais são salvos em `outputs/`, que fica ignorado pelo Gi
 ```text
 outputs/etapa1_symbolic/runs/<run_id>/<dataset>/<analyzer>/
 outputs/etapa1_symbolic/benchmark_suite/<run_id>/
-outputs/etapa2_subsymbolic/runs/<run_id>/<model>/
+outputs/etapa2_subsymbolic/benchmark_suite/<run_id>/
 ```
 
-A etapa 2 ainda está em estruturação: seus modelos e pipelines ficam em `etapas/etapa2_subsimbolica/`.
+A etapa 2 ja possui uma suite classica inicial com TF-IDF + Regressao Logistica e TF-IDF + Linear SVM. Transformers continuam planejados dentro de `etapas/etapa2_subsimbolica/`.

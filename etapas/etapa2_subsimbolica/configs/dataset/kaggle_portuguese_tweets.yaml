@@ -2,11 +2,14 @@
 name: kaggle_portuguese_tweets
 source: kaggle
 slug: augustop/portuguese-tweets-for-sentiment-analysis
+source_url: https://www.kaggle.com/datasets/augustop/portuguese-tweets-for-sentiment-analysis
+license: CC-BY-NC-SA-4.0
 root_dir: data/raw/portuguese-tweets-for-sentiment-analysis
 train_file: TrainingDatasets/Train3Classes.csv
 test_file: TestDatasets/Test3classes.csv
 text_column: tweet_text
 label_column: sentiment
+download_if_missing: true
 labels:
   "0": negative
   "1": positive

@@ -29,20 +29,31 @@ O `run_id` vem da configuracao Hydra em `etapa1_simbolica/configs/default.yaml` 
 
 ```text
 outputs/etapa2_subsymbolic/
-  runs/<run_id>/<model>/
-    report.json
-    predictions.csv
-    metrics.json
-    confusion_matrix.csv
+  benchmark_suite/<run_id>/
+    reports/
+      resolved_config.json
+      dataset_manifest.json
+      summary_metrics.csv
+      summary_metrics.md
+      <model>/report.json
+    predictions/<model>.csv
+    cases/<model>_errors.csv
+    figures/
+      confusion_<model>.png
+      confusion_<model>.pdf
+      benchmark_accuracy.png
+      benchmark_accuracy.pdf
+      benchmark_macro_f1.png
+      benchmark_macro_f1.pdf
+    errors/<model>.txt
   multirun/<run_id>/<model>/
 
 data/models/etapa2_subsymbolic/
-  <run_id>/<model>/
-    model artifacts
+  <run_id>/<model>.joblib
 ```
 
-Treinos TF-IDF devem salvar metricas, predicoes e, se necessario, um artefato `.joblib` em `data/models/etapa2_subsymbolic/<run_id>/`. Treinos transformer devem salvar checkpoints apenas quando forem necessarios para reproducao, preferencialmente com uma nota no experimento indicando modelo base, seed e hiperparametros.
+Treinos TF-IDF devem salvar metricas, predicoes e, se necessario, um artefato `.joblib` em `data/models/etapa2_subsymbolic/<run_id>/`. Treinos transformer devem usar uma subpasta propria sob `outputs/etapa2_subsymbolic/` e salvar checkpoints apenas quando forem necessarios para reproducao, preferencialmente com uma nota no experimento indicando modelo base, seed e hiperparametros.
 
 ## regra pratica
 
-Nunca salve diretamente em `outputs/<etapa>/<model>/report.json`. Sempre inclua `runs/<run_id>/` para preservar execucoes anteriores.
+Nunca salve diretamente em `outputs/<etapa>/<model>/report.json`. Sempre inclua uma categoria de pipeline e um `run_id`, como `benchmark_suite/<run_id>/`, para preservar execucoes anteriores.
