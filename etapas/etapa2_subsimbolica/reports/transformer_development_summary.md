@@ -17,6 +17,7 @@ consolidada, idealmente com mais dados de treino e registro de hardware/tempo.
 | `distilbert_multilingual` dev/full-test | 3000 | 4999 | 0.9950 | 0.9950 | 0.9925 | 0.9979 | 0.9946 |
 | `distilbert_multilingual` sem emoticons/URLs | 3000 | 4999 | 0.7465 | 0.7385 | 0.5785 | 0.6944 | 0.9425 |
 | `xlm_roberta_base` dev/full-test | 3000 | 4999 | 0.9968 | 0.9968 | 0.9952 | 0.9985 | 0.9967 |
+| `xlm_roberta_base` sem emoticons/URLs | 3000 | 4999 | 0.7586 | 0.7494 | 0.5814 | 0.7117 | 0.9552 |
 | `albertina_ptbr_100m` dev/full-test | 3000 | 4999 | 0.9972 | 0.9972 | 0.9958 | 0.9973 | 0.9985 |
 
 A execucao `20260612_113749_208484` e a primeira execucao neural de
@@ -53,6 +54,12 @@ atalhos de rotulagem explicam grande parte do resultado bruto. A classe neutra
 continua forte (`F1=0,9425`), enquanto positivo e negativo perdem muito mais
 desempenho.
 
+A execucao `20260612_132734_004665` repetiu a condicao sem emoticons/URLs com
+`FacebookAI/xlm-roberta-base`, o modelo principal candidato. A acuracia caiu de
+`0,9968` para `0,7586` e a macro-F1 caiu de `0,9968` para `0,7494`. O padrao de
+erro permaneceu semelhante ao DistilBERT: neutro ficou alto (`F1=0,9552`), mas
+positivo e negativo ficaram muito mais confundidos entre si.
+
 Artefatos locais principais:
 
 - `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_113749_208484/reports/summary_metrics.md`;
@@ -65,12 +72,16 @@ Artefatos locais principais:
 - `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_115913_159120/cases/xlm_roberta_base_errors.csv`;
 - `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_121606_196690/cases/albertina_ptbr_100m_errors.csv`;
 - `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_132142_936441/reports/summary_metrics.md`;
+- `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_132734_004665/reports/summary_metrics.md`;
 - `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_132142_936441/predictions/distilbert_multilingual.csv`;
+- `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_132734_004665/predictions/xlm_roberta_base.csv`;
 - `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_132142_936441/cases/distilbert_multilingual_errors.csv`;
+- `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_132734_004665/cases/xlm_roberta_base_errors.csv`;
 - `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_113749_208484/figures/confusion_distilbert_multilingual.png`;
 - `../../data/models/etapa2_subsymbolic/transformers/20260612_113749_208484/distilbert_multilingual/`.
 - `../../data/models/etapa2_subsymbolic/transformers/20260612_132142_936441/distilbert_multilingual/`.
 - `../../data/models/etapa2_subsymbolic/transformers/20260612_115913_159120/xlm_roberta_base/`.
+- `../../data/models/etapa2_subsymbolic/transformers/20260612_132734_004665/xlm_roberta_base/`.
 - `../../data/models/etapa2_subsymbolic/transformers/20260612_121606_196690/albertina_ptbr_100m/`.
 - `../../outputs/etapa2_subsymbolic/data_artifacts/20260612_131841_753357/reports/artifact_analysis.md`.
 - `../../outputs/etapa2_subsymbolic/leakage_diagnostics/20260612_131708_831350/reports/summary_metrics.md`.

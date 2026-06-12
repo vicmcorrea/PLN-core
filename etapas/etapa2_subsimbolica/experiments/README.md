@@ -307,3 +307,37 @@ Implicacao: remover os atalhos reduz a acuracia neural em aproximadamente
 24,8 pontos percentuais e a macro-F1 em aproximadamente 25,7 pontos. Isso
 confirma que a comparacao final deve separar "Kaggle bruto" de "robustez sem
 pistas de rotulagem".
+
+## XLM-R sem emoticons/URLs 20260612_132734_004665
+
+Comando:
+
+```bash
+uv run --extra transformers python etapas/etapa2_subsimbolica/pipelines/run_transformer_benchmark.py model=xlm_roberta_base train_per_class=1000 model.training.epochs=1 trainer.use_cpu=true text_treatment=strip_emoticons_urls
+```
+
+Execucao em CPU com `FacebookAI/xlm-roberta-base`, 1000 exemplos por classe no
+treino, teste comum completo, 1 epoca, batch size 2, gradient accumulation 8 e
+remocao de emoticons/URLs antes da tokenizacao. O console registrou
+`train_runtime=910.1238s` e `eval_runtime=90.4658s`.
+
+| Modelo | Tratamento | Treino | Teste | Acuracia | Macro-F1 | F1 positivo | F1 negativo | F1 neutro |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `xlm_roberta_base` | raw | 3000 | 4999 | 0.9968 | 0.9968 | 0.9952 | 0.9985 | 0.9967 |
+| `xlm_roberta_base` | sem emoticons/URLs | 3000 | 4999 | 0.7586 | 0.7494 | 0.5814 | 0.7117 | 0.9552 |
+
+Confusao principal sem emoticons/URLs:
+
+- positivo -> negativo: 783; positivo -> neutro: 75;
+- negativo -> positivo: 271; negativo -> neutro: 42;
+- neutro -> positivo: 36; neutro -> negativo: 0.
+
+Artefatos locais:
+
+- resumo: `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_132734_004665/reports/summary_metrics.md`;
+- relatorio JSON: `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_132734_004665/reports/xlm_roberta_base/report.json`;
+- predicoes e erros: `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_132734_004665/`;
+- modelo: `../../data/models/etapa2_subsymbolic/transformers/20260612_132734_004665/xlm_roberta_base/`.
+
+Implicacao: o modelo principal tambem cai cerca de 23,8 pontos percentuais de
+acuracia e 24,7 pontos de macro-F1 quando as pistas de rotulagem sao removidas.
