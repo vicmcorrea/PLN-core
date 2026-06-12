@@ -180,7 +180,7 @@ As métricas principais são acurácia e F1 macro. A acurácia mede a proporçã
 
 A Figura~\ref{fig:macro-f1} resume os resultados consolidados até este rascunho. A leitura principal é que o melhor resultado numérico não é necessariamente o melhor resultado científico. No \emph{split} bruto, os transformers chegam a F1 macro quase perfeito, mas uma baseline degenerada usando apenas três pistas superficiais --- emoticon positivo, emoticon negativo e URL --- também chega a 0,9970. Isso é um sinal ruim do ponto de vista metodológico: se um classificador que não lê palavras de sentimento resolve o teste quase inteiro, então a avaliação bruta está medindo principalmente a presença de atalhos do corpus, não a capacidade real de compreender polaridade.
 
-Por esse motivo, os resultados brutos devem ser apresentados no relatório final como resultados \emph{in-distribution} do Kaggle, mas não como evidência forte de generalização semântica. A comparação mais informativa é a condição em que as pistas usadas na supervisão distante são removidas. Quando emoticons e URLs são apagados, os transformers caem para a faixa de 0,7385 a 0,7808 de F1 macro. Essa queda é justamente o resultado mais importante do diagnóstico: os modelos continuam úteis, mas a versão bruta estava inflada por vazamento de rótulo.
+Por esse motivo, os resultados brutos devem ser apresentados no relatório final como resultados \emph{in-distribution} do Kaggle, mas não como evidência forte de generalização semântica. A comparação mais informativa é a condição em que as pistas usadas na supervisão distante são removidas. Quando emoticons e URLs são apagados, os transformers caem para a faixa de 0,7385 a 0,7808 de F1 macro. O sistema simbólico também cai de 0,5960 para 0,3668 de F1 macro, porque o OpLexicon inclui entradas para emoticons como \texttt{:)} e \texttt{:(}. Essa queda é justamente o resultado mais importante do diagnóstico: os modelos continuam úteis, mas a versão bruta estava inflada por vazamento de rótulo.
 
 \begin{figure}[h]
 \centering
@@ -197,9 +197,11 @@ Por esse motivo, os resultados brutos devem ser apresentados no relatório final
 \toprule
 \textbf{Sistema} & \textbf{Treino} & \textbf{Teste} & \textbf{Tratamento} & \textbf{Acurácia} & \textbf{F1 macro} \\
 \midrule
-\texttt{oplexicon\_regex} & 0 & 4.999 & bruto & 0,5979 & 0,5960 \\
-\texttt{tfidf\_logreg} & 100.000 & 4.999 & bruto & 0,8172 & 0,8164 \\
-\texttt{tfidf\_linear\_svm} & 100.000 & 4.999 & bruto & 0,8080 & 0,8084 \\
+\texttt{oplexicon\_regex} & 0 & 4.999 & bruto com pistas & 0,5979 & 0,5960 \\
+\texttt{oplexicon\_regex} & 0 & 4.999 & sem emoticons/URLs & 0,3697 & 0,3668 \\
+\texttt{oplexicon\_regex} & 0 & 4.999 & sem pistas sociais/fontes & 0,3695 & 0,3665 \\
+\texttt{tfidf\_logreg} & 100.000 & 4.999 & bruto com pistas & 0,8172 & 0,8164 \\
+\texttt{tfidf\_linear\_svm} & 100.000 & 4.999 & bruto com pistas & 0,8080 & 0,8084 \\
 \texttt{cue\_only\_logreg} & 100.000 & 4.999 & bruto com pistas & 0,9970 & 0,9970 \\
 \texttt{distilbert\_multilingual} & 3.000 & 4.999 & bruto com pistas & 0,9950 & 0,9950 \\
 \texttt{xlm\_roberta\_base} & 3.000 & 4.999 & bruto com pistas & 0,9968 & 0,9968 \\
@@ -216,7 +218,7 @@ Por esse motivo, os resultados brutos devem ser apresentados no relatório final
 
 \section{Diagnóstico de artefatos e dificuldades encontradas}
 
-A principal dificuldade técnica e metodológica encontrada até aqui foi que o corpus apresenta sinais superficiais fortemente associados aos rótulos. A Figura~\ref{fig:pistas} mostra que 99,28\% dos tweets positivos do teste contêm emoticon positivo, 99,88\% dos negativos contêm emoticon negativo e 99,70\% dos neutros contêm URL. Esse padrão é típico de corpora coletados por supervisão distante, em que emoticons ou outros sinais observáveis são usados para aproximar rótulos de sentimento \citep{go2009distant,wang2015emoticons,yin2021emojification}. O problema não é que esses símbolos sejam irrelevantes em uso real; emoticons de fato expressam sentimento. O problema é que, neste corpus, eles funcionam quase como a própria etiqueta da classe, tornando a avaliação bruta circular.
+A principal dificuldade técnica e metodológica encontrada até aqui foi que o corpus apresenta sinais superficiais fortemente associados aos rótulos. A Figura~\ref{fig:pistas} mostra que 99,28\% dos tweets positivos do teste contêm emoticon positivo, 99,88\% dos negativos contêm emoticon negativo e 99,70\% dos neutros contêm URL. Esse padrão é típico de corpora coletados por supervisão distante, em que emoticons ou outros sinais observáveis são usados para aproximar rótulos de sentimento \citep{go2009distant,wang2015emoticons,yin2021emojification}. O problema não é que esses símbolos sejam irrelevantes em uso real; emoticons de fato expressam sentimento. O problema é que, neste corpus, eles funcionam quase como a própria etiqueta da classe, tornando a avaliação bruta circular. O diagnóstico também mostrou que o baseline simbólico não estava imune a esse efeito: como o OpLexicon contém emoticons polarizados, a execução bruta do \texttt{oplexicon\_regex} também aproveitava parte desses atalhos.
 
 \begin{figure}[h]
 \centering
@@ -259,9 +261,9 @@ O relatório final deve mostrar exemplos concretos de execução, como pedido na
 
 \section{Comparação com a Etapa 1}
 
-O sistema simbólico da Etapa 1 obteve 0,5979 de acurácia e 0,5960 de F1 macro no teste Kaggle. Os baselines TF-IDF superam esse valor com margem clara, chegando a aproximadamente 0,8164 de F1 macro com Regressão Logística. Esse ganho é esperado, pois os modelos estatísticos aprendem pesos diretamente do corpus e conseguem explorar combinações de palavras que não aparecem como entradas polarizadas no OpLexicon.
+O sistema simbólico da Etapa 1 obteve 0,5979 de acurácia e 0,5960 de F1 macro no teste Kaggle bruto. Após remover emoticons e URLs, o mesmo \texttt{oplexicon\_regex} caiu para 0,3697 de acurácia e 0,3668 de F1 macro; na versão mais estrita, sem pistas sociais/fontes, ficou em 0,3695 de acurácia e 0,3665 de F1 macro. Portanto, o baseline simbólico bruto também deve ser lido com cuidado: ele é útil como reprodução da Etapa 1 no corpus original, mas a comparação mais honesta com os modelos da Etapa 2 é a condição tratada. Os baselines TF-IDF superam esse valor com margem clara, chegando a aproximadamente 0,8094 de F1 macro sem emoticons/URLs. Esse ganho é esperado, pois os modelos estatísticos aprendem pesos diretamente do corpus e conseguem explorar combinações de palavras que não aparecem como entradas polarizadas no OpLexicon.
 
-A comparação com transformers exige duas leituras. No teste bruto, DistilBERT, XLM-R e Albertina ficam próximos de 0,997 de F1 macro, mas esse valor está no mesmo nível da baseline cue-only. Na condição sem emoticons/URLs, a vantagem neural continua existindo em relação ao sistema simbólico, mas os resultados ficam mais realistas: Albertina chega a 0,7808 de F1 macro, XLM-R a 0,7494 e DistilBERT a 0,7385. Assim, a conclusão provisória é que modelos neurais melhoram a classificação, mas o relatório final deve evitar vender o resultado bruto como se fosse generalização semântica.
+A comparação com transformers exige duas leituras. No teste bruto, DistilBERT, XLM-R e Albertina ficam próximos de 0,997 de F1 macro, mas esse valor está no mesmo nível da baseline cue-only. Na condição sem emoticons/URLs, a vantagem neural continua existindo em relação ao sistema simbólico tratado, mas os resultados ficam mais realistas: Albertina chega a 0,7808 de F1 macro, XLM-R a 0,7494 e DistilBERT a 0,7385. Assim, a conclusão provisória é que modelos neurais melhoram a classificação, mas o relatório final deve evitar vender o resultado bruto como se fosse generalização semântica.
 
 \section{Limitações e próximos passos}
 
@@ -281,7 +283,9 @@ uv run pytest
 Para reproduzir o baseline simbólico da Etapa 1:
 
 \begin{verbatim}
-uv run python etapas/etapa1_simbolica/pipelines/run_symbolic_benchmark_suite.py
+uv run python \
+  etapas/etapa1_simbolica/pipelines/run_symbolic_benchmark_suite.py \
+  'text_treatments=[raw,strip_emoticons_urls,strip_social_source_cues]'
 \end{verbatim}
 
 Para executar os baselines TF-IDF da Etapa 2:

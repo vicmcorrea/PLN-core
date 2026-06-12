@@ -56,8 +56,8 @@ def plot_macro_f1_tracks() -> None:
         "Albertina",
     ]
     raw = np.array([0.9970, 0.5960, 0.8164, 0.8084, 0.9950, 0.9968, 0.9972])
-    stripped = np.array([0.1666, np.nan, 0.8094, 0.8030, 0.7385, 0.7494, 0.7808])
-    strict = np.array([0.1666, np.nan, 0.8030, 0.7962, np.nan, np.nan, np.nan])
+    stripped = np.array([0.1666, 0.3668, 0.8094, 0.8030, 0.7385, 0.7494, 0.7808])
+    strict = np.array([0.1666, 0.3665, 0.8030, 0.7962, np.nan, np.nan, np.nan])
 
     x = np.arange(len(systems))
     width = 0.25
@@ -92,6 +92,17 @@ def plot_macro_f1_tracks() -> None:
         "cue-only = 0,997\nresolve o teste bruto\nsem ler sentimento",
         xy=(raw_bars[0].get_x() + raw_bars[0].get_width() / 2, raw[0]),
         xytext=(0.58, 1.04),
+        textcoords=("data", "data"),
+        ha="left",
+        va="bottom",
+        fontsize=8,
+        arrowprops={"arrowstyle": "->", "lw": 0.9, "color": OKABE_ITO["red"]},
+        color=OKABE_ITO["red"],
+    )
+    ax.annotate(
+        "OpLexicon tambem cai:\n0,596 -> 0,367",
+        xy=(x[1], stripped[1]),
+        xytext=(0.78, 0.86),
         textcoords=("data", "data"),
         ha="left",
         va="bottom",
