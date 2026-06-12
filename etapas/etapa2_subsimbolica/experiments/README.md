@@ -273,6 +273,44 @@ validos para o split Kaggle original, mas fracos como evidencia de semantica de
 sentimento. A tabela final da etapa 2 deve incluir resultados sem emoticons/URLs
 e a baseline cue-only.
 
+## diagnostico social/fontes 20260612_145054_246137
+
+Comando:
+
+```bash
+uv run python etapas/etapa2_subsimbolica/pipelines/run_leakage_diagnostics.py stripped_treatment=strip_social_source_cues
+```
+
+Esse diagnostico exploratorio usa o mesmo pipeline de vazamento, mas troca a
+condicao tratada para `strip_social_source_cues`. Alem de emoticons e URLs, o
+tratamento remove mencoes, hashtags e marcadores de fontes neutras observados na
+analise de artefatos, como `feedly`, `g1sp`, `cbn` e variantes de `estadao`.
+Ele nao substitui a avaliacao oficial no split Kaggle bruto; serve para medir
+quanto do desempenho sobrevive quando outras pistas de coleta tambem sao
+apagadas.
+
+| Modelo | Treino | Teste | Acuracia | Macro-F1 | F1 neutro |
+| --- | --- | --- | ---: | ---: | ---: |
+| `cue_only_logreg_raw_test` | raw | raw | 0.9970 | 0.9970 | 0.9958 |
+| `cue_only_logreg_stripped_test` | raw | sem pistas sociais/fontes | 0.3333 | 0.1666 | 0.4999 |
+| `tfidf_logreg` | raw | raw | 0.8172 | 0.8164 | 0.9697 |
+| `tfidf_logreg` | sem pistas sociais/fontes | sem pistas sociais/fontes | 0.8044 | 0.8030 | 0.9427 |
+| `tfidf_linear_svm` | sem pistas sociais/fontes | sem pistas sociais/fontes | 0.7970 | 0.7962 | 0.9403 |
+
+Artefatos locais:
+
+- resumo: `../../outputs/etapa2_subsymbolic/leakage_diagnostics/20260612_145054_246137/reports/summary_metrics.md`;
+- tabela de metricas: `../../outputs/etapa2_subsymbolic/leakage_diagnostics/20260612_145054_246137/reports/summary_metrics.csv`;
+- predicoes e erros: `../../outputs/etapa2_subsymbolic/leakage_diagnostics/20260612_145054_246137/`;
+- figuras: `../../outputs/etapa2_subsymbolic/leakage_diagnostics/20260612_145054_246137/figures/`.
+
+Implicacao: a baseline cue-only volta ao nivel esperado para um teste
+balanceado sem as tres pistas principais, o que confirma que ela realmente
+media vazamento. Ja os baselines TF-IDF perdem pouco quando treinados e
+testados no texto mais limpo, indicando que ainda ha sinal lexical de sentimento
+e possivelmente outros vieses de topico. O relatorio deve tratar essa condicao
+como diagnostico adicional e nao como "correcao definitiva" do corpus.
+
 ## transformer sem emoticons/URLs 20260612_132142_936441
 
 Comando:
