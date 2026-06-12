@@ -80,6 +80,14 @@ Execucao final planejada com XLM-R base:
 uv run --extra transformers python etapas/etapa2_subsimbolica/pipelines/run_transformer_benchmark.py model=xlm_roberta_base
 ```
 
+Execucoes de desenvolvimento em CPU ja usadas para comparar arquiteturas no
+teste comum completo:
+
+```bash
+uv run --extra transformers python etapas/etapa2_subsimbolica/pipelines/run_transformer_benchmark.py model=xlm_roberta_base train_per_class=1000 model.training.epochs=1 trainer.use_cpu=true
+uv run --extra transformers python etapas/etapa2_subsimbolica/pipelines/run_transformer_benchmark.py model=albertina_ptbr_100m train_per_class=1000 model.training.epochs=1 trainer.use_cpu=true
+```
+
 Em ambiente sem GPU dedicada, rode primeiro com `trainer.use_cpu=true` e uma
 amostra pequena. Em Mac com MPS, os defaults usam lotes menores, mas o treino
 completo ainda pode exigir reduzir `model.training.batch_size` ou usar CPU.

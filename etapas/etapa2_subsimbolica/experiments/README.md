@@ -51,7 +51,7 @@ Artefatos locais:
 - predicoes e erros: `../../outputs/etapa2_subsymbolic/benchmark_suite/20260612_103137_624831/`;
 - modelos: `../../data/models/etapa2_subsymbolic/20260612_103137_624831/`.
 
-## transformer pendente
+## transformer desenvolvimento
 
 Pipeline criado: `../pipelines/run_transformer_benchmark.py`.
 
@@ -61,10 +61,12 @@ Smoke test sugerido:
 uv run --extra transformers python etapas/etapa2_subsimbolica/pipelines/run_transformer_benchmark.py model=distilbert_multilingual train_max_examples=120 test_max_examples=60 model.training.epochs=1 trainer.use_cpu=true
 ```
 
-Execucao final planejada:
+Execucao de desenvolvimento no teste completo, usando 1000 exemplos por classe
+no treino:
 
 ```bash
-uv run --extra transformers python etapas/etapa2_subsimbolica/pipelines/run_transformer_benchmark.py model=xlm_roberta_base
+uv run --extra transformers python etapas/etapa2_subsimbolica/pipelines/run_transformer_benchmark.py model=xlm_roberta_base train_per_class=1000 model.training.epochs=1 trainer.use_cpu=true
+uv run --extra transformers python etapas/etapa2_subsimbolica/pipelines/run_transformer_benchmark.py model=albertina_ptbr_100m train_per_class=1000 model.training.epochs=1 trainer.use_cpu=true
 ```
 
 Registrar aqui o `run_id`, metricas, tempo, hardware usado e se o treino usou
@@ -135,6 +137,53 @@ Checagem inicial de duplicatas exatas normalizadas:
 - teste: 4996 textos unicos em 4999 linhas;
 - interseccao treino/teste: 9 textos unicos, cobrindo 10 linhas do teste;
 - conflitos de rotulo na interseccao: 0.
+
+### desenvolvimento 20260612_115913_159120
+
+Execucao em CPU com `FacebookAI/xlm-roberta-base`, 1000 exemplos por classe no
+treino, teste comum completo, 1 epoca, batch size 2 e gradient accumulation 8.
+O console registrou `train_runtime=853.4322s` e `eval_runtime=102.1262s`.
+
+| Modelo | Treino | Teste | Acuracia | Macro-F1 | F1 positivo | F1 negativo | F1 neutro | Erros |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `xlm_roberta_base` dev/full-test | 3000 | 4999 | 0.9968 | 0.9968 | 0.9952 | 0.9985 | 0.9967 | 16 |
+
+Confusao principal:
+
+- positivo -> negativo: 5; positivo -> neutro: 1;
+- negativo -> positivo/neutro: 0;
+- neutro -> positivo: 10.
+
+Artefatos locais:
+
+- resumo: `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_115913_159120/reports/summary_metrics.md`;
+- relatorio JSON: `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_115913_159120/reports/xlm_roberta_base/report.json`;
+- predicoes e erros: `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_115913_159120/`;
+- modelo: `../../data/models/etapa2_subsymbolic/transformers/20260612_115913_159120/xlm_roberta_base/`.
+
+### desenvolvimento 20260612_121606_196690
+
+Execucao em CPU com
+`PORTULAN/albertina-100m-portuguese-ptbr-encoder`, 1000 exemplos por classe no
+treino, teste comum completo, 1 epoca, batch size 4 e gradient accumulation 4.
+O console registrou `train_runtime=711.2023s` e `eval_runtime=173.2008s`.
+
+| Modelo | Treino | Teste | Acuracia | Macro-F1 | F1 positivo | F1 negativo | F1 neutro | Erros |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `albertina_ptbr_100m` dev/full-test | 3000 | 4999 | 0.9972 | 0.9972 | 0.9958 | 0.9973 | 0.9985 | 14 |
+
+Confusao principal:
+
+- positivo -> negativo: 6; positivo -> neutro: 1;
+- negativo -> positivo: 3;
+- neutro -> positivo: 4.
+
+Artefatos locais:
+
+- resumo: `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_121606_196690/reports/summary_metrics.md`;
+- relatorio JSON: `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_121606_196690/reports/albertina_ptbr_100m/report.json`;
+- predicoes e erros: `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_121606_196690/`;
+- modelo: `../../data/models/etapa2_subsymbolic/transformers/20260612_121606_196690/albertina_ptbr_100m/`.
 
 ## analise de artefatos 20260612_115649_211081
 
