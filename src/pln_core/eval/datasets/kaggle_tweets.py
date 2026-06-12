@@ -29,12 +29,18 @@ LABEL_MAP = {
 }
 
 
-def _normalize_label(raw: object) -> str:
+def normalize_kaggle_label(raw: object) -> str:
+    """Normalize the Kaggle corpus labels to the shared three-class schema."""
+
     key = str(raw).strip().lower()
     try:
         return LABEL_MAP[key]
     except KeyError as exc:
         raise ValueError(f"unknown Kaggle tweet sentiment label '{raw}'") from exc
+
+
+def _normalize_label(raw: object) -> str:
+    return normalize_kaggle_label(raw)
 
 
 def _resolve_path(split: str, source_dir: str | None, file_path: str | None) -> Path:
@@ -59,13 +65,15 @@ def _resolve_path(split: str, source_dir: str | None, file_path: str | None) -> 
 
 def _read_rows(path: Path) -> Iterable[dict[str, str]]:
     with path.open("r", encoding="utf-8-sig", newline="") as handle:
-        sample = handle.read(4096)
+        header = handle.readline()
         handle.seek(0)
-        try:
-            dialect = csv.Sniffer().sniff(sample, delimiters=",;")
-        except csv.Error:
-            dialect = csv.excel
-        reader = csv.DictReader(handle, dialect=dialect)
+        delimiter = ";" if header.count(";") > header.count(",") else ","
+        reader = csv.DictReader(
+            handle,
+            delimiter=delimiter,
+            quotechar='"',
+            doublequote=True,
+        )
         yield from reader
 
 

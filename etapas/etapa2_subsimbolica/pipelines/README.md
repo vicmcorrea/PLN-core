@@ -17,4 +17,5 @@ Entradas planejadas:
 - treino: `../../data/raw/portuguese-tweets-for-sentiment-analysis/TrainingDatasets/Train3Classes.csv`;
 - teste comum: `../../data/raw/portuguese-tweets-for-sentiment-analysis/TestDatasets/Test3classes.csv`;
 - configs: `../configs/`;
-- saídas: `../../outputs/etapa2_subsymbolic/`.
+- saídas: `../../outputs/etapa2_subsymbolic/runs/<run_id>/`;
+- modelos exportados: `../../data/models/etapa2_subsymbolic/<run_id>/`.

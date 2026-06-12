@@ -5,6 +5,7 @@ defaults:
   - _self_
 
 output_dir: outputs/etapa2_subsymbolic
+run_id: ${now:%Y%m%d_%H%M%S_%f}
 seed: 42
 
 metrics:
@@ -15,9 +16,9 @@ metrics:
 
 hydra:
   run:
-    dir: ${output_dir}/${model.name}
+    dir: ${output_dir}/runs/${run_id}/${model.name}
   sweep:
-    dir: ${output_dir}
+    dir: ${output_dir}/multirun/${run_id}
     subdir: ${model.name}
   job:
     chdir: false

@@ -8,9 +8,9 @@ Examples:
     uv run python etapas/etapa1_simbolica/pipelines/run_symbolic_evaluation.py \\
         analyzer=seed dataset=sample
 
-    # Sweep both analyzers on a 500-tweet subset of the Kaggle corpus
+    # Run the active analyzer on a 500-tweet subset of the Kaggle corpus
     uv run python etapas/etapa1_simbolica/pipelines/run_symbolic_evaluation.py \\
-        --multirun analyzer=seed,oplexicon \\
+        analyzer=oplexicon_regex \\
         dataset=kaggle_tweets dataset.kwargs.max_examples=500
 """
 
@@ -77,7 +77,14 @@ def main(cfg: DictConfig) -> None:
     output_dir = Path(cfg.output_dir)
     if not output_dir.is_absolute():
         output_dir = PROJECT_ROOT / output_dir
-    destination = output_dir / cfg.dataset.name / cfg.analyzer.name / "report.json"
+    destination = (
+        output_dir
+        / "runs"
+        / str(cfg.run_id)
+        / cfg.dataset.name
+        / cfg.analyzer.name
+        / "report.json"
+    )
     save_report_json(
         report,
         destination=destination,

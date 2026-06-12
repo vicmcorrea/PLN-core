@@ -21,7 +21,10 @@ As duas etapas devem usar o mesmo corpus principal:
 
 https://www.kaggle.com/datasets/augustop/portuguese-tweets-for-sentiment-analysis
 
-Coloque os arquivos extraídos em:
+O pipeline Hydra da etapa 1 baixa o dataset automaticamente se os arquivos
+esperados ainda nao existirem, desde que as credenciais do Kaggle estejam
+configuradas em `~/.kaggle/kaggle.json` ou variaveis de ambiente equivalentes.
+O local padrao continua sendo:
 
 ```text
 data/raw/portuguese-tweets-for-sentiment-analysis/
@@ -48,7 +51,14 @@ Rodar Streamlit:
 uv run streamlit run streamlit_app.py
 ```
 
-Rodar avaliação simbólica no corpus comum:
+Rodar o baseline simbolico oficial (`oplexicon_regex`) no corpus comum, com
+perfil do dataset, metricas, predicoes, casos de erro e figuras:
+
+```bash
+uv run python etapas/etapa1_simbolica/pipelines/run_symbolic_benchmark_suite.py
+```
+
+Rodar uma avaliacao simbolica individual no corpus comum:
 
 ```bash
 uv run python etapas/etapa1_simbolica/pipelines/run_symbolic_evaluation.py
@@ -60,4 +70,12 @@ Rodar avaliação rápida no dataset didático:
 uv run python etapas/etapa1_simbolica/pipelines/run_symbolic_evaluation.py dataset=sample
 ```
 
-Os resultados experimentais são salvos em `outputs/`, que fica ignorado pelo Git. A etapa 2 ainda está em estruturação: seus modelos e pipelines ficam em `etapas/etapa2_subsimbolica/`.
+Os resultados experimentais são salvos em `outputs/`, que fica ignorado pelo Git. Cada execução usa um `run_id` com timestamp para evitar sobrescrever resultados anteriores:
+
+```text
+outputs/etapa1_symbolic/runs/<run_id>/<dataset>/<analyzer>/
+outputs/etapa1_symbolic/benchmark_suite/<run_id>/
+outputs/etapa2_subsymbolic/runs/<run_id>/<model>/
+```
+
+A etapa 2 ainda está em estruturação: seus modelos e pipelines ficam em `etapas/etapa2_subsimbolica/`.

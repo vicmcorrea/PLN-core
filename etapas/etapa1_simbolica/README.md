@@ -7,7 +7,7 @@ Esta pasta organiza a primeira etapa depois das correções pedidas na revisão 
 A etapa 1 contém a solução simbólica de análise de sentimentos em português brasileiro:
 - normalização textual;
 - tokenização usada pelo fluxo real do app e da avaliação;
-- consulta a léxicos de polaridade;
+- consulta ao OpLexicon v3.0;
 - tratamento de negação, intensificação e sinais simples de linguagem de redes sociais;
 - classificação em positivo, negativo ou neutro;
 - execução principal via Streamlit;
@@ -29,7 +29,13 @@ Não usar TweetSentBR como corpus operacional desta etapa. A justificativa é re
 
 ## comandos
 
-Rodar a configuração principal no corpus comum:
+Rodar o baseline oficial no corpus comum:
+
+```bash
+uv run python etapas/etapa1_simbolica/pipelines/run_symbolic_benchmark_suite.py
+```
+
+Rodar uma avaliação individual com a configuração principal:
 
 ```bash
 uv run python etapas/etapa1_simbolica/pipelines/run_symbolic_evaluation.py
@@ -41,7 +47,7 @@ Rodar o smoke test didático:
 uv run python etapas/etapa1_simbolica/pipelines/run_symbolic_evaluation.py dataset=sample
 ```
 
-Os relatórios JSON da etapa 1 são gerados em `../../outputs/etapa1_symbolic/`.
+Os relatórios da etapa 1 são gerados em `../../outputs/etapa1_symbolic/benchmark_suite/<run_id>/` para a bateria oficial e em `../../outputs/etapa1_symbolic/runs/<run_id>/<dataset>/<analyzer>/` para execuções individuais. O `run_id` é criado com timestamp e microsegundos para evitar sobrescrita entre execuções.
 
 ## arquivos relacionados
 

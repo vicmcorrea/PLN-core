@@ -44,7 +44,8 @@ A comparação deve deixar explícito:
 
 - Configs da etapa 2: `configs/`.
 - Pipelines futuros: `pipelines/`.
-- Logs, checkpoints e tabelas locais: `../../outputs/etapa2_subsymbolic/`.
+- Logs, checkpoints e tabelas locais: `../../outputs/etapa2_subsymbolic/runs/<run_id>/`.
+- Modelos treinados exportados: `../../data/models/etapa2_subsymbolic/<run_id>/`, quando forem pequenos o suficiente para armazenamento local.
 - Relatório e LaTeX: `reports/`.
 - Dados brutos compartilhados: `../../data/raw/portuguese-tweets-for-sentiment-analysis/`.
 

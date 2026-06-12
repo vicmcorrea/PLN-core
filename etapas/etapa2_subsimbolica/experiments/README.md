@@ -1,6 +1,6 @@
 # experimentos da etapa 2
 
-Esta pasta registra os experimentos subsimbolicos. Artefatos grandes devem ficar em `../../outputs/etapa2_subsymbolic/` ou `../../data/models/`, ambos ignorados pelo Git.
+Esta pasta registra os experimentos subsimbolicos. Artefatos grandes devem ficar em `../../outputs/etapa2_subsymbolic/runs/<run_id>/` ou `../../data/models/etapa2_subsymbolic/<run_id>/`, ambos ignorados pelo Git.
 
 Experimentos minimos:
 
