@@ -57,6 +57,16 @@ outputs/etapa2_subsymbolic/
     figures/
       confusion_<model>.png
       confusion_<model>.pdf
+  data_artifacts/<run_id>/
+    reports/
+      artifact_analysis.json
+      artifact_analysis.md
+    tables/
+      cue_prevalence.csv
+      label_associated_terms.csv
+    figures/
+      cue_prevalence_test.png
+      cue_prevalence_test.pdf
   multirun/<run_id>/<model>/
 
 data/models/etapa2_subsymbolic/
@@ -66,6 +76,8 @@ data/models/etapa2_subsymbolic/
 ```
 
 Treinos TF-IDF devem salvar metricas, predicoes e, se necessario, um artefato `.joblib` em `data/models/etapa2_subsymbolic/<run_id>/`. Treinos transformer devem usar `transformer_benchmark/<run_id>/` para resultados e `data/models/etapa2_subsymbolic/transformers/<run_id>/<model>/` para checkpoints/modelo final.
+Analises de artefatos do corpus devem usar `data_artifacts/<run_id>/` e nunca
+misturar tabelas de dataset com relatorios de modelos.
 
 ## regra pratica
 

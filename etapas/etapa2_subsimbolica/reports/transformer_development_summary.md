@@ -28,9 +28,14 @@ Uma checagem inicial de duplicatas exatas normalizadas encontrou 99043 textos
 unicos no treino, 4996 textos unicos no teste e apenas 9 textos unicos em comum
 entre treino e teste, cobrindo 10 linhas do teste. Todos esses casos tinham
 rotulos consistentes entre as particoes. Portanto, duplicacao exata entre treino
-e teste nao parece explicar, sozinha, o desempenho alto. Ainda falta analisar
-artefatos lexicais do proprio corpus, especialmente emoticons e marcadores
-distantes usados na rotulagem.
+e teste nao parece explicar, sozinha, o desempenho alto.
+
+A analise de artefatos `20260612_115649_211081` confirmou que o corpus possui
+sinais superficiais muito fortes: no teste comum, 91,42% dos tweets positivos
+contem emoticon positivo, 99,88% dos tweets negativos contem emoticon negativo
+e 99,70% dos tweets neutros contem URL. Esses achados devem acompanhar a tabela
+de resultados no relatorio final, pois os modelos podem aprender marcadores do
+processo de supervisao distante.
 
 Artefatos locais principais:
 
@@ -39,3 +44,4 @@ Artefatos locais principais:
 - `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_113749_208484/cases/distilbert_multilingual_errors.csv`;
 - `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_113749_208484/figures/confusion_distilbert_multilingual.png`;
 - `../../data/models/etapa2_subsymbolic/transformers/20260612_113749_208484/distilbert_multilingual/`.
+- `../../outputs/etapa2_subsymbolic/data_artifacts/20260612_115649_211081/reports/artifact_analysis.md`.

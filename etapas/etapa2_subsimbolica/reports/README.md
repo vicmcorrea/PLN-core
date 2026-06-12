@@ -8,3 +8,5 @@ Resumo ja consolidado para a escrita futura:
 
 - `classical_benchmark_summary.md`: primeira comparacao entre o baseline simbolico da etapa 1 e os baselines TF-IDF da etapa 2 no split Kaggle comum.
 - `transformer_development_summary.md`: validacao do pipeline transformer e primeiro resultado neural de desenvolvimento no teste comum.
+- `dataset_artifact_analysis_summary.md`: analise de duplicatas, emoticons,
+  URLs, mencoes, hashtags e termos associados aos rotulos no corpus comum.

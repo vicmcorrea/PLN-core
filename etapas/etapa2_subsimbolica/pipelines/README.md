@@ -33,6 +33,29 @@ Saidas por execucao:
 - figuras: `../../outputs/etapa2_subsymbolic/benchmark_suite/<run_id>/figures/`;
 - modelos exportados: `../../data/models/etapa2_subsymbolic/<run_id>/`.
 
+## analise de artefatos do corpus
+
+O pipeline `run_data_artifact_analysis.py` mede duplicatas exatas e pistas
+lexicais simples do corpus Kaggle comum. Ele ajuda a interpretar resultados
+muito altos em modelos neurais, ja que o dataset foi rotulado por supervisao
+distante com sinais de tweets.
+
+```bash
+uv run python etapas/etapa2_subsimbolica/pipelines/run_data_artifact_analysis.py
+```
+
+Entradas:
+
+- treino e teste definidos em `../configs/dataset/kaggle_portuguese_tweets.yaml`;
+- config principal: `../configs/data_artifact_analysis.yaml`.
+
+Saidas por execucao:
+
+- resumo: `../../outputs/etapa2_subsymbolic/data_artifacts/<run_id>/reports/artifact_analysis.md`;
+- tabelas: `../../outputs/etapa2_subsymbolic/data_artifacts/<run_id>/tables/`;
+- figuras: `../../outputs/etapa2_subsymbolic/data_artifacts/<run_id>/figures/`;
+- metadados Hydra: `../../outputs/etapa2_subsymbolic/data_artifacts/_hydra/<run_id>/`.
+
 ## fine-tuning transformer
 
 O pipeline `run_transformer_benchmark.py` usa Hugging Face Transformers para

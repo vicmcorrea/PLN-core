@@ -135,3 +135,33 @@ Checagem inicial de duplicatas exatas normalizadas:
 - teste: 4996 textos unicos em 4999 linhas;
 - interseccao treino/teste: 9 textos unicos, cobrindo 10 linhas do teste;
 - conflitos de rotulo na interseccao: 0.
+
+## analise de artefatos 20260612_115649_211081
+
+Comando:
+
+```bash
+uv run python etapas/etapa2_subsimbolica/pipelines/run_data_artifact_analysis.py
+```
+
+Principais achados no teste comum:
+
+- split quase balanceado: 1667 positivos, 1666 negativos e 1666 neutros;
+- duplicacao exata treino/teste muito baixa: 9 textos normalizados em comum,
+  cobrindo 10 linhas do teste, sem conflito de rotulo;
+- 91,42% dos tweets positivos contem emoticon positivo;
+- 99,88% dos tweets negativos contem emoticon negativo;
+- 99,70% dos tweets neutros contem URL, sugerindo que a classe neutra e
+  fortemente associada a noticias/links;
+- os termos mais associados a neutro incluem fontes como `feedly`,
+  `esportefera`, `estadaoeconomia`, `g1sp` e `cbn`.
+
+Artefatos locais:
+
+- resumo: `../../outputs/etapa2_subsymbolic/data_artifacts/20260612_115649_211081/reports/artifact_analysis.md`;
+- tabelas: `../../outputs/etapa2_subsymbolic/data_artifacts/20260612_115649_211081/tables/`;
+- figura: `../../outputs/etapa2_subsymbolic/data_artifacts/20260612_115649_211081/figures/cue_prevalence_test.png`.
+
+Implicacao para o relatorio: resultados neurais muito altos devem ser
+descritos junto com esses artefatos de supervisao distante, pois o modelo pode
+aprender sinais superficiais do proprio protocolo de rotulagem.
