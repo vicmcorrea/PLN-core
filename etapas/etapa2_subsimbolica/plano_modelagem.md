@@ -8,7 +8,7 @@
 4. Implementar TF-IDF + Regressão Logística: implementado na suite classica.
 5. Implementar TF-IDF + Linear SVM: implementado na suite classica.
 6. Executar e registrar a suite classica da etapa 2.
-7. Implementar treino/fine-tuning de `FacebookAI/xlm-roberta-base`.
+7. Implementar treino/fine-tuning de `FacebookAI/xlm-roberta-base`: pipeline criado, execucao pendente.
 8. Avaliar `PORTULAN/albertina-100m-portuguese-ptbr-encoder` se houver tempo de execução.
 9. Consolidar tabela comparativa final.
 
@@ -46,7 +46,9 @@ A comparação deve deixar explícito:
 - Configs da etapa 2: `configs/`.
 - Pipelines: `pipelines/`.
 - Logs, tabelas, predicoes e figuras da suite classica: `../../outputs/etapa2_subsymbolic/benchmark_suite/<run_id>/`.
+- Logs, tabelas, predicoes e figuras transformer: `../../outputs/etapa2_subsymbolic/transformer_benchmark/<run_id>/`.
 - Modelos treinados exportados: `../../data/models/etapa2_subsymbolic/<run_id>/`, quando forem pequenos o suficiente para armazenamento local.
+- Checkpoints/modelos transformer: `../../data/models/etapa2_subsymbolic/transformers/<run_id>/<model>/`.
 - Relatório e LaTeX: `reports/`.
 - Dados brutos compartilhados: `../../data/raw/portuguese-tweets-for-sentiment-analysis/`.
 

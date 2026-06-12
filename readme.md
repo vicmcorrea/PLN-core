@@ -70,6 +70,13 @@ Rodar os baselines classicos da etapa 2 no mesmo split Kaggle usado pela etapa 1
 uv run python etapas/etapa2_subsimbolica/pipelines/run_classical_benchmark_suite.py
 ```
 
+Rodar um smoke test transformer da etapa 2:
+
+```bash
+uv sync --extra transformers
+uv run --extra transformers python etapas/etapa2_subsimbolica/pipelines/run_transformer_benchmark.py model=distilbert_multilingual train_max_examples=3000 test_max_examples=999
+```
+
 Rodar avaliação rápida no dataset didático:
 
 ```bash
@@ -82,6 +89,7 @@ Os resultados experimentais são salvos em `outputs/`, que fica ignorado pelo Gi
 outputs/etapa1_symbolic/runs/<run_id>/<dataset>/<analyzer>/
 outputs/etapa1_symbolic/benchmark_suite/<run_id>/
 outputs/etapa2_subsymbolic/benchmark_suite/<run_id>/
+outputs/etapa2_subsymbolic/transformer_benchmark/<run_id>/
 ```
 
-A etapa 2 ja possui uma suite classica inicial com TF-IDF + Regressao Logistica e TF-IDF + Linear SVM. Transformers continuam planejados dentro de `etapas/etapa2_subsimbolica/`.
+A etapa 2 ja possui uma suite classica inicial com TF-IDF + Regressao Logistica e TF-IDF + Linear SVM, alem de um pipeline transformer opcional para fine-tuning.

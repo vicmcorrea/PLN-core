@@ -50,6 +50,22 @@ configuração resolvida, manifesto do dataset, métricas por modelo, tabela
 comparativa, predições, casos de erro e figuras. Os modelos `.joblib` ficam em
 `../../data/models/etapa2_subsymbolic/<run_id>/`, que também é ignorado pelo Git.
 
+## pipeline transformer
+
+O pipeline `pipelines/run_transformer_benchmark.py` prepara o mesmo corpus para
+fine-tuning de encoders transformer com `AutoModelForSequenceClassification`.
+As dependencias pesadas ficam no extra opcional `transformers`:
+
+```bash
+uv sync --extra transformers
+uv run --extra transformers python etapas/etapa2_subsimbolica/pipelines/run_transformer_benchmark.py model=distilbert_multilingual train_max_examples=3000 test_max_examples=999
+```
+
+A execucao final deve remover os limites `train_max_examples` e
+`test_max_examples`, usando o mesmo treino e teste da suite classica. Os
+resultados ficam em `../../outputs/etapa2_subsymbolic/transformer_benchmark/<run_id>/`
+e os checkpoints/modelos em `../../data/models/etapa2_subsymbolic/transformers/<run_id>/`.
+
 ## arquitetura planejada
 
 1. Carregamento do corpus e padronização dos rótulos.
@@ -76,6 +92,6 @@ A etapa 2 estará pronta quando tivermos:
 - dataset carregado de forma reprodutível;
 - baseline TF-IDF + Regressão Logística;
 - baseline TF-IDF + Linear SVM;
-- pelo menos um transformer fine-tuned;
+- pelo menos um transformer fine-tuned em execucao consolidada;
 - resultados salvos em formato comparável aos resultados simbólicos;
 - análise de erros e acertos no relatório.

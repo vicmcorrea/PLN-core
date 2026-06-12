@@ -1,0 +1,57 @@
+# Etapa 2 transformer benchmark on the shared Kaggle corpus.
+defaults:
+  - dataset: kaggle_portuguese_tweets
+  - model: xlm_roberta_base
+  - _self_
+
+seed: 42
+output_dir: outputs/etapa2_subsymbolic/transformer_benchmark
+model_output_dir: data/models/etapa2_subsymbolic/transformers
+run_id: ${now:%Y%m%d_%H%M%S_%f}
+overwrite: false
+save_predictions: true
+make_figures: true
+
+# Keep null for the final run. Override these for smoke tests, for example:
+# train_max_examples=3000 test_max_examples=999 model=distilbert_multilingual
+train_max_examples: null
+test_max_examples: null
+train_per_class: null
+test_per_class: null
+
+trainer:
+  eval_strategy: epoch
+  save_strategy: epoch
+  logging_strategy: steps
+  logging_steps: 50
+  save_total_limit: 1
+  load_best_model_at_end: true
+  metric_for_best_model: macro_f1
+  greater_is_better: true
+  report_to: []
+
+symbolic_baseline:
+  name: oplexicon_regex
+  stage: etapa1_simbolica
+  run_id: "20260612_101202_400841"
+  accuracy: 0.5979195839167833
+  macro_f1: 0.595953419202016
+  positive_f1: 0.6515238642898218
+  negative_f1: 0.6407004830917874
+  neutral_f1: 0.4956359102244389
+
+classical_baseline:
+  name: tfidf_logreg
+  stage: etapa2_subsimbolica
+  run_id: "20260612_103137_624831"
+  accuracy: 0.8171634326865373
+  macro_f1: 0.8164189184844114
+  positive_f1: 0.7374368123699078
+  negative_f1: 0.7421229733863567
+  neutral_f1: 0.9696969696969697
+
+hydra:
+  run:
+    dir: ${output_dir}/_hydra/${run_id}
+  job:
+    chdir: false

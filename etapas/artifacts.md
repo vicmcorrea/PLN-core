@@ -46,13 +46,26 @@ outputs/etapa2_subsymbolic/
       benchmark_macro_f1.png
       benchmark_macro_f1.pdf
     errors/<model>.txt
+  transformer_benchmark/<run_id>/
+    reports/
+      resolved_config.json
+      dataset_manifest.json
+      summary_metrics.md
+      <model>/report.json
+    predictions/<model>.csv
+    cases/<model>_errors.csv
+    figures/
+      confusion_<model>.png
+      confusion_<model>.pdf
   multirun/<run_id>/<model>/
 
 data/models/etapa2_subsymbolic/
   <run_id>/<model>.joblib
+  transformers/<run_id>/<model>/
+    Hugging Face model checkpoint
 ```
 
-Treinos TF-IDF devem salvar metricas, predicoes e, se necessario, um artefato `.joblib` em `data/models/etapa2_subsymbolic/<run_id>/`. Treinos transformer devem usar uma subpasta propria sob `outputs/etapa2_subsymbolic/` e salvar checkpoints apenas quando forem necessarios para reproducao, preferencialmente com uma nota no experimento indicando modelo base, seed e hiperparametros.
+Treinos TF-IDF devem salvar metricas, predicoes e, se necessario, um artefato `.joblib` em `data/models/etapa2_subsymbolic/<run_id>/`. Treinos transformer devem usar `transformer_benchmark/<run_id>/` para resultados e `data/models/etapa2_subsymbolic/transformers/<run_id>/<model>/` para checkpoints/modelo final.
 
 ## regra pratica
 

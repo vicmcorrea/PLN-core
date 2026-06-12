@@ -33,6 +33,37 @@ Saidas por execucao:
 - figuras: `../../outputs/etapa2_subsymbolic/benchmark_suite/<run_id>/figures/`;
 - modelos exportados: `../../data/models/etapa2_subsymbolic/<run_id>/`.
 
+## fine-tuning transformer
+
+O pipeline `run_transformer_benchmark.py` usa Hugging Face Transformers para
+treinar um modelo de classificacao de sequencias com tres rotulos
+(`positive`, `negative`, `neutral`).
+
+Instalacao opcional:
+
+```bash
+uv sync --extra transformers
+```
+
+Smoke test recomendado antes da execucao completa:
+
+```bash
+uv run --extra transformers python etapas/etapa2_subsimbolica/pipelines/run_transformer_benchmark.py model=distilbert_multilingual train_max_examples=3000 test_max_examples=999
+```
+
+Execucao final planejada com XLM-R base:
+
+```bash
+uv run --extra transformers python etapas/etapa2_subsimbolica/pipelines/run_transformer_benchmark.py model=xlm_roberta_base
+```
+
+Saidas por execucao:
+
+- relatorios: `../../outputs/etapa2_subsymbolic/transformer_benchmark/<run_id>/reports/`;
+- predicoes e erros: `../../outputs/etapa2_subsymbolic/transformer_benchmark/<run_id>/`;
+- figuras: `../../outputs/etapa2_subsymbolic/transformer_benchmark/<run_id>/figures/`;
+- checkpoints/modelo final: `../../data/models/etapa2_subsymbolic/transformers/<run_id>/<model>/`.
+
 ## ordem de evolução
 
 1. preparação do corpus Kaggle;

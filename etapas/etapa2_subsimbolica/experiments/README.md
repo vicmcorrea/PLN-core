@@ -50,3 +50,22 @@ Artefatos locais:
 - resumo: `../../outputs/etapa2_subsymbolic/benchmark_suite/20260612_103137_624831/reports/summary_metrics.md`;
 - predicoes e erros: `../../outputs/etapa2_subsymbolic/benchmark_suite/20260612_103137_624831/`;
 - modelos: `../../data/models/etapa2_subsymbolic/20260612_103137_624831/`.
+
+## transformer pendente
+
+Pipeline criado: `../pipelines/run_transformer_benchmark.py`.
+
+Smoke test sugerido:
+
+```bash
+uv run --extra transformers python etapas/etapa2_subsimbolica/pipelines/run_transformer_benchmark.py model=distilbert_multilingual train_max_examples=3000 test_max_examples=999
+```
+
+Execucao final planejada:
+
+```bash
+uv run --extra transformers python etapas/etapa2_subsimbolica/pipelines/run_transformer_benchmark.py model=xlm_roberta_base
+```
+
+Registrar aqui o `run_id`, metricas, tempo, hardware usado e se o treino usou
+o split completo ou uma amostra estratificada.

@@ -18,6 +18,13 @@ dependencies = [
     "streamlit>=1.50.0",
 ]
 
+[project.optional-dependencies]
+transformers = [
+    "accelerate>=1.12",
+    "torch>=2.2",
+    "transformers>=4.57,<5",
+]
+
 [dependency-groups]
 dev = [
     "pytest",
