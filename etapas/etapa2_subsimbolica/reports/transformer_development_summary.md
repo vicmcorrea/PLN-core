@@ -12,6 +12,7 @@ consolidada, idealmente com mais dados de treino e registro de hardware/tempo.
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | `oplexicon_regex` | 0 | 4999 | 0.5979 | 0.5960 | 0.6515 | 0.6407 | 0.4956 |
 | `tfidf_logreg` | 100000 | 4999 | 0.8172 | 0.8164 | 0.7374 | 0.7421 | 0.9697 |
+| `cue_only_logreg` | 100000 | 4999 | 0.9970 | 0.9970 | 0.9961 | 0.9991 | 0.9958 |
 | `distilbert_multilingual` dev | 3000 | 999 | 0.9970 | 0.9970 | 0.9955 | 0.9985 | 0.9970 |
 | `distilbert_multilingual` dev/full-test | 3000 | 4999 | 0.9950 | 0.9950 | 0.9925 | 0.9979 | 0.9946 |
 | `xlm_roberta_base` dev/full-test | 3000 | 4999 | 0.9968 | 0.9968 | 0.9952 | 0.9985 | 0.9967 |
@@ -33,12 +34,15 @@ entre treino e teste, cobrindo 10 linhas do teste. Todos esses casos tinham
 rotulos consistentes entre as particoes. Portanto, duplicacao exata entre treino
 e teste nao parece explicar, sozinha, o desempenho alto.
 
-A analise de artefatos `20260612_115649_211081` confirmou que o corpus possui
-sinais superficiais muito fortes: no teste comum, 91,42% dos tweets positivos
+A analise de artefatos `20260612_131841_753357` confirmou que o corpus possui
+sinais superficiais muito fortes: no teste comum, 99,28% dos tweets positivos
 contem emoticon positivo, 99,88% dos tweets negativos contem emoticon negativo
-e 99,70% dos tweets neutros contem URL. Esses achados devem acompanhar a tabela
-de resultados no relatorio final, pois os modelos podem aprender marcadores do
-processo de supervisao distante.
+e 99,70% dos tweets neutros contem URL. O diagnostico de vazamento
+`20260612_131708_831350` mostra que uma Regressao Logistica com apenas
+`has_positive_emoticon`, `has_negative_emoticon` e `has_url` chega a acuracia
+`0,9970` e macro-F1 `0,9970`. Portanto, os resultados transformer brutos sao
+validos para o split Kaggle original, mas nao devem ser apresentados como prova
+forte de aprendizagem semantica sem uma condicao sem emoticons/URLs.
 
 Artefatos locais principais:
 
@@ -55,4 +59,5 @@ Artefatos locais principais:
 - `../../data/models/etapa2_subsymbolic/transformers/20260612_113749_208484/distilbert_multilingual/`.
 - `../../data/models/etapa2_subsymbolic/transformers/20260612_115913_159120/xlm_roberta_base/`.
 - `../../data/models/etapa2_subsymbolic/transformers/20260612_121606_196690/albertina_ptbr_100m/`.
-- `../../outputs/etapa2_subsymbolic/data_artifacts/20260612_115649_211081/reports/artifact_analysis.md`.
+- `../../outputs/etapa2_subsymbolic/data_artifacts/20260612_131841_753357/reports/artifact_analysis.md`.
+- `../../outputs/etapa2_subsymbolic/leakage_diagnostics/20260612_131708_831350/reports/summary_metrics.md`.

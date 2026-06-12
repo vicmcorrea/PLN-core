@@ -12,6 +12,7 @@ save_predictions: true
 save_models: true
 make_figures: true
 fail_fast: false
+text_treatment: raw
 
 models:
   - tfidf_logreg

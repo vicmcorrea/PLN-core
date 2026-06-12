@@ -15,7 +15,7 @@ Comparar a solução simbólica da etapa 1 com abordagens treinadas no mesmo cor
 ## estrutura
 
 - `configs/`: dataset comum, baselines TF-IDF e modelos neurais candidatos.
-- `pipelines/`: scripts de treino, avaliação e consolidação.
+- `pipelines/`: scripts de treino, avaliação, diagnostico de vazamento e consolidação.
 - `experiments/`: índice dos experimentos da etapa 2.
 - `reports/`: espaço do relatório e LaTeX desta etapa.
 - `especificacao_etapa2.md`: leitura da especificação oficial da segunda etapa.
@@ -68,6 +68,23 @@ e os checkpoints/modelos em `../../data/models/etapa2_subsymbolic/transformers/<
 Em Mac com MPS, use lotes pequenos ou `trainer.use_cpu=true` para testes
 rapidos se houver erro de memoria compartilhada.
 
+## diagnostico de vazamento
+
+Como o corpus Kaggle foi criado por supervisao distante, emoticons e URLs podem
+revelar o rotulo. O pipeline `pipelines/run_leakage_diagnostics.py` mede esse
+efeito com baselines cue-only e com comparacoes raw versus texto sem
+emoticons/URLs:
+
+```bash
+uv run python etapas/etapa2_subsimbolica/pipelines/run_leakage_diagnostics.py
+```
+
+A execucao `20260612_131708_831350` mostrou que uma Regressao Logistica com
+apenas `has_positive_emoticon`, `has_negative_emoticon` e `has_url` atinge
+acuracia `0.9970` no teste bruto. Portanto, resultados transformer brutos
+devem ser reportados junto com essa limitacao e com uma condicao sem
+emoticons/URLs.
+
 ## arquitetura planejada
 
 1. Carregamento do corpus e padronização dos rótulos.
@@ -76,6 +93,7 @@ rapidos se houver erro de memoria compartilhada.
 4. Fine-tuning de modelo neural pré-treinado.
 5. Avaliação com as mesmas métricas da etapa 1.
 6. Comparação quantitativa e qualitativa entre simbólico, estatístico e neural.
+7. Diagnostico de pistas superficiais e condicao de robustez sem emoticons/URLs.
 
 ## modelos candidatos
 

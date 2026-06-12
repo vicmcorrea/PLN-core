@@ -38,21 +38,10 @@ from omegaconf import DictConfig, OmegaConf  # noqa: E402
 
 from pln_core.eval.datasets.base import VALID_LABELS, EvalDataset, EvalExample  # noqa: E402
 from pln_core.eval.datasets.kaggle_tweets import load_kaggle_tweets  # noqa: E402
+from pln_core.eval.text_treatments import CUE_PATTERNS, text_for_cue_matching  # noqa: E402
 
 LABELS = tuple(VALID_LABELS)
 TOKEN_RE = re.compile(r"(?u)\b[\w@#]+\b|[:;=8xX][-']?[)(/DdpPcC]|<3")
-CUE_PATTERNS = {
-    "positive_emoticon": re.compile(r"(?i)(:\)|:-\)|=\)|;\)|;-\)|:d|:-d|=d|<3)"),
-    "negative_emoticon": re.compile(r"(?i)(:\(|:-\(|=\(|:/|:-/|:'\(|:c|:-c)"),
-    "url": re.compile(r"(?i)\b(?:https?://|www\.)\S+"),
-    "mention": re.compile(r"(?<!\w)@\w+"),
-    "hashtag": re.compile(r"(?<!\w)#\w+"),
-    "laughter": re.compile(r"(?i)\b(?:kkk+|rsrs+|haha+|hehe+)\b"),
-    "elongated_word": re.compile(r"(?i)\b\w*(\w)\1{2,}\w*\b"),
-    "exclamation": re.compile(r"!"),
-    "question": re.compile(r"\?"),
-}
-EMOTICON_CUES = {"positive_emoticon", "negative_emoticon"}
 FIGURE_COLOR = "#0072B2"
 
 
@@ -168,8 +157,7 @@ def _cue_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
         text = str(row["text"])
         totals[(split, label)] += 1
         for cue_name, pattern in CUE_PATTERNS.items():
-            cue_text = CUE_PATTERNS["url"].sub(" ", text) if cue_name in EMOTICON_CUES else text
-            if pattern.search(cue_text):
+            if pattern.search(text_for_cue_matching(text, cue_name)):
                 cue_counts[(split, label, cue_name)] += 1
 
     output_rows: list[dict[str, Any]] = []

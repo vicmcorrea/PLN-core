@@ -18,6 +18,10 @@ Modelos executados por padrão:
 - `tfidf_logreg`: TF-IDF + Regressao Logistica.
 - `tfidf_linear_svm`: TF-IDF + Linear SVM.
 
+O parametro Hydra `text_treatment` controla o texto entregue ao modelo. O
+default `raw` preserva o split Kaggle original. Para experimentos de robustez,
+use `text_treatment=strip_emoticons_urls`.
+
 Entradas:
 
 - treino: `../../data/raw/portuguese-tweets-for-sentiment-analysis/TrainingDatasets/Train3Classes.csv`;
@@ -56,6 +60,28 @@ Saidas por execucao:
 - figuras: `../../outputs/etapa2_subsymbolic/data_artifacts/<run_id>/figures/`;
 - metadados Hydra: `../../outputs/etapa2_subsymbolic/data_artifacts/_hydra/<run_id>/`.
 
+## diagnostico de vazamento por pistas superficiais
+
+O pipeline `run_leakage_diagnostics.py` testa se emoticons e URLs explicam os
+resultados muito altos no split Kaggle. Ele roda:
+
+- regra simples baseada em emoticon negativo, emoticon positivo e URL;
+- Regressao Logistica usando apenas `has_positive_emoticon`,
+  `has_negative_emoticon` e `has_url`;
+- TF-IDF + Regressao Logistica e TF-IDF + Linear SVM em texto bruto e em texto
+  sem emoticons/URLs.
+
+```bash
+uv run python etapas/etapa2_subsimbolica/pipelines/run_leakage_diagnostics.py
+```
+
+Saidas por execucao:
+
+- resumo: `../../outputs/etapa2_subsymbolic/leakage_diagnostics/<run_id>/reports/summary_metrics.md`;
+- tabela de pistas: `../../outputs/etapa2_subsymbolic/leakage_diagnostics/<run_id>/tables/cue_prevalence.csv`;
+- predicoes e erros: `../../outputs/etapa2_subsymbolic/leakage_diagnostics/<run_id>/`;
+- figuras: `../../outputs/etapa2_subsymbolic/leakage_diagnostics/<run_id>/figures/`.
+
 ## fine-tuning transformer
 
 O pipeline `run_transformer_benchmark.py` usa Hugging Face Transformers para
@@ -78,6 +104,12 @@ Execucao final planejada com XLM-R base:
 
 ```bash
 uv run --extra transformers python etapas/etapa2_subsimbolica/pipelines/run_transformer_benchmark.py model=xlm_roberta_base
+```
+
+Para remover emoticons e URLs tanto no treino quanto no teste:
+
+```bash
+uv run --extra transformers python etapas/etapa2_subsimbolica/pipelines/run_transformer_benchmark.py model=distilbert_multilingual train_per_class=1000 model.training.epochs=1 trainer.use_cpu=true text_treatment=strip_emoticons_urls
 ```
 
 Execucoes de desenvolvimento em CPU ja usadas para comparar arquiteturas no

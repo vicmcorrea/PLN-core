@@ -211,6 +211,64 @@ Artefatos locais:
 - tabelas: `../../outputs/etapa2_subsymbolic/data_artifacts/20260612_115649_211081/tables/`;
 - figura: `../../outputs/etapa2_subsymbolic/data_artifacts/20260612_115649_211081/figures/cue_prevalence_test.png`.
 
-Implicacao para o relatorio: resultados neurais muito altos devem ser
-descritos junto com esses artefatos de supervisao distante, pois o modelo pode
-aprender sinais superficiais do proprio protocolo de rotulagem.
+## analise de artefatos 20260612_131841_753357
+
+Depois de consolidar as regexes de pistas superficiais em
+`pln_core.eval.text_treatments`, a analise de artefatos foi reexecutada para
+usar a mesma definicao dos diagnosticos de vazamento.
+
+Principais achados no teste comum:
+
+- split quase balanceado: 1667 positivos, 1666 negativos e 1666 neutros;
+- duplicacao exata treino/teste muito baixa: 9 textos normalizados em comum,
+  cobrindo 10 linhas do teste, sem conflito de rotulo;
+- 99,28% dos tweets positivos contem emoticon positivo;
+- 99,88% dos tweets negativos contem emoticon negativo;
+- 99,70% dos tweets neutros contem URL.
+
+Artefatos locais:
+
+- resumo: `../../outputs/etapa2_subsymbolic/data_artifacts/20260612_131841_753357/reports/artifact_analysis.md`;
+- tabelas: `../../outputs/etapa2_subsymbolic/data_artifacts/20260612_131841_753357/tables/`;
+- figura: `../../outputs/etapa2_subsymbolic/data_artifacts/20260612_131841_753357/figures/cue_prevalence_test.png`.
+
+## diagnostico de vazamento 20260612_131708_831350
+
+Comando:
+
+```bash
+uv run python etapas/etapa2_subsimbolica/pipelines/run_leakage_diagnostics.py
+```
+
+Esse diagnostico confirma que a acuracia neural quase perfeita no split Kaggle
+e majoritariamente explicavel por pistas superficiais do proprio protocolo de
+supervisao distante. Uma Regressao Logistica treinada somente com
+`has_positive_emoticon`, `has_negative_emoticon` e `has_url` obteve acuracia
+`0.9970` e macro-F1 `0.9970` no teste bruto. Uma regra manual usando
+emoticon negativo, depois emoticon positivo, depois URL obteve acuracia
+`0.9958`.
+
+Quando o teste tem emoticons e URLs removidos, o mesmo classificador cue-only
+cai para acuracia `0.3333` e macro-F1 `0.1666`, como esperado em um split
+balanceado sem essas pistas.
+
+| Modelo | Treino | Teste | Acuracia | Macro-F1 |
+| --- | --- | --- | ---: | ---: |
+| `cue_only_logreg_raw_test` | raw | raw | 0.9970 | 0.9970 |
+| `cue_rule_emoticon_url` | raw | raw | 0.9958 | 0.9958 |
+| `tfidf_logreg` | raw | raw | 0.8172 | 0.8164 |
+| `tfidf_logreg` | sem emoticons/URLs | sem emoticons/URLs | 0.8086 | 0.8094 |
+| `tfidf_linear_svm` | raw | raw | 0.8080 | 0.8084 |
+| `tfidf_linear_svm` | sem emoticons/URLs | sem emoticons/URLs | 0.8020 | 0.8030 |
+
+Artefatos locais:
+
+- resumo: `../../outputs/etapa2_subsymbolic/leakage_diagnostics/20260612_131708_831350/reports/summary_metrics.md`;
+- tabela de pistas: `../../outputs/etapa2_subsymbolic/leakage_diagnostics/20260612_131708_831350/tables/cue_prevalence.csv`;
+- figuras: `../../outputs/etapa2_subsymbolic/leakage_diagnostics/20260612_131708_831350/figures/`;
+- predicoes e erros: `../../outputs/etapa2_subsymbolic/leakage_diagnostics/20260612_131708_831350/`.
+
+Implicacao para o relatorio: resultados neurais brutos devem ser descritos como
+validos para o split Kaggle original, mas fracos como evidencia de semantica de
+sentimento. A tabela final da etapa 2 deve incluir resultados sem emoticons/URLs
+e a baseline cue-only.

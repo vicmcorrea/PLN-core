@@ -41,6 +41,7 @@ from sklearn.pipeline import Pipeline  # noqa: E402
 from pln_core.eval.datasets.base import VALID_LABELS, EvalDataset  # noqa: E402
 from pln_core.eval.datasets.kaggle_tweets import load_kaggle_tweets  # noqa: E402
 from pln_core.eval.metrics import EvaluationMetrics, compute_metrics  # noqa: E402
+from pln_core.eval.text_treatments import apply_text_treatment  # noqa: E402
 
 LABELS = tuple(VALID_LABELS)
 METRIC_COLOR = "#0072B2"
@@ -55,6 +56,7 @@ class ClassicalBenchmarkReport:
     model: str
     kind: str
     dataset: str
+    text_treatment: str
     train_examples: int
     test_examples: int
     elapsed_seconds: float
@@ -68,6 +70,7 @@ class ClassicalBenchmarkReport:
             "model": self.model,
             "kind": self.kind,
             "dataset": self.dataset,
+            "text_treatment": self.text_treatment,
             "train_examples": self.train_examples,
             "test_examples": self.test_examples,
             "elapsed_seconds": self.elapsed_seconds,
@@ -323,13 +326,20 @@ def _run_model(
     save_models: bool,
     save_predictions: bool,
     make_figures: bool,
+    text_treatment: str,
 ) -> tuple[ClassicalBenchmarkReport, str, str]:
     model_name = str(model_config["name"])
     pipeline = _build_pipeline(model_config)
 
-    train_texts = [example.text for example in train_dataset.examples]
+    train_texts = [
+        apply_text_treatment(example.text, text_treatment)
+        for example in train_dataset.examples
+    ]
     train_labels = [example.label for example in train_dataset.examples]
-    test_texts = [example.text for example in test_dataset.examples]
+    test_texts = [
+        apply_text_treatment(example.text, text_treatment)
+        for example in test_dataset.examples
+    ]
     test_labels = [example.label for example in test_dataset.examples]
 
     start = time.perf_counter()
@@ -362,6 +372,7 @@ def _run_model(
         model=model_name,
         kind=str(model_config["kind"]),
         dataset=test_dataset.name,
+        text_treatment=text_treatment,
         train_examples=len(train_dataset.examples),
         test_examples=len(test_dataset.examples),
         elapsed_seconds=elapsed,
@@ -390,6 +401,7 @@ def _summary_row(
         "model": report.model,
         "status": "ok",
         "dataset": report.dataset,
+        "text_treatment": report.text_treatment,
         "train_examples": report.train_examples,
         "test_examples": report.test_examples,
         "accuracy": report.metrics.accuracy,
@@ -411,6 +423,7 @@ def _failure_row(model_name: str, error_path: Path) -> dict[str, Any]:
         "model": model_name,
         "status": "failed",
         "dataset": "",
+        "text_treatment": "",
         "train_examples": "",
         "test_examples": "",
         "accuracy": "",
@@ -442,6 +455,7 @@ def _write_summary(run_dir: Path, rows: list[dict[str, Any]], baseline: dict[str
         "model",
         "status",
         "dataset",
+        "text_treatment",
         "train_examples",
         "test_examples",
         "accuracy",
@@ -462,6 +476,7 @@ def _write_summary(run_dir: Path, rows: list[dict[str, Any]], baseline: dict[str
         "# Etapa 2 classical benchmark summary",
         "",
         f"Run directory: `{_display_path(run_dir)}`",
+        f"Text treatment: `{successful[0]['text_treatment'] if successful else 'n/a'}`",
         "",
         "Symbolic baseline from Etapa 1:",
         (
@@ -543,6 +558,7 @@ def main(cfg: DictConfig) -> None:
             "test_examples": len(test_dataset.examples),
             "source_url": str(cfg.dataset.source_url),
             "license": str(cfg.dataset.license),
+            "text_treatment": str(cfg.text_treatment),
         },
     )
 
@@ -562,6 +578,7 @@ def main(cfg: DictConfig) -> None:
                 save_models=bool(cfg.save_models),
                 save_predictions=bool(cfg.save_predictions),
                 make_figures=bool(cfg.make_figures),
+                text_treatment=str(cfg.text_treatment),
             )
             rows.append(_summary_row(report, predictions_csv, errors_csv))
             print(

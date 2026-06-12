@@ -43,6 +43,7 @@ from omegaconf import DictConfig, OmegaConf  # noqa: E402
 from pln_core.eval.datasets.base import VALID_LABELS, EvalDataset  # noqa: E402
 from pln_core.eval.datasets.kaggle_tweets import load_kaggle_tweets  # noqa: E402
 from pln_core.eval.metrics import EvaluationMetrics, compute_metrics  # noqa: E402
+from pln_core.eval.text_treatments import apply_text_treatment  # noqa: E402
 
 LABELS = tuple(VALID_LABELS)
 LABEL2ID = {label: index for index, label in enumerate(LABELS)}
@@ -161,10 +162,13 @@ def _import_transformers() -> dict[str, Any]:
     }
 
 
-def _to_hf_dataset(dataset: EvalDataset) -> Dataset:
+def _to_hf_dataset(dataset: EvalDataset, text_treatment: str) -> Dataset:
     return Dataset.from_dict(
         {
-            "text": [example.text for example in dataset.examples],
+            "text": [
+                apply_text_treatment(example.text, text_treatment)
+                for example in dataset.examples
+            ],
             "labels": [LABEL2ID[example.label] for example in dataset.examples],
         }
     )
@@ -346,6 +350,7 @@ def _write_summary(
         "",
         f"Run directory: `{_display_path(run_dir)}`",
         f"Model: `{cfg.model.name}` (`{cfg.model.model_id}`)",
+        f"Text treatment: `{cfg.text_treatment}`",
         "",
         "| System | Accuracy | Macro-F1 | Positive F1 | Negative F1 | Neutral F1 |",
         "| --- | ---: | ---: | ---: | ---: | ---: |",
@@ -423,6 +428,7 @@ def main(cfg: DictConfig) -> None:
             "test_examples": len(test_dataset.examples),
             "source_url": str(cfg.dataset.source_url),
             "license": str(cfg.dataset.license),
+            "text_treatment": str(cfg.text_treatment),
         },
     )
 
@@ -435,8 +441,9 @@ def main(cfg: DictConfig) -> None:
     )
     data_collator = transformers["DataCollatorWithPadding"](tokenizer=tokenizer)
 
-    train_hf = _to_hf_dataset(train_dataset)
-    test_hf = _to_hf_dataset(test_dataset)
+    text_treatment = str(cfg.text_treatment)
+    train_hf = _to_hf_dataset(train_dataset, text_treatment)
+    test_hf = _to_hf_dataset(test_dataset, text_treatment)
     tokenize = _make_tokenizer_fn(tokenizer, int(cfg.model.training.max_length))
     train_tokenized = train_hf.map(tokenize, batched=True, remove_columns=["text"])
     test_tokenized = test_hf.map(tokenize, batched=True, remove_columns=["text"])
@@ -466,7 +473,10 @@ def main(cfg: DictConfig) -> None:
     errors_csv = ""
     if bool(cfg.save_predictions):
         predictions_csv, errors_csv = _write_predictions(
-            texts=[example.text for example in test_dataset.examples],
+            texts=[
+                apply_text_treatment(example.text, text_treatment)
+                for example in test_dataset.examples
+            ],
             expected=expected,
             predicted=predicted,
             run_dir=run_dir,
@@ -484,6 +494,7 @@ def main(cfg: DictConfig) -> None:
         "model": str(cfg.model.name),
         "model_id": str(cfg.model.model_id),
         "dataset": test_dataset.name,
+        "text_treatment": text_treatment,
         "train_examples": len(train_dataset.examples),
         "test_examples": len(test_dataset.examples),
         "model_artifact": model_artifact,

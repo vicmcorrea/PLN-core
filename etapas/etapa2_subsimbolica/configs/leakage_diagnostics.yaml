@@ -1,0 +1,29 @@
+# Etapa 2 leakage and robustness diagnostics on the shared Kaggle corpus.
+defaults:
+  - dataset: kaggle_portuguese_tweets
+  - _self_
+
+seed: 42
+output_dir: outputs/etapa2_subsymbolic/leakage_diagnostics
+run_id: ${now:%Y%m%d_%H%M%S_%f}
+overwrite: false
+save_predictions: true
+make_figures: true
+
+cue_features:
+  - has_positive_emoticon
+  - has_negative_emoticon
+  - has_url
+
+raw_treatment: raw
+stripped_treatment: strip_emoticons_urls
+
+classical_models:
+  - tfidf_logreg
+  - tfidf_linear_svm
+
+hydra:
+  run:
+    dir: ${output_dir}/_hydra/${run_id}
+  job:
+    chdir: false

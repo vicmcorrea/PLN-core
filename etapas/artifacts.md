@@ -67,6 +67,24 @@ outputs/etapa2_subsymbolic/
     figures/
       cue_prevalence_test.png
       cue_prevalence_test.pdf
+  leakage_diagnostics/<run_id>/
+    reports/
+      resolved_config.json
+      dataset_manifest.json
+      leakage_diagnostics.json
+      summary_metrics.csv
+      summary_metrics.md
+    tables/
+      cue_prevalence.csv
+    predictions/<diagnostic>.csv
+    cases/<diagnostic>_errors.csv
+    figures/
+      diagnostic_accuracy.png
+      diagnostic_accuracy.pdf
+      diagnostic_macro_f1.png
+      diagnostic_macro_f1.pdf
+      confusion_<cue_diagnostic>.png
+      confusion_<cue_diagnostic>.pdf
   multirun/<run_id>/<model>/
 
 data/models/etapa2_subsymbolic/
@@ -78,6 +96,9 @@ data/models/etapa2_subsymbolic/
 Treinos TF-IDF devem salvar metricas, predicoes e, se necessario, um artefato `.joblib` em `data/models/etapa2_subsymbolic/<run_id>/`. Treinos transformer devem usar `transformer_benchmark/<run_id>/` para resultados e `data/models/etapa2_subsymbolic/transformers/<run_id>/<model>/` para checkpoints/modelo final.
 Analises de artefatos do corpus devem usar `data_artifacts/<run_id>/` e nunca
 misturar tabelas de dataset com relatorios de modelos.
+Diagnosticos de vazamento por pistas superficiais devem usar
+`leakage_diagnostics/<run_id>/`, separado tanto de `benchmark_suite/` quanto de
+`transformer_benchmark/`.
 
 ## regra pratica
 

@@ -11,6 +11,7 @@ run_id: ${now:%Y%m%d_%H%M%S_%f}
 overwrite: false
 save_predictions: true
 make_figures: true
+text_treatment: raw
 
 # Keep null for the final run. Override these for smoke tests, for example:
 # train_max_examples=3000 test_max_examples=999 model=distilbert_multilingual
