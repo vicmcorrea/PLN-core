@@ -383,6 +383,14 @@ def _write_dataset_tables(run_dir: Path, profiles: dict[str, SplitProfile]) -> N
 
 
 def _write_predictions(report: EvaluationReport, run_dir: Path) -> tuple[str, str]:
+    return _write_predictions_with_key(report, run_dir, report.analyzer)
+
+
+def _write_predictions_with_key(
+    report: EvaluationReport,
+    run_dir: Path,
+    artifact_key: str,
+) -> tuple[str, str]:
     prediction_rows: list[dict[str, Any]] = []
     error_rows: list[dict[str, Any]] = []
 
@@ -399,8 +407,8 @@ def _write_predictions(report: EvaluationReport, run_dir: Path) -> tuple[str, st
         if case.expected != case.predicted:
             error_rows.append(row)
 
-    predictions_path = run_dir / "predictions" / f"{report.analyzer}.csv"
-    errors_path = run_dir / "cases" / f"{report.analyzer}_errors.csv"
+    predictions_path = run_dir / "predictions" / f"{artifact_key}.csv"
+    errors_path = run_dir / "cases" / f"{artifact_key}_errors.csv"
     fieldnames = ["index", "expected", "predicted", "correct", "score", "text"]
     _write_csv(predictions_path, prediction_rows, fieldnames)
     _write_csv(errors_path, error_rows, fieldnames)
@@ -409,12 +417,16 @@ def _write_predictions(report: EvaluationReport, run_dir: Path) -> tuple[str, st
 
 def _metrics_row(
     report: EvaluationReport,
+    text_treatment: str,
+    artifact_key: str,
     report_path: Path,
     predictions_path: str,
     errors_path: str,
 ) -> dict[str, Any]:
     return {
         "analyzer": report.analyzer,
+        "artifact_key": artifact_key,
+        "text_treatment": text_treatment,
         "status": "ok",
         "dataset": report.dataset,
         "total": report.metrics.total,
@@ -435,6 +447,8 @@ def _metrics_row(
 def _failure_row(analyzer: str, error_path: Path) -> dict[str, Any]:
     return {
         "analyzer": analyzer,
+        "artifact_key": analyzer,
+        "text_treatment": "",
         "status": "failed",
         "dataset": "",
         "total": "",
@@ -466,6 +480,8 @@ def _write_summary_tables(run_dir: Path, rows: list[dict[str, Any]]) -> None:
     fieldnames = [
         "rank",
         "analyzer",
+        "artifact_key",
+        "text_treatment",
         "status",
         "dataset",
         "total",
@@ -488,22 +504,24 @@ def _write_summary_tables(run_dir: Path, rows: list[dict[str, Any]]) -> None:
         "",
         f"Run directory: `{_display_path(run_dir)}`",
         "",
-        "| Rank | Analyzer | Accuracy | Macro-F1 | Positive F1 | Negative F1 "
+        "| Rank | Analyzer | Treatment | Accuracy | Macro-F1 | Positive F1 | Negative F1 "
         "| Neutral F1 | Time (s) |",
-        "| ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| ---: | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     for row in sorted_rows:
         if row["status"] != "ok":
             lines.append(
-                f"|  | {row['analyzer']} | failed | failed | failed | failed | failed |  |"
+                f"|  | {row['analyzer']} | {row['text_treatment']} | failed | failed | "
+                "failed | failed | failed |  |"
             )
             continue
         lines.append(
-            "| {rank} | {analyzer} | {accuracy:.4f} | {macro_f1:.4f} | "
+            "| {rank} | {analyzer} | {text_treatment} | {accuracy:.4f} | {macro_f1:.4f} | "
             "{positive_f1:.4f} | {negative_f1:.4f} | {neutral_f1:.4f} | "
             "{elapsed_seconds:.2f} |".format(
                 rank=row["rank"],
                 analyzer=row["analyzer"],
+                text_treatment=row["text_treatment"],
                 accuracy=float(row["accuracy"]),
                 macro_f1=float(row["macro_f1"]),
                 positive_f1=float(row["positive_f1"]),
@@ -541,6 +559,21 @@ def _analyzer_entry(entry: Any) -> tuple[str, dict[str, Any]]:
     if not isinstance(kwargs, dict):
         raise ValueError(f"invalid analyzer kwargs for {container['name']}: {kwargs}")
     return str(container["name"]), kwargs
+
+
+def _configured_text_treatments(cfg: DictConfig) -> list[str]:
+    treatments = OmegaConf.to_container(cfg.get("text_treatments", []), resolve=True)
+    if isinstance(treatments, str):
+        return [treatments]
+    if isinstance(treatments, list) and treatments:
+        return [str(treatment) for treatment in treatments]
+    return [str(cfg.get("text_treatment", "raw"))]
+
+
+def _artifact_key(analyzer_name: str, text_treatment: str, multiple_treatments: bool) -> str:
+    if not multiple_treatments and text_treatment in {"raw", "none"}:
+        return analyzer_name
+    return f"{analyzer_name}__{text_treatment}"
 
 
 def _download_kaggle_dataset(slug: str, source_dir: Path) -> None:
@@ -608,54 +641,66 @@ def _run_benchmarks(cfg: DictConfig, run_dir: Path) -> list[dict[str, Any]]:
     if source_dir:
         dataset_kwargs["source_dir"] = str(_project_path(str(source_dir)))
 
+    text_treatments = _configured_text_treatments(cfg)
+    multiple_treatments = len(text_treatments) > 1
     rows: list[dict[str, Any]] = []
-    for entry in cfg.analyzers:
-        analyzer_name, analyzer_kwargs = _analyzer_entry(entry)
-        print()
-        print(f"Running analyzer: {analyzer_name}")
-        try:
-            report = run_evaluation(
-                analyzer_name=analyzer_name,
-                dataset_name=str(cfg.dataset.name),
-                dataset_kwargs=dataset_kwargs,
-                analyzer_kwargs=analyzer_kwargs,
-            )
-            report_path = run_dir / "reports" / analyzer_name / "report.json"
-            save_report_json(
-                report,
-                destination=report_path,
-                include_predictions=bool(cfg.save_predictions),
-            )
-            predictions_path, errors_path = _write_predictions(report, run_dir)
-            if bool(cfg.make_figures):
-                _plot_confusion(
+    for text_treatment in text_treatments:
+        treatment_dataset_kwargs = dict(dataset_kwargs)
+        treatment_dataset_kwargs["text_treatment"] = text_treatment
+        for entry in cfg.analyzers:
+            analyzer_name, analyzer_kwargs = _analyzer_entry(entry)
+            artifact_key = _artifact_key(analyzer_name, text_treatment, multiple_treatments)
+            print()
+            print(f"Running analyzer: {analyzer_name} (text_treatment={text_treatment})")
+            try:
+                report = run_evaluation(
+                    analyzer_name=analyzer_name,
+                    dataset_name=str(cfg.dataset.name),
+                    dataset_kwargs=treatment_dataset_kwargs,
+                    analyzer_kwargs=analyzer_kwargs,
+                )
+                report_path = run_dir / "reports" / artifact_key / "report.json"
+                save_report_json(
                     report,
-                    run_dir / "figures" / f"confusion_{analyzer_name}",
+                    destination=report_path,
+                    include_predictions=bool(cfg.save_predictions),
                 )
-            rows.append(
-                _metrics_row(
-                    report=report,
-                    report_path=report_path,
-                    predictions_path=predictions_path,
-                    errors_path=errors_path,
+                predictions_path, errors_path = _write_predictions_with_key(
+                    report,
+                    run_dir,
+                    artifact_key,
                 )
-            )
-            print(
-                f"  accuracy={report.metrics.accuracy:.4f} "
-                f"macro_f1={report.metrics.macro_f1:.4f} "
-                f"n={report.metrics.total} "
-                f"time={report.elapsed_seconds:.2f}s"
-            )
-        except Exception as exc:  # noqa: BLE001
-            error_path = run_dir / "errors" / f"{analyzer_name}.txt"
-            error_path.write_text(
-                "".join(traceback.format_exception(exc)),
-                encoding="utf-8",
-            )
-            rows.append(_failure_row(analyzer_name, error_path))
-            print(f"  failed; see {_display_path(error_path)}")
-            if bool(cfg.fail_fast):
-                raise
+                if bool(cfg.make_figures):
+                    _plot_confusion(
+                        report,
+                        run_dir / "figures" / f"confusion_{artifact_key}",
+                    )
+                rows.append(
+                    _metrics_row(
+                        report=report,
+                        text_treatment=text_treatment,
+                        artifact_key=artifact_key,
+                        report_path=report_path,
+                        predictions_path=predictions_path,
+                        errors_path=errors_path,
+                    )
+                )
+                print(
+                    f"  accuracy={report.metrics.accuracy:.4f} "
+                    f"macro_f1={report.metrics.macro_f1:.4f} "
+                    f"n={report.metrics.total} "
+                    f"time={report.elapsed_seconds:.2f}s"
+                )
+            except Exception as exc:  # noqa: BLE001
+                error_path = run_dir / "errors" / f"{artifact_key}.txt"
+                error_path.write_text(
+                    "".join(traceback.format_exception(exc)),
+                    encoding="utf-8",
+                )
+                rows.append(_failure_row(artifact_key, error_path))
+                print(f"  failed; see {_display_path(error_path)}")
+                if bool(cfg.fail_fast):
+                    raise
     return rows
 
 
@@ -690,8 +735,12 @@ def main(cfg: DictConfig) -> None:
         "run_id": str(cfg.run_id),
         "run_dir": _display_path(run_dir),
         "status": "completed",
+        "text_treatments": _configured_text_treatments(cfg),
         "successful_analyzers": [
             row["analyzer"] for row in rows if row.get("status") == "ok"
+        ],
+        "successful_artifacts": [
+            row["artifact_key"] for row in rows if row.get("status") == "ok"
         ],
         "failed_analyzers": [
             row["analyzer"] for row in rows if row.get("status") != "ok"

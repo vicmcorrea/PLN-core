@@ -7,6 +7,9 @@ overwrite: false
 save_predictions: true
 fail_fast: false
 make_figures: true
+text_treatment: raw
+text_treatments:
+  - ${text_treatment}
 
 dataset:
   name: kaggle_tweets
@@ -25,6 +28,7 @@ dataset:
     per_class: null
     balanced: false
     seed: ${seed}
+    text_treatment: raw
 
 analyzers:
   - name: oplexicon_regex

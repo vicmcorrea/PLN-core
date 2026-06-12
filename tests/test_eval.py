@@ -69,6 +69,24 @@ class KaggleTweetsDatasetTests(unittest.TestCase):
         )
         self.assertEqual(dataset.examples[0].text, "Amei esse filme")
 
+    def test_kaggle_loader_applies_text_treatment(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "tweets.csv"
+            path.write_text(
+                "tweet_text,sentiment\n"
+                "\"Amei :) veja http://exemplo.com\",1\n",
+                encoding="utf-8",
+            )
+
+            dataset = create_dataset(
+                "kaggle_tweets",
+                file_path=str(path),
+                text_treatment="strip_emoticons_urls",
+            )
+
+        self.assertEqual(dataset.name, "kaggle_tweets[test|strip_emoticons_urls]")
+        self.assertEqual(dataset.examples[0].text, "Amei veja")
+
 
 class MetricsTests(unittest.TestCase):
     def test_perfect_predictions(self) -> None:

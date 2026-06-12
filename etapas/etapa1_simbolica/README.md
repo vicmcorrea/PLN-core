@@ -35,6 +35,13 @@ Rodar o baseline oficial no corpus comum:
 uv run python etapas/etapa1_simbolica/pipelines/run_symbolic_benchmark_suite.py
 ```
 
+Rodar o mesmo baseline nas tres condicoes usadas para a comparacao da Etapa 2:
+
+```bash
+uv run python etapas/etapa1_simbolica/pipelines/run_symbolic_benchmark_suite.py \
+  'text_treatments=[raw,strip_emoticons_urls,strip_social_source_cues]'
+```
+
 Rodar uma avaliação individual com a configuração principal:
 
 ```bash
@@ -47,7 +54,7 @@ Rodar o smoke test didático:
 uv run python etapas/etapa1_simbolica/pipelines/run_symbolic_evaluation.py dataset=sample
 ```
 
-Os relatórios da etapa 1 são gerados em `../../outputs/etapa1_symbolic/benchmark_suite/<run_id>/` para a bateria oficial e em `../../outputs/etapa1_symbolic/runs/<run_id>/<dataset>/<analyzer>/` para execuções individuais. O `run_id` é criado com timestamp e microsegundos para evitar sobrescrita entre execuções.
+Os relatórios da etapa 1 são gerados em `../../outputs/etapa1_symbolic/benchmark_suite/<run_id>/` para a bateria oficial e em `../../outputs/etapa1_symbolic/runs/<run_id>/<dataset>/<analyzer>/` para execuções individuais. Quando há mais de um tratamento textual, os artefatos recebem nomes como `oplexicon_regex__strip_emoticons_urls`, evitando sobrescrita entre versões do corpus. O `run_id` é criado com timestamp e microsegundos para evitar sobrescrita entre execuções.
 
 ## arquivos relacionados
 

@@ -9,3 +9,4 @@ kwargs:
   per_class: null
   balanced: false
   seed: ${seed}
+  text_treatment: raw

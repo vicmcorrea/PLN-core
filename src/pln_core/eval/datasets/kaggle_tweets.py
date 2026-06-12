@@ -9,6 +9,7 @@ from pathlib import Path
 
 from pln_core.eval.datasets.base import EvalDataset, EvalExample, stratified_sample
 from pln_core.eval.datasets.registry import DATASET_REGISTRY
+from pln_core.eval.text_treatments import apply_text_treatment
 
 DEFAULT_SOURCE_DIR = Path("data/raw/portuguese-tweets-for-sentiment-analysis")
 DEFAULT_SPLIT_FILES = {
@@ -85,13 +86,16 @@ def _first_value(row: dict[str, str], *keys: str) -> str:
     return ""
 
 
-def _iter_examples(path: Path) -> Iterable[EvalExample]:
+def _iter_examples(path: Path, text_treatment: str) -> Iterable[EvalExample]:
     for row in _read_rows(path):
         text = _first_value(row, "tweet_text", "text", "sentence", "tweet").strip()
         if not text:
             continue
         raw_label = _first_value(row, "sentiment", "label", "class")
-        yield EvalExample(text=text, label=_normalize_label(raw_label))
+        yield EvalExample(
+            text=apply_text_treatment(text, text_treatment),
+            label=_normalize_label(raw_label),
+        )
 
 
 @DATASET_REGISTRY.register("kaggle_tweets")
@@ -103,11 +107,12 @@ def load_kaggle_tweets(
     per_class: int | None = None,
     balanced: bool = False,
     seed: int = 42,
+    text_treatment: str = "raw",
 ) -> EvalDataset:
     """Load the Kaggle Portuguese tweets corpus from local CSV files."""
 
     path = _resolve_path(split=split, source_dir=source_dir, file_path=file_path)
-    all_examples = list(_iter_examples(path))
+    all_examples = list(_iter_examples(path, text_treatment=text_treatment))
 
     if balanced and per_class is None:
         counts = {
@@ -128,11 +133,12 @@ def load_kaggle_tweets(
         selected = all_examples
         suffix = ""
 
+    treatment_suffix = "" if text_treatment in {"raw", "none"} else f"|{text_treatment}"
     return EvalDataset(
-        name=f"kaggle_tweets[{split}]{suffix}",
+        name=f"kaggle_tweets[{split}{treatment_suffix}]{suffix}",
         description=(
             "Kaggle Portuguese Tweets for Sentiment Analysis "
-            f"(augustop), split={split}, file={path}"
+            f"(augustop), split={split}, text_treatment={text_treatment}, file={path}"
         ),
         examples=tuple(selected),
     )
