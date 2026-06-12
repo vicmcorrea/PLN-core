@@ -178,12 +178,14 @@ As métricas principais são acurácia e F1 macro. A acurácia mede a proporçã
 
 \section{Resultados atuais}
 
-A Figura~\ref{fig:macro-f1} resume os resultados consolidados até este rascunho. A leitura principal é dupla. No \emph{split} bruto, os transformers chegam a F1 macro quase perfeito, mas uma baseline degenerada usando apenas emoticon positivo, emoticon negativo e URL também chega a 0,9970. Quando emoticons e URLs são removidos, os transformers caem para a faixa de 0,7385 a 0,7808 de F1 macro. Isso mostra que o resultado bruto é válido para o \emph{split} original, mas não deve ser interpretado sozinho como evidência de aprendizagem semântica robusta.
+A Figura~\ref{fig:macro-f1} resume os resultados consolidados até este rascunho. A leitura principal é que o melhor resultado numérico não é necessariamente o melhor resultado científico. No \emph{split} bruto, os transformers chegam a F1 macro quase perfeito, mas uma baseline degenerada usando apenas três pistas superficiais --- emoticon positivo, emoticon negativo e URL --- também chega a 0,9970. Isso é um sinal ruim do ponto de vista metodológico: se um classificador que não lê palavras de sentimento resolve o teste quase inteiro, então a avaliação bruta está medindo principalmente a presença de atalhos do corpus, não a capacidade real de compreender polaridade.
+
+Por esse motivo, os resultados brutos devem ser apresentados no relatório final como resultados \emph{in-distribution} do Kaggle, mas não como evidência forte de generalização semântica. A comparação mais informativa é a condição em que as pistas usadas na supervisão distante são removidas. Quando emoticons e URLs são apagados, os transformers caem para a faixa de 0,7385 a 0,7808 de F1 macro. Essa queda é justamente o resultado mais importante do diagnóstico: os modelos continuam úteis, mas a versão bruta estava inflada por vazamento de rótulo.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=\linewidth]{figures/macro_f1_tracks.pdf}
-\caption{F1 macro por sistema e por condição de texto. Valores ausentes indicam combinações ainda não executadas ou não aplicáveis neste rascunho.}
+\caption{F1 macro por sistema e por condição de texto. As barras cinzas hachuradas correspondem ao \emph{split} Kaggle bruto, que tem alta acurácia mas é metodologicamente fraco por conter pistas de rótulo. As barras sem emoticons/URLs e sem pistas sociais/fontes são mais úteis para discutir robustez. Valores ausentes indicam combinações ainda não executadas ou não aplicáveis neste rascunho.}
 \label{fig:macro-f1}
 \end{figure}
 
@@ -198,37 +200,37 @@ A Figura~\ref{fig:macro-f1} resume os resultados consolidados até este rascunho
 \texttt{oplexicon\_regex} & 0 & 4.999 & bruto & 0,5979 & 0,5960 \\
 \texttt{tfidf\_logreg} & 100.000 & 4.999 & bruto & 0,8172 & 0,8164 \\
 \texttt{tfidf\_linear\_svm} & 100.000 & 4.999 & bruto & 0,8080 & 0,8084 \\
-\texttt{cue\_only\_logreg} & 100.000 & 4.999 & bruto & 0,9970 & 0,9970 \\
-\texttt{distilbert\_multilingual} & 3.000 & 4.999 & bruto & 0,9950 & 0,9950 \\
-\texttt{xlm\_roberta\_base} & 3.000 & 4.999 & bruto & 0,9968 & 0,9968 \\
-\texttt{albertina\_ptbr\_100m} & 3.000 & 4.999 & bruto & 0,9972 & 0,9972 \\
+\texttt{cue\_only\_logreg} & 100.000 & 4.999 & bruto com pistas & 0,9970 & 0,9970 \\
+\texttt{distilbert\_multilingual} & 3.000 & 4.999 & bruto com pistas & 0,9950 & 0,9950 \\
+\texttt{xlm\_roberta\_base} & 3.000 & 4.999 & bruto com pistas & 0,9968 & 0,9968 \\
+\texttt{albertina\_ptbr\_100m} & 3.000 & 4.999 & bruto com pistas & 0,9972 & 0,9972 \\
 \texttt{distilbert\_multilingual} & 3.000 & 4.999 & sem emoticons/URLs & 0,7465 & 0,7385 \\
 \texttt{xlm\_roberta\_base} & 3.000 & 4.999 & sem emoticons/URLs & 0,7586 & 0,7494 \\
 \texttt{albertina\_ptbr\_100m} & 3.000 & 4.999 & sem emoticons/URLs & 0,7822 & 0,7808 \\
 \bottomrule
 \end{tabular}%
 }
-\caption{Resultados atuais usados como base para a escrita da Etapa 2. Os resultados neurais são execuções de desenvolvimento com 1.000 exemplos por classe no treino.}
+\caption{Resultados atuais usados como base para a escrita da Etapa 2. As linhas ``bruto com pistas'' têm maior acurácia, mas são problemáticas porque a baseline cue-only mostra que o rótulo pode ser inferido quase diretamente por artefatos do corpus. Os resultados neurais são execuções de desenvolvimento com 1.000 exemplos por classe no treino.}
 \label{tab:resultados}
 \end{table}
 
 \section{Diagnóstico de artefatos e dificuldades encontradas}
 
-A principal dificuldade técnica e metodológica encontrada até aqui foi que o corpus apresenta sinais superficiais fortemente associados aos rótulos. A Figura~\ref{fig:pistas} mostra que 99,28\% dos tweets positivos do teste contêm emoticon positivo, 99,88\% dos negativos contêm emoticon negativo e 99,70\% dos neutros contêm URL. Esse padrão é típico de corpora coletados por supervisão distante, em que emoticons ou outros sinais observáveis são usados para aproximar rótulos de sentimento \citep{go2009distant,wang2015emoticons,yin2021emojification}.
+A principal dificuldade técnica e metodológica encontrada até aqui foi que o corpus apresenta sinais superficiais fortemente associados aos rótulos. A Figura~\ref{fig:pistas} mostra que 99,28\% dos tweets positivos do teste contêm emoticon positivo, 99,88\% dos negativos contêm emoticon negativo e 99,70\% dos neutros contêm URL. Esse padrão é típico de corpora coletados por supervisão distante, em que emoticons ou outros sinais observáveis são usados para aproximar rótulos de sentimento \citep{go2009distant,wang2015emoticons,yin2021emojification}. O problema não é que esses símbolos sejam irrelevantes em uso real; emoticons de fato expressam sentimento. O problema é que, neste corpus, eles funcionam quase como a própria etiqueta da classe, tornando a avaliação bruta circular.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.82\linewidth]{figures/cue_prevalence_heatmap.pdf}
-\caption{Prevalência de pistas superficiais no teste. As pistas explicam por que uma baseline cue-only alcança desempenho quase perfeito no \emph{split} bruto.}
+\caption{Prevalência de pistas superficiais no teste. A concentração quase determinística dessas pistas por classe explica por que uma baseline cue-only alcança desempenho quase perfeito no \emph{split} bruto; portanto, acurácia bruta muito alta deve ser interpretada como alerta, não como vitória automática do modelo.}
 \label{fig:pistas}
 \end{figure}
 
-Esse achado mudou a interpretação dos resultados. Antes do diagnóstico, os valores quase perfeitos dos transformers poderiam parecer uma prova de que os modelos aprenderam a tarefa. Depois do diagnóstico, a interpretação correta é mais cuidadosa: os modelos aprenderam bem o \emph{split} Kaggle bruto, mas parte importante desse aprendizado pode vir de atalhos de coleta. A metodologia adotada segue a lógica de baselines de artefato, em que um classificador propositalmente limitado é usado para medir quanto do dataset pode ser resolvido por pistas indesejadas \citep{gururangan2018artifacts,poliak2018hypothesis}.
+Esse achado mudou a interpretação dos resultados. Antes do diagnóstico, os valores quase perfeitos dos transformers poderiam parecer uma prova de que os modelos aprenderam a tarefa. Depois do diagnóstico, a interpretação correta é mais severa: o desempenho bruto quase perfeito é ruim como evidência científica, exatamente porque é fácil demais de reproduzir com uma baseline que usa apenas pistas de rótulo. A metodologia adotada segue a lógica de baselines de artefato, em que um classificador propositalmente limitado é usado para medir quanto do dataset pode ser resolvido por pistas indesejadas \citep{gururangan2018artifacts,poliak2018hypothesis}.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.72\linewidth]{figures/transformer_drop.pdf}
-\caption{Queda de F1 macro dos transformers ao remover emoticons e URLs. A queda grande confirma que a avaliação final deve separar resultados brutos de resultados com controle de pistas.}
+\caption{Queda de F1 macro dos transformers ao remover emoticons e URLs. O ponto à esquerda é maior, mas não é melhor como evidência metodológica: ele está contaminado por pistas de rótulo. O ponto à direita é menor, porém mais informativo sobre robustez.}
 \label{fig:queda-transformers}
 \end{figure}
 

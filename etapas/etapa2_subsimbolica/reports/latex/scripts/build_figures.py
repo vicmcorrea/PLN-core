@@ -61,8 +61,17 @@ def plot_macro_f1_tracks() -> None:
 
     x = np.arange(len(systems))
     width = 0.25
-    fig, ax = plt.subplots(figsize=(7.2, 3.7))
-    ax.bar(x - width, raw, width, label="Kaggle bruto", color=OKABE_ITO["blue"])
+    fig, ax = plt.subplots(figsize=(7.4, 4.2))
+    raw_bars = ax.bar(
+        x - width,
+        raw,
+        width,
+        label="Kaggle bruto (com vazamento)",
+        color="#B8B8B8",
+        edgecolor=OKABE_ITO["black"],
+        linewidth=0.5,
+        hatch="///",
+    )
     ax.bar(x, stripped, width, label="sem emoticons/URLs", color=OKABE_ITO["orange"])
     ax.bar(
         x + width,
@@ -73,12 +82,23 @@ def plot_macro_f1_tracks() -> None:
     )
 
     ax.set_ylabel("F1 macro")
-    ax.set_ylim(0, 1.08)
+    ax.set_ylim(0, 1.19)
     ax.set_xticks(x, systems)
     ax.grid(axis="y", alpha=0.25)
-    ax.legend(frameon=False, ncol=3, loc="upper center", bbox_to_anchor=(0.5, 1.18))
+    ax.legend(frameon=False, ncol=3, loc="upper center", bbox_to_anchor=(0.5, 1.14))
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
+    ax.annotate(
+        "cue-only = 0,997\nresolve o teste bruto\nsem ler sentimento",
+        xy=(raw_bars[0].get_x() + raw_bars[0].get_width() / 2, raw[0]),
+        xytext=(0.58, 1.04),
+        textcoords=("data", "data"),
+        ha="left",
+        va="bottom",
+        fontsize=8,
+        arrowprops={"arrowstyle": "->", "lw": 0.9, "color": OKABE_ITO["red"]},
+        color=OKABE_ITO["red"],
+    )
 
     for container in ax.containers:
         for bar in container:
@@ -114,7 +134,7 @@ def plot_cue_prevalence() -> None:
     cbar.set_label("Proporção no teste")
     ax.set_xticks(np.arange(len(cues)), cues, rotation=25, ha="right")
     ax.set_yticks(np.arange(len(labels)), labels)
-    ax.set_title("Pistas superficiais por classe no teste Kaggle")
+    ax.set_title("Vazamento de rótulo: pistas superficiais por classe")
 
     for row in range(values.shape[0]):
         for col in range(values.shape[1]):
@@ -136,7 +156,6 @@ def plot_transformer_drop() -> None:
     fig, ax = plt.subplots(figsize=(4.8, 3.2))
     for index, system in enumerate(systems):
         ax.plot([0, 1], [raw[index], stripped[index]], marker="o", color=colors[index])
-        ax.text(-0.03, raw[index], f"{raw[index]:.3f}", ha="right", va="center", fontsize=8)
         ax.text(
             1.03,
             stripped[index],
@@ -148,10 +167,37 @@ def plot_transformer_drop() -> None:
 
     ax.set_xlim(-0.2, 1.55)
     ax.set_ylim(0.68, 1.03)
-    ax.set_xticks([0, 1], ["bruto", "sem emoticons/URLs"])
+    ax.set_xticks([0, 1], ["bruto\n(com pistas)", "sem emoticons/URLs"])
     ax.set_ylabel("F1 macro")
-    ax.set_title("Queda dos transformers após remover pistas de rótulo")
+    ax.set_title("O melhor resultado bruto desaparece quando removemos atalhos")
     ax.grid(axis="y", alpha=0.25)
+    ax.text(
+        0.02,
+        1.015,
+        "alto, mas suspeito",
+        ha="left",
+        va="bottom",
+        fontsize=8,
+        color=OKABE_ITO["red"],
+    )
+    ax.text(
+        -0.03,
+        0.9965,
+        "todos ~= 0,996\nmas por pistas",
+        ha="right",
+        va="center",
+        fontsize=8,
+        color=OKABE_ITO["red"],
+    )
+    ax.text(
+        1.0,
+        0.705,
+        "comparação mais honesta",
+        ha="center",
+        va="bottom",
+        fontsize=8,
+        color=OKABE_ITO["green"],
+    )
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     _save(fig, "transformer_drop")
