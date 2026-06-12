@@ -6,6 +6,10 @@ como versao final: faltam selecionar exemplos reais de sucesso/insucesso,
 decidir o modelo que entrara na interface Streamlit e revisar as referencias
 bibliograficas finais.
 
+As figuras e tabelas atuais ja incorporam a execucao simbolica
+`20260612_152415_135433`, incluindo os resultados `raw`,
+`strip_emoticons_urls` e `strip_social_source_cues`.
+
 Arquivos principais:
 
 - `main.tex`: estrutura geral do relatorio em portugues.

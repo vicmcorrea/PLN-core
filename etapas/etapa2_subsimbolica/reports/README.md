@@ -15,9 +15,9 @@ Resumo ja consolidado para a escrita futura:
 
 Diagnosticos que devem aparecer no relatorio:
 
-- resultado bruto no split Kaggle, pois e a comparacao direta entre etapa 1,
-  TF-IDF e modelos neurais;
-- resultado sem emoticons/URLs, pois remove as pistas de supervisao distante
-  mais obvias;
+- resultado bruto no split Kaggle, pois e a reproducao direta do corpus
+  original;
+- resultado sem emoticons/URLs para todos os sistemas em que a condicao foi
+  executada, incluindo o `oplexicon_regex`;
 - diagnostico exploratorio `strip_social_source_cues`, pois tambem remove
   mencoes, hashtags e marcadores de fontes neutras recorrentes.

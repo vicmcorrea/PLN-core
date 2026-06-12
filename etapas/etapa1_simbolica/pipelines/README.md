@@ -8,7 +8,9 @@ casos de erro e figuras em uma pasta com `run_id`.
 Comando principal da bateria:
 
 ```bash
-uv run python etapas/etapa1_simbolica/pipelines/run_symbolic_benchmark_suite.py
+uv run python \
+  etapas/etapa1_simbolica/pipelines/run_symbolic_benchmark_suite.py \
+  'text_treatments=[raw,strip_emoticons_urls,strip_social_source_cues]'
 ```
 
 Para repetir o baseline simbolico nas mesmas versoes de texto usadas na Etapa

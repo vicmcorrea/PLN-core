@@ -1,36 +1,34 @@
-# próximos passos da etapa 1
+# status e próximos passos da etapa 1
 
-## corrigir dataset e avaliação
+## concluído
 
-- Baixar o corpus Kaggle "Portuguese Tweets for Sentiment Analysis" localmente.
-- Usar `TrainingDatasets/Train3Classes.csv` apenas como referência de treino para a etapa 2.
-- Usar `TestDatasets/Test3classes.csv` como teste comum da etapa 1 e da etapa 2.
-- Rodar os analisadores simbólicos atuais no teste multiclasse.
-- Gerar novas tabelas com acurácia, macro-F1, F1 por classe e matriz de confusão.
-- Separar exemplos de acerto e erro por classe para o relatório.
+- O corpus comum é o Kaggle "Portuguese Tweets for Sentiment Analysis".
+- `TrainingDatasets/Train3Classes.csv` é usado para treino da etapa 2.
+- `TestDatasets/Test3classes.csv` é o teste comum da etapa 1 e da etapa 2.
+- O baseline oficial da etapa 1 é somente `oplexicon_regex`.
+- A bateria simbólica roda o texto bruto e as duas condições tratadas usadas na etapa 2.
+- Tabelas, predições, casos de erro e figuras são gerados em `../../outputs/etapa1_symbolic/benchmark_suite/<run_id>/`.
 
-## corrigir texto do relatório
+## relatório
 
-- Em "tokenização e lematização", mencionar apenas o método usado no fluxo real do app e da avaliação.
-- Explicar a solução como uma arquitetura única: entrada de texto, normalização, tokenização, consulta aos léxicos, regras simbólicas, cálculo de polaridade, saída e visualização.
-- Evitar apresentar Streamlit, avaliação e núcleo simbólico como entidades separadas; eles são partes de um fluxo único.
-- Seção de corpus atualizada para remover dependência operacional de TweetSentBR.
-- Atualizar a seção de resultados com o corpus comum escolhido para as duas etapas.
+- O relatório revisado da etapa 1 está em `reports/pln-core-part-1/`.
+- A seção de resultados usa o corpus Kaggle comum.
+- O texto deve tratar TweetSentBR apenas como contexto bibliográfico, não como corpus operacional.
 
-## reorganizar estrutura
+## próximos passos restantes
 
-- Estrutura base separada em `configs/`, `pipelines/`, `experiments/` e `reports/`.
-- Manter Streamlit e avaliação funcionando a partir do mesmo núcleo `pln_core`.
-- CLI e entry points relacionados removidos do fluxo ativo.
-- Manter o dataset `sample` como teste rápido, mas não usá-lo como resultado principal.
-- Garantir que os recursos léxicos necessários sejam documentados e carregáveis no ambiente dos professores.
+- Selecionar exemplos reais de acerto/erro das predições salvas para enriquecer o relatório final.
+- Manter a comparação com a etapa 2 sincronizada quando novos modelos forem integrados ao Streamlit.
+- Não reintroduzir configs oficiais para variantes simbólicas antigas.
 
 ## comandos esperados
 
-Depois de baixar o corpus Kaggle para `data/raw/portuguese-tweets-for-sentiment-analysis`, a avaliação simbólica deve seguir este formato:
+Depois de baixar o corpus Kaggle para `data/raw/portuguese-tweets-for-sentiment-analysis`, a bateria simbólica principal deve seguir este formato:
 
 ```bash
-uv run python etapas/etapa1_simbolica/pipelines/run_symbolic_evaluation.py
+uv run python \
+  etapas/etapa1_simbolica/pipelines/run_symbolic_benchmark_suite.py \
+  'text_treatments=[raw,strip_emoticons_urls,strip_social_source_cues]'
 ```
 
 Para rodar rapidamente no dataset didático:

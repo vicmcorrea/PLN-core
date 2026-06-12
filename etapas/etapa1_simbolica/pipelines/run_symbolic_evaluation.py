@@ -4,9 +4,9 @@ Examples:
     # Run the production stack on the Kaggle tweets test split
     uv run python etapas/etapa1_simbolica/pipelines/run_symbolic_evaluation.py
 
-    # Run the seed baseline on the hand-curated sample
+    # Run the production symbolic analyzer on the hand-curated sample
     uv run python etapas/etapa1_simbolica/pipelines/run_symbolic_evaluation.py \\
-        analyzer=seed dataset=sample
+        dataset=sample
 
     # Run the active analyzer on a 500-tweet subset of the Kaggle corpus
     uv run python etapas/etapa1_simbolica/pipelines/run_symbolic_evaluation.py \\

@@ -14,12 +14,21 @@ data/raw/portuguese-tweets-for-sentiment-analysis/
 
 `Train3Classes.csv` deve ser usado para treinar modelos estatisticos/neuronais da etapa 2. `Test3classes.csv` deve ser o teste comum para comparar a etapa 1 simbolica com a etapa 2.
 
+Além do texto bruto (`raw`), os pipelines compartilham tratamentos de texto
+para diagnosticar vazamento de rótulo:
+
+- `strip_emoticons_urls`: remove emoticons e URLs.
+- `strip_social_source_cues`: remove emoticons, URLs, menções, hashtags e
+  marcadores recorrentes de fonte.
+
 ## recursos versionados
 
 - `recommendations.json`: recomendacoes usadas pelo Streamlit.
 - `../src/pln_core/data/seed_lexicon.json`: lexico didatico pequeno.
-- `../src/pln_core/data/slang_emoji_ptbr.tsv`: extensao curta de girias e emojis.
+- `../src/pln_core/data/slang_emoji_ptbr.tsv`: extensao historica curta de
+  girias e emojis; nao entra no baseline oficial `oplexicon_regex`.
 
 ## recursos locais
 
-Arquivos grandes e recursos externos completos, como OpLexicon e SentiLex quando baixados localmente, ficam em subpastas ignoradas pelo Git.
+Arquivos grandes e recursos externos completos, como OpLexicon quando baixado
+localmente, ficam em subpastas ignoradas pelo Git.

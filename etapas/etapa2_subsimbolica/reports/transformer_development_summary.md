@@ -11,6 +11,7 @@ consolidada, idealmente com mais dados de treino e registro de hardware/tempo.
 | Sistema | Treino | Teste | Acuracia | Macro-F1 | F1 positivo | F1 negativo | F1 neutro |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | `oplexicon_regex` | 0 | 4999 | 0.5979 | 0.5960 | 0.6515 | 0.6407 | 0.4956 |
+| `oplexicon_regex` sem emoticons/URLs | 0 | 4999 | 0.3697 | 0.3668 | 0.3959 | 0.3174 | 0.3870 |
 | `tfidf_logreg` | 100000 | 4999 | 0.8172 | 0.8164 | 0.7374 | 0.7421 | 0.9697 |
 | `cue_only_logreg` | 100000 | 4999 | 0.9970 | 0.9970 | 0.9961 | 0.9991 | 0.9958 |
 | `distilbert_multilingual` dev | 3000 | 999 | 0.9970 | 0.9970 | 0.9955 | 0.9985 | 0.9970 |
@@ -46,6 +47,11 @@ e 99,70% dos tweets neutros contem URL. O diagnostico de vazamento
 `0,9970` e macro-F1 `0,9970`. Portanto, os resultados transformer brutos sao
 validos para o split Kaggle original, mas nao devem ser apresentados como prova
 forte de aprendizagem semantica sem uma condicao sem emoticons/URLs.
+
+A execucao simbolica consolidada `20260612_152415_135433` mostrou que o
+`oplexicon_regex` tambem dependia de pistas superficiais no texto bruto, pois o
+OpLexicon contem emoticons polarizados. Ao remover emoticons/URLs, a macro-F1
+caiu de `0,5960` para `0,3668`.
 
 A primeira execucao transformer nessa condicao, `20260612_132142_936441`,
 usou `distilbert_multilingual` com 1000 exemplos por classe no treino e removeu

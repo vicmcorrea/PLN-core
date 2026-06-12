@@ -1,3 +1,0 @@
-# Didactic baseline: ~30 word seed lexicon + custom regex tokenizer.
-name: seed
-kwargs: {}

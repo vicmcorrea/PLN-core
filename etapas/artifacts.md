@@ -17,13 +17,16 @@ outputs/etapa1_symbolic/
       summary_metrics.csv
       summary_metrics.md
       run_manifest.json
-    predictions/<analyzer>.csv
-    cases/<analyzer>_errors.csv
+    predictions/<analyzer>__<text_treatment>.csv
+    cases/<analyzer>__<text_treatment>_errors.csv
     figures/
   multirun/<run_id>/<analyzer>/
 ```
 
-O `run_id` vem da configuracao Hydra em `etapa1_simbolica/configs/default.yaml` e inclui timestamp com microsegundos.
+O `run_id` vem da configuracao Hydra e inclui timestamp com microsegundos.
+Quando a suite simbolica roda apenas uma condicao bruta, os artefatos podem
+manter o nome curto `<analyzer>.csv`; quando ha mais de um tratamento textual,
+o sufixo do tratamento evita sobrescrita.
 
 ## etapa 2
 

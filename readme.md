@@ -52,10 +52,13 @@ uv run streamlit run streamlit_app.py
 ```
 
 Rodar o baseline simbolico oficial (`oplexicon_regex`) no corpus comum, com
-perfil do dataset, metricas, predicoes, casos de erro e figuras:
+perfil do dataset, metricas, predicoes, casos de erro e figuras para o texto
+bruto e para as condicoes tratadas usadas na etapa 2:
 
 ```bash
-uv run python etapas/etapa1_simbolica/pipelines/run_symbolic_benchmark_suite.py
+uv run python \
+  etapas/etapa1_simbolica/pipelines/run_symbolic_benchmark_suite.py \
+  'text_treatments=[raw,strip_emoticons_urls,strip_social_source_cues]'
 ```
 
 Rodar uma avaliacao simbolica individual no corpus comum:
@@ -92,4 +95,6 @@ outputs/etapa2_subsymbolic/benchmark_suite/<run_id>/
 outputs/etapa2_subsymbolic/transformer_benchmark/<run_id>/
 ```
 
-A etapa 2 ja possui uma suite classica inicial com TF-IDF + Regressao Logistica e TF-IDF + Linear SVM, alem de um pipeline transformer opcional para fine-tuning.
+A etapa 2 ja possui uma suite classica inicial com TF-IDF + Regressao
+Logistica e TF-IDF + Linear SVM, diagnosticos de vazamento por pistas
+superficiais e um pipeline transformer opcional para fine-tuning.

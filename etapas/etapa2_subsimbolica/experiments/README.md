@@ -27,7 +27,9 @@ Modelos:
 
 Baseline simbolico usado para comparacao preliminar:
 
-- `oplexicon_regex`, etapa 1, run `20260612_101202_400841`: acuracia `0.5979`, macro-F1 `0.5960`.
+- `oplexicon_regex`, etapa 1, run `20260612_152415_135433`, tratamento `raw`: acuracia `0.5979`, macro-F1 `0.5960`.
+- `oplexicon_regex`, etapa 1, run `20260612_152415_135433`, tratamento `strip_emoticons_urls`: acuracia `0.3697`, macro-F1 `0.3668`.
+- `oplexicon_regex`, etapa 1, run `20260612_152415_135433`, tratamento `strip_social_source_cues`: acuracia `0.3695`, macro-F1 `0.3665`.
 
 Registrar abaixo o `run_id` e as metricas obtidas a cada execucao consolidada.
 

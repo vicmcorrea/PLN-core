@@ -85,6 +85,11 @@ acuracia `0.9970` no teste bruto. Portanto, resultados transformer brutos
 devem ser reportados junto com essa limitacao e com uma condicao sem
 emoticons/URLs.
 
+A execucao simbolica consolidada `20260612_152415_135433` tambem deve ser usada
+na comparacao: o `oplexicon_regex` cai de macro-F1 `0.5960` no texto bruto para
+`0.3668` sem emoticons/URLs, mostrando que o baseline simbolico bruto tambem
+era afetado por pistas superficiais do corpus.
+
 ## arquitetura planejada
 
 1. Carregamento do corpus e padronização dos rótulos.
@@ -92,7 +97,8 @@ emoticons/URLs.
 3. Treino de baselines TF-IDF.
 4. Fine-tuning de modelo neural pré-treinado.
 5. Avaliação com as mesmas métricas da etapa 1.
-6. Comparação quantitativa e qualitativa entre simbólico, estatístico e neural.
+6. Comparação quantitativa e qualitativa entre simbólico, estatístico e neural,
+   sempre separando texto bruto de condições tratadas.
 7. Diagnostico de pistas superficiais e condicao de robustez sem emoticons/URLs.
 
 ## modelos candidatos

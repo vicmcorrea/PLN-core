@@ -21,7 +21,8 @@ models:
 symbolic_baseline:
   name: oplexicon_regex
   stage: etapa1_simbolica
-  run_id: "20260612_101202_400841"
+  run_id: "20260612_152415_135433"
+  text_treatment: raw
   accuracy: 0.5979195839167833
   macro_f1: 0.595953419202016
   positive_f1: 0.6515238642898218

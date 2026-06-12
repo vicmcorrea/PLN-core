@@ -5,7 +5,7 @@ pela etapa 1: o dataset Kaggle `augustop/portuguese-tweets-for-sentiment-analysi
 O treino usou `TrainingDatasets/Train3Classes.csv` com 100000 exemplos, e a
 avaliacao usou `TestDatasets/Test3classes.csv` com 4999 exemplos. Essa divisao
 mantem a comparacao direta com o baseline simbolico `oplexicon_regex`, cuja
-execucao de referencia da etapa 1 obteve acuracia `0.5979` e macro-F1 `0.5960`.
+execucao de referencia da etapa 1 e `20260612_152415_135433`.
 
 A suite da etapa 2 treinou dois baselines classicos supervisionados. O primeiro
 foi TF-IDF com Regressao Logistica balanceada, e o segundo foi TF-IDF com Linear
@@ -24,6 +24,12 @@ comparacao da etapa 2 e deve ser usado como baseline classico antes do
 fine-tuning dos transformers. A alta pontuacao da classe neutra sugere que os
 marcadores lexicais e padroes superficiais do corpus sao muito informativos para
 essa classe, enquanto as classes positiva e negativa permanecem mais dificeis.
+
+Depois dos diagnosticos de vazamento, a comparacao tratada passou a ser
+obrigatoria. Na condicao `strip_emoticons_urls`, o `oplexicon_regex` cai para
+acuracia `0.3697` e macro-F1 `0.3668`, enquanto o TF-IDF + Regressao Logistica
+fica em macro-F1 `0.8094`. Portanto, a tabela bruta deve ser apresentada como
+resultado no split Kaggle original, mas nao como unica evidencia de robustez.
 
 Artefatos locais da execucao consolidada:
 

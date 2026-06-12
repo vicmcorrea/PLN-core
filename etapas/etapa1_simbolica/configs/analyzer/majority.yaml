@@ -1,4 +1,0 @@
-# Trivial majority-class baseline (always predicts the largest class).
-name: majority
-kwargs:
-  label: positive
