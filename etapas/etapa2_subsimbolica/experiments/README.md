@@ -341,3 +341,39 @@ Artefatos locais:
 
 Implicacao: o modelo principal tambem cai cerca de 23,8 pontos percentuais de
 acuracia e 24,7 pontos de macro-F1 quando as pistas de rotulagem sao removidas.
+
+## Albertina sem emoticons/URLs 20260612_134601_518530
+
+Comando:
+
+```bash
+uv run --extra transformers python etapas/etapa2_subsimbolica/pipelines/run_transformer_benchmark.py model=albertina_ptbr_100m train_per_class=1000 model.training.epochs=1 trainer.use_cpu=true text_treatment=strip_emoticons_urls
+```
+
+Execucao em CPU com `PORTULAN/albertina-100m-portuguese-ptbr-encoder`, 1000
+exemplos por classe no treino, teste comum completo, 1 epoca, batch size 4,
+gradient accumulation 4 e remocao de emoticons/URLs antes da tokenizacao. O
+console registrou `train_runtime=602.5009s` e `eval_runtime=154.6824s`.
+
+| Modelo | Tratamento | Treino | Teste | Acuracia | Macro-F1 | F1 positivo | F1 negativo | F1 neutro |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `albertina_ptbr_100m` | raw | 3000 | 4999 | 0.9972 | 0.9972 | 0.9958 | 0.9973 | 0.9985 |
+| `albertina_ptbr_100m` | sem emoticons/URLs | 3000 | 4999 | 0.7822 | 0.7808 | 0.6807 | 0.7005 | 0.9612 |
+
+Confusao principal sem emoticons/URLs:
+
+- positivo -> negativo: 490; positivo -> neutro: 64;
+- negativo -> positivo: 468; negativo -> neutro: 25;
+- neutro -> positivo: 22; neutro -> negativo: 20.
+
+Artefatos locais:
+
+- resumo: `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_134601_518530/reports/summary_metrics.md`;
+- relatorio JSON: `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_134601_518530/reports/albertina_ptbr_100m/report.json`;
+- predicoes e erros: `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_134601_518530/`;
+- modelo: `../../data/models/etapa2_subsymbolic/transformers/20260612_134601_518530/albertina_ptbr_100m/`.
+
+Implicacao: Albertina ficou acima de DistilBERT e XLM-R na condicao sem
+emoticons/URLs, mas ainda caiu cerca de 21,5 pontos percentuais de acuracia e
+21,6 pontos de macro-F1 em relacao ao resultado bruto. O resultado reforca que
+a avaliacao final deve reportar os dois cenarios separadamente.

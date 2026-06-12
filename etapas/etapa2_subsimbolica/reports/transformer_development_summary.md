@@ -19,6 +19,7 @@ consolidada, idealmente com mais dados de treino e registro de hardware/tempo.
 | `xlm_roberta_base` dev/full-test | 3000 | 4999 | 0.9968 | 0.9968 | 0.9952 | 0.9985 | 0.9967 |
 | `xlm_roberta_base` sem emoticons/URLs | 3000 | 4999 | 0.7586 | 0.7494 | 0.5814 | 0.7117 | 0.9552 |
 | `albertina_ptbr_100m` dev/full-test | 3000 | 4999 | 0.9972 | 0.9972 | 0.9958 | 0.9973 | 0.9985 |
+| `albertina_ptbr_100m` sem emoticons/URLs | 3000 | 4999 | 0.7822 | 0.7808 | 0.6807 | 0.7005 | 0.9612 |
 
 A execucao `20260612_113749_208484` e a primeira execucao neural de
 desenvolvimento avaliada no teste comum completo. Ela treinou com 1000 exemplos
@@ -60,14 +61,23 @@ A execucao `20260612_132734_004665` repetiu a condicao sem emoticons/URLs com
 erro permaneceu semelhante ao DistilBERT: neutro ficou alto (`F1=0,9552`), mas
 positivo e negativo ficaram muito mais confundidos entre si.
 
+A execucao `20260612_134601_518530` repetiu o mesmo diagnostico com
+`PORTULAN/albertina-100m-portuguese-ptbr-encoder`. A acuracia caiu de `0,9972`
+para `0,7822` e a macro-F1 caiu de `0,9972` para `0,7808`. Albertina ficou
+melhor que DistilBERT e XLM-R nessa condicao controlada, mas a queda ainda e
+grande o suficiente para confirmar que o split bruto mede principalmente as
+pistas de supervisao distante.
+
 Artefatos locais principais:
 
 - `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_113749_208484/reports/summary_metrics.md`;
 - `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_115913_159120/reports/summary_metrics.md`;
 - `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_121606_196690/reports/summary_metrics.md`;
+- `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_134601_518530/reports/summary_metrics.md`;
 - `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_113749_208484/predictions/distilbert_multilingual.csv`;
 - `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_115913_159120/predictions/xlm_roberta_base.csv`;
 - `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_121606_196690/predictions/albertina_ptbr_100m.csv`;
+- `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_134601_518530/predictions/albertina_ptbr_100m.csv`;
 - `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_113749_208484/cases/distilbert_multilingual_errors.csv`;
 - `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_115913_159120/cases/xlm_roberta_base_errors.csv`;
 - `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_121606_196690/cases/albertina_ptbr_100m_errors.csv`;
@@ -77,11 +87,13 @@ Artefatos locais principais:
 - `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_132734_004665/predictions/xlm_roberta_base.csv`;
 - `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_132142_936441/cases/distilbert_multilingual_errors.csv`;
 - `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_132734_004665/cases/xlm_roberta_base_errors.csv`;
+- `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_134601_518530/cases/albertina_ptbr_100m_errors.csv`;
 - `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_113749_208484/figures/confusion_distilbert_multilingual.png`;
 - `../../data/models/etapa2_subsymbolic/transformers/20260612_113749_208484/distilbert_multilingual/`.
 - `../../data/models/etapa2_subsymbolic/transformers/20260612_132142_936441/distilbert_multilingual/`.
 - `../../data/models/etapa2_subsymbolic/transformers/20260612_115913_159120/xlm_roberta_base/`.
 - `../../data/models/etapa2_subsymbolic/transformers/20260612_132734_004665/xlm_roberta_base/`.
 - `../../data/models/etapa2_subsymbolic/transformers/20260612_121606_196690/albertina_ptbr_100m/`.
+- `../../data/models/etapa2_subsymbolic/transformers/20260612_134601_518530/albertina_ptbr_100m/`.
 - `../../outputs/etapa2_subsymbolic/data_artifacts/20260612_131841_753357/reports/artifact_analysis.md`.
 - `../../outputs/etapa2_subsymbolic/leakage_diagnostics/20260612_131708_831350/reports/summary_metrics.md`.
