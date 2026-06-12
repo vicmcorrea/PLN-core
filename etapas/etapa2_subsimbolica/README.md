@@ -58,13 +58,15 @@ As dependencias pesadas ficam no extra opcional `transformers`:
 
 ```bash
 uv sync --extra transformers
-uv run --extra transformers python etapas/etapa2_subsimbolica/pipelines/run_transformer_benchmark.py model=distilbert_multilingual train_max_examples=3000 test_max_examples=999
+uv run --extra transformers python etapas/etapa2_subsimbolica/pipelines/run_transformer_benchmark.py model=distilbert_multilingual train_max_examples=120 test_max_examples=60 model.training.epochs=1 trainer.use_cpu=true
 ```
 
 A execucao final deve remover os limites `train_max_examples` e
 `test_max_examples`, usando o mesmo treino e teste da suite classica. Os
 resultados ficam em `../../outputs/etapa2_subsymbolic/transformer_benchmark/<run_id>/`
 e os checkpoints/modelos em `../../data/models/etapa2_subsymbolic/transformers/<run_id>/`.
+Em Mac com MPS, use lotes pequenos ou `trainer.use_cpu=true` para testes
+rapidos se houver erro de memoria compartilhada.
 
 ## arquitetura planejada
 

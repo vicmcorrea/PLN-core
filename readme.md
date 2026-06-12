@@ -74,7 +74,7 @@ Rodar um smoke test transformer da etapa 2:
 
 ```bash
 uv sync --extra transformers
-uv run --extra transformers python etapas/etapa2_subsimbolica/pipelines/run_transformer_benchmark.py model=distilbert_multilingual train_max_examples=3000 test_max_examples=999
+uv run --extra transformers python etapas/etapa2_subsimbolica/pipelines/run_transformer_benchmark.py model=distilbert_multilingual train_max_examples=120 test_max_examples=60 model.training.epochs=1 trainer.use_cpu=true
 ```
 
 Rodar avaliação rápida no dataset didático:

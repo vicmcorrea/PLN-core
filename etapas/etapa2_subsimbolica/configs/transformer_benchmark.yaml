@@ -28,6 +28,8 @@ trainer:
   load_best_model_at_end: true
   metric_for_best_model: macro_f1
   greater_is_better: true
+  dataloader_pin_memory: false
+  use_cpu: false
   report_to: []
 
 symbolic_baseline:

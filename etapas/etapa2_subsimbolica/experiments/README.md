@@ -58,7 +58,7 @@ Pipeline criado: `../pipelines/run_transformer_benchmark.py`.
 Smoke test sugerido:
 
 ```bash
-uv run --extra transformers python etapas/etapa2_subsimbolica/pipelines/run_transformer_benchmark.py model=distilbert_multilingual train_max_examples=3000 test_max_examples=999
+uv run --extra transformers python etapas/etapa2_subsimbolica/pipelines/run_transformer_benchmark.py model=distilbert_multilingual train_max_examples=120 test_max_examples=60 model.training.epochs=1 trainer.use_cpu=true
 ```
 
 Execucao final planejada:
@@ -69,3 +69,24 @@ uv run --extra transformers python etapas/etapa2_subsimbolica/pipelines/run_tran
 
 Registrar aqui o `run_id`, metricas, tempo, hardware usado e se o treino usou
 o split completo ou uma amostra estratificada.
+
+### smoke test 20260612_113232_434909
+
+Execucao de validacao do pipeline, nao comparavel como resultado final:
+`distilbert_multilingual`, CPU, 120 exemplos de treino, 60 exemplos de teste,
+1 epoca, batch size 4, gradient accumulation 4.
+
+| Modelo | Acuracia | Macro-F1 | F1 positivo | F1 negativo | F1 neutro |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `distilbert_multilingual` smoke | 0.4667 | 0.2510 | 0.6279 | 0.1250 | 0.0000 |
+
+Artefatos locais:
+
+- resumo: `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_113232_434909/reports/summary_metrics.md`;
+- predicoes e erros: `../../outputs/etapa2_subsymbolic/transformer_benchmark/20260612_113232_434909/`;
+- modelo: `../../data/models/etapa2_subsymbolic/transformers/20260612_113232_434909/distilbert_multilingual/`.
+
+Observacao operacional: tentativas anteriores em MPS com 3000/999 exemplos e
+600/300 exemplos falharam por falta de memoria compartilhada. O pipeline agora
+possui `trainer.use_cpu=true` para smoke tests e configura lotes menores nos
+modelos transformer.

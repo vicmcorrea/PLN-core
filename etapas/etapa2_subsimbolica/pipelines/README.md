@@ -48,7 +48,7 @@ uv sync --extra transformers
 Smoke test recomendado antes da execucao completa:
 
 ```bash
-uv run --extra transformers python etapas/etapa2_subsimbolica/pipelines/run_transformer_benchmark.py model=distilbert_multilingual train_max_examples=3000 test_max_examples=999
+uv run --extra transformers python etapas/etapa2_subsimbolica/pipelines/run_transformer_benchmark.py model=distilbert_multilingual train_max_examples=120 test_max_examples=60 model.training.epochs=1 trainer.use_cpu=true
 ```
 
 Execucao final planejada com XLM-R base:
@@ -56,6 +56,10 @@ Execucao final planejada com XLM-R base:
 ```bash
 uv run --extra transformers python etapas/etapa2_subsimbolica/pipelines/run_transformer_benchmark.py model=xlm_roberta_base
 ```
+
+Em ambiente sem GPU dedicada, rode primeiro com `trainer.use_cpu=true` e uma
+amostra pequena. Em Mac com MPS, os defaults usam lotes menores, mas o treino
+completo ainda pode exigir reduzir `model.training.batch_size` ou usar CPU.
 
 Saidas por execucao:
 

@@ -10,7 +10,8 @@ Install the optional dependencies before running:
 Example smoke test:
     uv run --extra transformers python \
         etapas/etapa2_subsimbolica/pipelines/run_transformer_benchmark.py \
-        model=distilbert_multilingual train_max_examples=3000 test_max_examples=999
+        model=distilbert_multilingual train_max_examples=120 test_max_examples=60 \
+        model.training.epochs=1 trainer.use_cpu=true
 """
 
 from __future__ import annotations
@@ -308,6 +309,9 @@ def _training_args(cfg: DictConfig, model_dir: Path) -> dict[str, Any]:
         "per_device_eval_batch_size": int(
             training_cfg.get("eval_batch_size", training_cfg.batch_size)
         ),
+        "gradient_accumulation_steps": int(
+            training_cfg.get("gradient_accumulation_steps", 1)
+        ),
         "weight_decay": float(training_cfg.weight_decay),
         "eval_strategy": str(trainer_cfg.eval_strategy),
         "save_strategy": str(trainer_cfg.save_strategy),
@@ -317,6 +321,8 @@ def _training_args(cfg: DictConfig, model_dir: Path) -> dict[str, Any]:
         "load_best_model_at_end": bool(trainer_cfg.load_best_model_at_end),
         "metric_for_best_model": str(trainer_cfg.metric_for_best_model),
         "greater_is_better": bool(trainer_cfg.greater_is_better),
+        "dataloader_pin_memory": bool(trainer_cfg.dataloader_pin_memory),
+        "use_cpu": bool(trainer_cfg.use_cpu),
         "report_to": list(trainer_cfg.report_to),
         "seed": int(training_cfg.seed),
     }
@@ -441,7 +447,7 @@ def main(cfg: DictConfig) -> None:
         args=training_args,
         train_dataset=train_tokenized,
         eval_dataset=test_tokenized,
-        tokenizer=tokenizer,
+        processing_class=tokenizer,
         data_collator=data_collator,
         compute_metrics=_build_compute_metrics(),
     )
