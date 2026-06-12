@@ -7,6 +7,7 @@ import re
 TEXT_TREATMENTS = (
     "raw",
     "strip_emoticons_urls",
+    "strip_social_source_cues",
     "strip_emoticons",
     "strip_urls",
 )
@@ -20,6 +21,26 @@ NEGATIVE_EMOTICON_RE = re.compile(
 )
 MENTION_RE = re.compile(r"(?<!\w)@\w+")
 HASHTAG_RE = re.compile(r"(?<!\w)#\w+")
+SOURCE_MARKER_TERMS = (
+    "feedly",
+    "esportefera",
+    "estadaoeconomia",
+    "emais_estadao",
+    "estadaointer",
+    "g1sp",
+    "estadaoesporte",
+    "estadaocultura",
+    "cbn",
+    "mdg",
+    "manualdosgames",
+    "estadaolink",
+    "gazetaestadaojp",
+)
+SOURCE_MARKER_RE = re.compile(
+    r"(?i)(?<!\w)(?:"
+    + "|".join(re.escape(term) for term in SOURCE_MARKER_TERMS)
+    + r")(?!\w)"
+)
 LAUGHTER_RE = re.compile(r"(?i)\b(?:kkk+|rsrs+|haha+|hehe+)\b")
 ELONGATED_WORD_RE = re.compile(r"(?i)\b\w*(\w)\1{2,}\w*\b")
 EXCLAMATION_RE = re.compile(r"!")
@@ -87,6 +108,9 @@ def strip_surface_cues(
     *,
     remove_emoticons: bool,
     remove_urls: bool,
+    remove_mentions: bool = False,
+    remove_hashtags: bool = False,
+    remove_source_markers: bool = False,
 ) -> str:
     """Remove selected high-leakage cues and normalize whitespace."""
 
@@ -96,6 +120,12 @@ def strip_surface_cues(
     if remove_emoticons:
         cleaned = POSITIVE_EMOTICON_RE.sub(" ", cleaned)
         cleaned = NEGATIVE_EMOTICON_RE.sub(" ", cleaned)
+    if remove_mentions:
+        cleaned = MENTION_RE.sub(" ", cleaned)
+    if remove_hashtags:
+        cleaned = HASHTAG_RE.sub(" ", cleaned)
+    if remove_source_markers:
+        cleaned = SOURCE_MARKER_RE.sub(" ", cleaned)
     return WHITESPACE_RE.sub(" ", cleaned).strip()
 
 
@@ -106,6 +136,15 @@ def apply_text_treatment(text: str, treatment: str) -> str:
         return text
     if treatment == "strip_emoticons_urls":
         return strip_surface_cues(text, remove_emoticons=True, remove_urls=True)
+    if treatment == "strip_social_source_cues":
+        return strip_surface_cues(
+            text,
+            remove_emoticons=True,
+            remove_urls=True,
+            remove_mentions=True,
+            remove_hashtags=True,
+            remove_source_markers=True,
+        )
     if treatment == "strip_emoticons":
         return strip_surface_cues(text, remove_emoticons=True, remove_urls=False)
     if treatment == "strip_urls":

@@ -47,6 +47,14 @@ def test_strip_emoticons_urls_removes_only_requested_cues() -> None:
     assert treated == "Oi @usp #pln adorei mas olha"
 
 
+def test_strip_social_source_cues_removes_remaining_artifact_markers() -> None:
+    text = "Oi @usp #pln adorei :) via Feedly e g1sp http://exemplo.com"
+
+    treated = apply_text_treatment(text, "strip_social_source_cues")
+
+    assert treated == "Oi adorei via e"
+
+
 def test_unknown_text_treatment_raises_clear_error() -> None:
     with pytest.raises(ValueError, match="unknown text treatment"):
         apply_text_treatment("texto", "misterioso")

@@ -20,7 +20,9 @@ Modelos executados por padrão:
 
 O parametro Hydra `text_treatment` controla o texto entregue ao modelo. O
 default `raw` preserva o split Kaggle original. Para experimentos de robustez,
-use `text_treatment=strip_emoticons_urls`.
+use `text_treatment=strip_emoticons_urls`. Para um diagnostico exploratorio
+mais forte contra pistas sociais e fontes de noticias, use
+`text_treatment=strip_social_source_cues`.
 
 Entradas:
 
@@ -62,17 +64,26 @@ Saidas por execucao:
 
 ## diagnostico de vazamento por pistas superficiais
 
-O pipeline `run_leakage_diagnostics.py` testa se emoticons e URLs explicam os
-resultados muito altos no split Kaggle. Ele roda:
+O pipeline `run_leakage_diagnostics.py` testa se emoticons, URLs e outras
+pistas superficiais explicam os resultados muito altos no split Kaggle. Ele
+roda:
 
 - regra simples baseada em emoticon negativo, emoticon positivo e URL;
 - Regressao Logistica usando apenas `has_positive_emoticon`,
   `has_negative_emoticon` e `has_url`;
 - TF-IDF + Regressao Logistica e TF-IDF + Linear SVM em texto bruto e em texto
-  sem emoticons/URLs.
+  tratado. O tratamento padrao do diagnostico remove emoticons/URLs; o
+  tratamento exploratorio `strip_social_source_cues` tambem remove mencoes,
+  hashtags e marcadores de fontes neutras identificados na analise de artefatos.
 
 ```bash
 uv run python etapas/etapa2_subsimbolica/pipelines/run_leakage_diagnostics.py
+```
+
+Diagnostico exploratorio mais forte:
+
+```bash
+uv run python etapas/etapa2_subsimbolica/pipelines/run_leakage_diagnostics.py stripped_treatment=strip_social_source_cues
 ```
 
 Saidas por execucao:
