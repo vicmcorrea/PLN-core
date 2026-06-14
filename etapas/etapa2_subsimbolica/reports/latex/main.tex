@@ -558,6 +558,10 @@ Os modelos fine-tuned foram treinados em amostras estratificadas de 3.000 exempl
 
 Também há uma limitação do corpus. O tratamento sem emoticons/URLs melhora a honestidade da avaliação, mas não remove todos os vieses de coleta. A condição mais estrita, que também remove pistas sociais e marcadores de fontes, mostra que os TF-IDF ainda mantêm \emph{macro F1} próximo de 0,80, o que pode indicar tanto aprendizado lexical real quanto novos vieses de tópico. Por isso, essa condição é tratada como diagnóstico adicional, não como uma solução definitiva para o problema de validade externa.
 
+\section{Conclusão}
+
+A Etapa 2 mostrou que a comparação entre sistemas simbólicos e não simbólicos precisa considerar não apenas o maior valor de \emph{accuracy}, mas também a origem desse valor. Quando o corpus foi avaliado em sua forma bruta, alguns modelos neurais chegaram a resultados quase perfeitos, mas o diagnóstico indicou que parte importante desse desempenho vinha de pistas superficiais associadas ao rótulo. Ao remover emoticons e URLs, a comparação ficou mais informativa. Nesse cenário, os baselines TF-IDF foram os sistemas mais fortes entre as execuções válidas, enquanto os modelos fine-tuned permaneceram acima da solução simbólica tratada, mas abaixo do TF-IDF. Para a aplicação demonstrável, TabularisAI foi escolhido porque respondeu melhor às frases livres esperadas na feira, mesmo sem ser o melhor modelo no teste fechado de tweets. Assim, o trabalho final combina uma avaliação quantitativa mais cautelosa com uma escolha prática para a interação com usuários.
+
 \section{Instruções para execução}
 
 \commandlabel{Preparar ambiente}
