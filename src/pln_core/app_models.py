@@ -32,6 +32,12 @@ MODEL_DISPLAY_NAMES = {
     "tfidf_linear_svm": "Modelo alternativo",
 }
 
+MODEL_TECHNICAL_NAMES = {
+    "oplexicon_regex": "OpLexicon v3.0 + regras simbólicas",
+    "tfidf_logreg": "TF-IDF de palavras + Regressão Logística",
+    "tfidf_linear_svm": "TF-IDF de palavras + SVM linear",
+}
+
 TEXT_TREATMENT_DISPLAY_NAMES = {
     "raw": "texto bruto",
     "none": "texto bruto",
@@ -138,6 +144,12 @@ def model_label(model_name: str) -> str:
     return MODEL_DISPLAY_NAMES.get(model_name, model_name)
 
 
+def model_technical_name(model_name: str) -> str:
+    """Return the concrete model/version used behind a friendly label."""
+
+    return MODEL_TECHNICAL_NAMES.get(model_name, model_name)
+
+
 def _display_name_for_model(model_name: str, text_treatment: str) -> str:
     base_name = model_label(model_name)
     if text_treatment in {DEFAULT_APP_TEXT_TREATMENT, "strip_social_source_cues"}:
@@ -148,6 +160,7 @@ def _display_name_for_model(model_name: str, text_treatment: str) -> str:
 
 
 def _symbolic_models() -> tuple[AppModelInfo, ...]:
+    technical_name = model_technical_name(PRODUCTION_ANALYZER_NAME)
     return (
         AppModelInfo(
             id=f"symbolic:{DEFAULT_APP_TEXT_TREATMENT}",
@@ -156,8 +169,8 @@ def _symbolic_models() -> tuple[AppModelInfo, ...]:
             model_name=PRODUCTION_ANALYZER_NAME,
             text_treatment=DEFAULT_APP_TEXT_TREATMENT,
             description=(
-                "Procura palavras positivas e negativas e combina regras simples "
-                "para decidir o sentimento."
+                f"Modelo usado: {technical_name}. Procura palavras positivas e "
+                "negativas e combina regras simples para decidir o sentimento."
             ),
         ),
         AppModelInfo(
@@ -166,7 +179,10 @@ def _symbolic_models() -> tuple[AppModelInfo, ...]:
             family="symbolic",
             model_name=PRODUCTION_ANALYZER_NAME,
             text_treatment="raw",
-            description="Le a frase de forma mais direta para comparar respostas.",
+            description=(
+                f"Modelo usado: {technical_name}. Lê a frase original de forma "
+                "mais direta para comparar respostas."
+            ),
         ),
     )
 
@@ -206,8 +222,12 @@ def _classical_info_from_artifact(project_root: Path, artifact_path: Path) -> Ap
     text_treatment = str(payload.get("text_treatment") or "raw")
     display_name = _display_name_for_model(model_name, text_treatment)
     report_path = _project_path(project_root, payload.get("report_path"))
+    technical_name = model_technical_name(model_name)
+    treatment_label = text_treatment_label(text_treatment)
     description = (
-        "Aprende padroes de palavras em frases curtas e responde rapidamente."
+        f"Modelo usado: {technical_name}. Versão do app: {run_id}. "
+        f"Tratamento: {treatment_label}. Aprende padrões de palavras em frases "
+        "curtas e responde rapidamente."
     )
 
     return AppModelInfo(

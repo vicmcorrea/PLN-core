@@ -98,8 +98,11 @@ memória/latência ficar aceitável para a apresentação.
 
 O app também possui modo de comparação para aplicar o mesmo texto ao
 `oplexicon_regex`, ao TF-IDF + Regressão Logística e ao TF-IDF + Linear SVM na
-condição sem emoticons/URLs. Esse modo deve ser usado para gerar exemplos
-qualitativos do relatório.
+condição sem emoticons/URLs. As descrições exibidas na interface mostram o
+modelo concreto usado em cada modo, incluindo OpLexicon v3.0, TF-IDF +
+Regressão Logística, TF-IDF + SVM linear e a versão do artefato de app quando
+há modelo salvo. Esse modo deve ser usado para gerar exemplos qualitativos do
+relatório.
 
 ## diagnostico de vazamento
 

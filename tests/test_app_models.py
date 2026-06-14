@@ -138,9 +138,15 @@ class AppModelTests(unittest.TestCase):
 
             models = discover_app_models(project_root)
             model_info = next(model for model in models if model.id.endswith(":tfidf_logreg"))
+            symbolic_info = next(
+                model for model in models if model.id == "symbolic:strip_emoticons_urls"
+            )
 
             self.assertEqual(model_info.text_treatment, "strip_emoticons_urls")
             self.assertEqual(model_info.metrics["macro_f1"], 0.79)
+            self.assertIn("TF-IDF de palavras + Regressão Logística", model_info.description)
+            self.assertIn("Versão do app: 20260614_app_test", model_info.description)
+            self.assertIn("OpLexicon v3.0 + regras simbólicas", symbolic_info.description)
 
             model = load_app_model(model_info)
             prediction = predict_sentiment(
