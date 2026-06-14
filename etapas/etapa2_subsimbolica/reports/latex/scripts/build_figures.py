@@ -206,11 +206,109 @@ def plot_transformer_drop() -> None:
     _save(fig, "transformer_drop")
 
 
+def plot_clean_confusion_matrices() -> None:
+    labels = ["positivo", "negativo", "neutro"]
+    systems = [
+        (
+            "OpLexicon\nF1 macro 0,367",
+            np.array(
+                [
+                    [596, 329, 742],
+                    [300, 456, 910],
+                    [448, 422, 796],
+                ]
+            ),
+        ),
+        (
+            "TF-IDF Reg. Log.\nF1 macro 0,809",
+            np.array(
+                [
+                    [1256, 379, 32],
+                    [428, 1213, 25],
+                    [80, 13, 1573],
+                ]
+            ),
+        ),
+        (
+            "TF-IDF SVM\nF1 macro 0,803",
+            np.array(
+                [
+                    [1202, 433, 32],
+                    [413, 1236, 17],
+                    [77, 18, 1571],
+                ]
+            ),
+        ),
+        (
+            "DistilBERT\nF1 macro 0,738",
+            np.array(
+                [
+                    [842, 700, 125],
+                    [368, 1259, 39],
+                    [34, 1, 1631],
+                ]
+            ),
+        ),
+        (
+            "XLM-R\nF1 macro 0,749",
+            np.array(
+                [
+                    [809, 783, 75],
+                    [271, 1353, 42],
+                    [36, 0, 1630],
+                ]
+            ),
+        ),
+        (
+            "Albertina\nF1 macro 0,781",
+            np.array(
+                [
+                    [1113, 490, 64],
+                    [468, 1173, 25],
+                    [22, 20, 1624],
+                ]
+            ),
+        ),
+    ]
+
+    fig, axes = plt.subplots(2, 3, figsize=(7.4, 4.8), constrained_layout=True)
+    for ax, (title, counts) in zip(axes.flat, systems, strict=True):
+        row_totals = counts.sum(axis=1, keepdims=True)
+        percentages = counts / row_totals
+        image = ax.imshow(percentages, cmap="cividis", vmin=0, vmax=1)
+        ax.set_title(title)
+        ax.set_xticks(np.arange(len(labels)), [f"Prev. {label}" for label in labels])
+        ax.set_yticks(np.arange(len(labels)), [f"Real {label}" for label in labels])
+        ax.tick_params(axis="x", rotation=30)
+
+        for row in range(counts.shape[0]):
+            for col in range(counts.shape[1]):
+                value = percentages[row, col]
+                color = "white" if value > 0.55 else "black"
+                ax.text(
+                    col,
+                    row,
+                    f"{value:.0%}\n({counts[row, col]})",
+                    ha="center",
+                    va="center",
+                    color=color,
+                    fontsize=7,
+                )
+
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+
+    cbar = fig.colorbar(image, ax=axes.ravel().tolist(), shrink=0.86, pad=0.02)
+    cbar.set_label("Proporção dentro da classe real")
+    _save(fig, "confusion_clean_condition")
+
+
 def main() -> None:
     _configure()
     plot_macro_f1_tracks()
     plot_cue_prevalence()
     plot_transformer_drop()
+    plot_clean_confusion_matrices()
     print(f"Figures written to {FIGURE_DIR}")
 
 

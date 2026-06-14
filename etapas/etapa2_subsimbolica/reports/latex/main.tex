@@ -419,6 +419,7 @@ Por isso, uma acurácia bruta de 99\% não deve ser interpretada como ``o modelo
 \caption{F1 macro por sistema e por condição de texto. As barras cinzas hachuradas correspondem ao \emph{split} Kaggle bruto, que tem alta acurácia mas é metodologicamente fraco por conter pistas de rótulo. As barras sem emoticons/URLs e sem pistas sociais/fontes são mais úteis para discutir robustez. Valores ausentes indicam combinações não executadas ou não aplicáveis.}
 \label{fig:macro-f1}
 \end{figure}
+\FloatBarrier
 
 \begin{table}[h]
 \small
@@ -450,6 +451,39 @@ Albertina 100M pt-BR & 3.000 & 4.999 & bruto com pistas & 0,9972 & 0,9972 \\
 \caption{Resultados atuais usados como base para a escrita da Etapa 2. As linhas em negrito indicam a condição principal de comparação para cada sistema, sem emoticons e URLs. As linhas ``bruto com pistas'' têm maior acurácia, mas são problemáticas porque a baseline de pistas mostra que o rótulo pode ser inferido quase diretamente por artefatos do corpus. Os resultados neurais são execuções de desenvolvimento com 1.000 exemplos por classe no treino.}
 \label{tab:resultados}
 \end{table}
+\FloatBarrier
+
+A Tabela~\ref{tab:f1-classe-limpa} e a Figura~\ref{fig:confusao-limpa} detalham a condição principal, sem emoticons e URLs. Uma matriz de confusão cruza o rótulo esperado nas linhas com a predição nas colunas. A diagonal representa os acertos, enquanto os valores fora da diagonal mostram para qual classe cada sistema desloca seus erros. A figura foi normalizada por classe real para que positivo, negativo e neutro tenham o mesmo peso visual, mesmo quando olhamos classes separadamente. A condição bruta e a baseline de pistas não aparecem aqui porque esta análise busca comparar os sistemas sem o vazamento mais direto de rótulo.
+
+\begin{table}[h]
+\small
+\centering
+\altrowcolors
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+\textbf{Sistema} & \textbf{F1 pos.} & \textbf{F1 neg.} & \textbf{F1 neut.} & \textbf{F1 macro} \\
+\midrule
+OpLexicon com regras & 0,3959 & 0,3174 & 0,3870 & 0,3668 \\
+TF-IDF + Reg. Logística & \textbf{0,7321} & \textbf{0,7417} & 0,9545 & \textbf{0,8094} \\
+TF-IDF + SVM linear & 0,7157 & 0,7373 & 0,9562 & 0,8030 \\
+DistilBERT multilíngue & 0,5785 & 0,6944 & 0,9425 & 0,7385 \\
+XLM-R base & 0,5814 & 0,7117 & 0,9552 & 0,7494 \\
+Albertina 100M pt-BR & 0,6807 & 0,7005 & \textbf{0,9612} & 0,7808 \\
+\bottomrule
+\end{tabular}
+\clearrowcolors
+\caption{F1 por classe na condição sem emoticons e URLs. Os valores em negrito indicam o maior resultado de cada coluna entre as rodadas válidas apresentadas.}
+\label{tab:f1-classe-limpa}
+\end{table}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figures/confusion_clean_condition.pdf}
+\caption{Matrizes de confusão normalizadas por classe real para a condição sem emoticons e URLs. Cada célula mostra a porcentagem dentro da classe real e, entre parênteses, o número de exemplos. O padrão visual mostra que a classe neutra é a mais estável nos modelos estatísticos e neurais, enquanto positivo e negativo concentram a maior parte das trocas.}
+\label{fig:confusao-limpa}
+\end{figure}
+
+O padrão principal é que os modelos estatísticos e neurais reconhecem muito bem a classe neutra, mas ainda confundem bastante positivo e negativo. Esse comportamento combina com a natureza dos tweets depois da limpeza. Muitos textos ficam curtos, irônicos ou dependentes de contexto, e uma parte deles perde justamente o emoticon que sustentava o rótulo original. O OpLexicon sofre mais nesse cenário porque depende de palavras encontradas no léxico e tende a deslocar muitos casos para neutro. Entre os métodos treinados, a Regressão Logística com TF-IDF fica com o melhor F1 macro da condição limpa, enquanto Albertina apresenta o melhor F1 da classe neutra entre as rodadas neurais.
 \FloatBarrier
 
 \section{Diagnóstico de artefatos e dificuldades encontradas}
