@@ -5,9 +5,9 @@ COMPARE_MODE = "compare"
 ANALYZER_STACK_LABEL = "OpLexicon v3.0 + spaCy pt_core_news_sm"
 
 SAMPLE_TEXTS: dict[str, str] = {
-    "positive": "Eu amei o filme, foi muito bom!",
-    "negative": "Nao gostei do app, esta bem confuso e bugado.",
-    "neutral": "O arquivo tem quatro paginas e duas tabelas.",
+    "positive": "O app ficou maravilhoso, simples e divertido.",
+    "negative": "Eu odiei esse app, ficou péssimo e muito confuso.",
+    "neutral": "O aplicativo mostra uma tela com três botões.",
 }
 
 COMPARISON_EXAMPLES: tuple[tuple[str, str], ...] = (

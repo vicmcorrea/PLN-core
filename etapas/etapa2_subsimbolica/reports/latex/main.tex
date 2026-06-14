@@ -190,7 +190,7 @@ O quinto processo é a demonstração interativa. Nessa etapa, o usuário não f
 
 \subsection{Sistemas comparados}
 
-O corpus operacional é o Kaggle \emph{Portuguese Tweets for Sentiment Analysis} \citep{augustopKaggleTweets}. A comparação final usa esse corpus comum para que a Etapa 1 e a Etapa 2 possam ser confrontadas diretamente. O corpus contém 100.000 exemplos de treino e 4.999 exemplos de teste, com três classes praticamente balanceadas.
+O corpus operacional é o Kaggle \emph{Portuguese Tweets for Sentiment Analysis} \citep{augustopKaggleTweets}. A comparação final usa esse corpus comum para que a Etapa 1 e a Etapa 2 possam ser confrontadas diretamente. O corpus contém 100.000 exemplos de treino e 4.999 exemplos de teste, com três classes praticamente balanceadas. Os arquivos CSV não são incluídos no pacote de entrega. Para reproduzir os experimentos, o primeiro passo é executar o script de preparação, que baixa o conjunto público pelo cliente Kaggle, extrai os arquivos no local esperado e verifica se os \emph{splits} de treino e teste estão presentes.
 
 A solução simbólica não treina um classificador. Ela consulta o OpLexicon, soma as polaridades encontradas e aplica regras para fenômenos como negação, intensificação, atenuação, contraste e exclamação. Por exemplo, em ``não foi bom'', a palavra ``bom'' começa positiva, mas a negação anterior inverte o sinal. Em ``bom, mas caro'', a parte depois de ``mas'' recebe mais peso, seguindo a ideia de que a segunda oração costuma carregar a conclusão principal. Esse tipo de ajuste por contexto é comum em métodos lexicais de análise de sentimentos \citep{taboada2011lexicon,wiegand2010negation}. No nosso caso, o resultado final é positivo quando a soma fica acima de um limiar, negativo quando fica abaixo do limiar oposto e neutro quando há pouca evidência lexical.
 
@@ -554,9 +554,18 @@ Também há uma limitação do corpus. O tratamento sem emoticons/URLs melhora a
 
 \section{Instruções para execução}
 
-\commandlabel{Preparar ambiente e rodar testes}
+\commandlabel{Preparar ambiente}
 \begin{lstlisting}[style=commandblock]
 uv sync
+\end{lstlisting}
+
+\commandlabel{Baixar e organizar o corpus Kaggle}
+\begin{lstlisting}[style=commandblock]
+uv run python scripts/download_kaggle_dataset.py
+\end{lstlisting}
+
+\commandlabel{Rodar testes}
+\begin{lstlisting}[style=commandblock]
 uv run pytest
 \end{lstlisting}
 

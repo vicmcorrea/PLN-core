@@ -11,7 +11,8 @@ from sklearn.dummy import DummyClassifier
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.pipeline import Pipeline
 
-SRC_DIR = Path(__file__).resolve().parents[1] / "src"
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
@@ -23,6 +24,7 @@ from pln_core.app_models import (  # noqa: E402
     load_app_model,
     predict_sentiment,
 )
+from pln_core.samples import SAMPLE_TEXTS  # noqa: E402
 
 
 class AppModelTests(unittest.TestCase):
@@ -234,6 +236,24 @@ class AppModelTests(unittest.TestCase):
         self.assertTrue(all(not model.can_predict for model in transformer_models))
         self.assertIn("fine-tuned", transformer_models[0].description)
         self.assertAlmostEqual(transformer_models[-1].metrics["macro_f1"], 0.7808)
+
+    def test_streamlit_examples_match_packaged_tfidf_models(self) -> None:
+        models = [
+            model
+            for model in discover_app_models(PROJECT_ROOT)
+            if model.family == "classical" and model.can_predict
+        ]
+        self.assertEqual(
+            [model.model_name for model in models],
+            ["tfidf_logreg", "tfidf_linear_svm"],
+        )
+
+        resources = {model.id: load_app_model(model) for model in models}
+        for expected_label, text in SAMPLE_TEXTS.items():
+            for model in models:
+                with self.subTest(model=model.model_name, expected_label=expected_label):
+                    prediction = predict_sentiment(model, resources[model.id], text)
+                    self.assertEqual(prediction.label, expected_label)
 
 
 if __name__ == "__main__":

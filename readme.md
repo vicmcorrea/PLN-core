@@ -21,10 +21,17 @@ As duas etapas devem usar o mesmo corpus principal:
 
 https://www.kaggle.com/datasets/augustop/portuguese-tweets-for-sentiment-analysis
 
-O pipeline Hydra da etapa 1 baixa o dataset automaticamente se os arquivos
-esperados ainda nao existirem, desde que as credenciais do Kaggle estejam
-configuradas em `~/.kaggle/kaggle.json` ou variaveis de ambiente equivalentes.
-O local padrao continua sendo:
+Os CSVs do Kaggle nao ficam versionados no Git e tambem nao sao empacotados no
+arquivo de entrega. Depois de instalar as dependencias, baixe e organize o
+corpus com o script abaixo. Ele usa o cliente oficial do Kaggle, entao as
+credenciais precisam estar configuradas em `~/.kaggle/kaggle.json` ou em
+variaveis de ambiente equivalentes.
+
+```bash
+uv run python scripts/download_kaggle_dataset.py
+```
+
+O local padrao criado pelo script e:
 
 ```text
 data/raw/portuguese-tweets-for-sentiment-analysis/
@@ -35,7 +42,9 @@ Arquivos esperados:
 - `TrainingDatasets/Train3Classes.csv`
 - `TestDatasets/Test3classes.csv`
 
-Se usar o cliente Kaggle, baixe o dataset `augustop/portuguese-tweets-for-sentiment-analysis` e extraia os arquivos nessa pasta. Se preferir, baixe pelo navegador e mantenha exatamente a mesma estrutura de subpastas.
+Se preferir baixar pelo navegador, use o dataset
+`augustop/portuguese-tweets-for-sentiment-analysis` e mantenha exatamente a
+mesma estrutura de subpastas.
 
 ## comandos principais
 
@@ -43,6 +52,12 @@ Instalar dependências:
 
 ```bash
 uv sync
+```
+
+Baixar e organizar o corpus comum:
+
+```bash
+uv run python scripts/download_kaggle_dataset.py
 ```
 
 Rodar Streamlit:
