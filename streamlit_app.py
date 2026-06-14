@@ -12,18 +12,17 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from pln_core.app_models import (  # noqa: E402
-    AppModelInfo,
-    AppPrediction,
-    choose_default_model_id,
-    default_comparison_model_ids,
-    discover_app_models,
-    load_app_model,
-    predict_sentiment,
-)
+from pln_core import app_models as app_model_registry  # noqa: E402
 from pln_core.lexicon import LexiconDownloadError  # noqa: E402
 from pln_core.recommender import Song, recommend_ranked  # noqa: E402
 from pln_core.samples import SAMPLE_TEXTS  # noqa: E402
+
+AppModelInfo = app_model_registry.AppModelInfo
+AppPrediction = app_model_registry.AppPrediction
+choose_default_model_id = app_model_registry.choose_default_model_id
+discover_app_models = app_model_registry.discover_app_models
+load_app_model = app_model_registry.load_app_model
+predict_sentiment = app_model_registry.predict_sentiment
 
 SESSION_KEYS_TO_CLEAR = (
     "text_input",
@@ -60,6 +59,26 @@ SCORE_TRANSLATIONS: dict[str, str] = {
     "escore simbolico": "Força",
     "saida": "Resposta",
 }
+
+
+def _fallback_default_comparison_model_ids(models: tuple[AppModelInfo, ...]) -> tuple[str, ...]:
+    """Choose cleaned symbolic and TF-IDF modes if the helper is unavailable."""
+
+    preferred_names = ("oplexicon_regex", "tfidf_logreg", "tfidf_linear_svm")
+    selected: list[str] = []
+    for model_name in preferred_names:
+        for model in models:
+            if model.model_name == model_name and model.text_treatment == "strip_emoticons_urls":
+                selected.append(model.id)
+                break
+    return tuple(selected)
+
+
+default_comparison_model_ids = getattr(
+    app_model_registry,
+    "default_comparison_model_ids",
+    _fallback_default_comparison_model_ids,
+)
 
 st.set_page_config(
     page_title="PLN Core",
@@ -493,4 +512,5 @@ def main() -> None:
                     render_prediction(prediction)
 
 
-main()
+if __name__ == "__main__":
+    main()
