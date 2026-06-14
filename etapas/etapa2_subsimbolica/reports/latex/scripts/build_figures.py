@@ -100,7 +100,7 @@ def plot_macro_f1_tracks() -> None:
         color=OKABE_ITO["red"],
     )
     ax.annotate(
-        "OpLexicon também cai:\n0,596 -> 0,367",
+        "OpLexicon também cai\n0,596 -> 0,367",
         xy=(x[1], stripped[1]),
         xytext=(0.78, 0.86),
         textcoords=("data", "data"),
@@ -145,7 +145,7 @@ def plot_cue_prevalence() -> None:
     cbar.set_label("Proporção no teste")
     ax.set_xticks(np.arange(len(cues)), cues, rotation=25, ha="right")
     ax.set_yticks(np.arange(len(labels)), labels)
-    ax.set_title("Vazamento de rótulo: pistas superficiais por classe")
+    ax.set_title("Vazamento de rótulo por pistas superficiais por classe")
 
     for row in range(values.shape[0]):
         for col in range(values.shape[1]):
@@ -170,7 +170,7 @@ def plot_transformer_drop() -> None:
         ax.text(
             1.03,
             stripped[index],
-            f"{system}: {stripped[index]:.3f}",
+            f"{system}  {stripped[index]:.3f}",
             ha="left",
             va="center",
             fontsize=8,
