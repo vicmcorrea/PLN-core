@@ -160,7 +160,7 @@ O quarto processo é a avaliação. Cada rodada produz métricas agregadas, F1 p
 
 \subsection{Sistemas comparados}
 
-O corpus operacional é o Kaggle \emph{Portuguese Tweets for Sentiment Analysis}. A comparação final usa esse corpus comum para que a Etapa 1 e a Etapa 2 possam ser confrontadas diretamente. O corpus contém 100.000 exemplos de treino e 4.999 exemplos de teste, com três classes praticamente balanceadas.
+O corpus operacional é o Kaggle \emph{Portuguese Tweets for Sentiment Analysis} \citep{augustopKaggleTweets}. A comparação final usa esse corpus comum para que a Etapa 1 e a Etapa 2 possam ser confrontadas diretamente. O corpus contém 100.000 exemplos de treino e 4.999 exemplos de teste, com três classes praticamente balanceadas.
 
 A solução simbólica não treina um classificador. Ela consulta o OpLexicon, soma as polaridades encontradas e aplica regras para fenômenos como negação, intensificação, atenuação, contraste e exclamação. Por exemplo, em ``não foi bom'', a palavra ``bom'' começa positiva, mas a negação anterior inverte o sinal. Em ``bom, mas caro'', a parte depois de ``mas'' recebe mais peso, seguindo a ideia de que a segunda oração costuma carregar a conclusão principal. Esse tipo de ajuste por contexto é comum em métodos lexicais de análise de sentimentos \citep{taboada2011lexicon,wiegand2010negation}. No nosso caso, o resultado final é positivo quando a soma fica acima de um limiar, negativo quando fica abaixo do limiar oposto e neutro quando há pouca evidência lexical.
 
