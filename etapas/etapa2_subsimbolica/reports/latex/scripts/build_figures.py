@@ -167,7 +167,7 @@ def plot_cue_prevalence() -> None:
     for row in range(values.shape[0]):
         for col in range(values.shape[1]):
             value = values[row, col]
-            color = "white" if value > 0.55 else "black"
+            color = "black" if value > 0.55 else "white"
             ax.text(col, row, f"{value:.2f}", ha="center", va="center", color=color)
 
     ax.spines["top"].set_visible(False)
