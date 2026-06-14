@@ -2600,13 +2600,13 @@ dependencies = [
     { name = "scikit-learn", version = "1.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "spacy" },
     { name = "streamlit" },
+    { name = "torch" },
+    { name = "transformers" },
 ]
 
 [package.optional-dependencies]
 transformers = [
     { name = "accelerate" },
-    { name = "torch" },
-    { name = "transformers" },
 ]
 
 [package.dev-dependencies]
@@ -2626,8 +2626,8 @@ requires-dist = [
     { name = "scikit-learn", specifier = ">=1.3" },
     { name = "spacy" },
     { name = "streamlit", specifier = ">=1.50.0" },
-    { name = "torch", marker = "extra == 'transformers'", specifier = ">=2.2" },
-    { name = "transformers", marker = "extra == 'transformers'", specifier = ">=4.57,<5" },
+    { name = "torch", specifier = ">=2.2" },
+    { name = "transformers", specifier = ">=4.57,<5" },
 ]
 provides-extras = ["transformers"]
 

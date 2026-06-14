@@ -66,13 +66,10 @@ Rodar Streamlit:
 uv run streamlit run streamlit_app.py
 ```
 
-O Streamlit descobre primeiro os modelos leves versionados em
-`data/app_models/etapa2_subsymbolic/` e, em seguida, artefatos locais ignorados
-em `data/models/etapa2_subsymbolic/`. Quando existir um artefato
-`tfidf_logreg` treinado com `strip_emoticons_urls`, ele vira o modelo padrão do
-app. O `oplexicon_regex` continua disponível como opção simbólica, e os
-artefatos TF-IDF brutos ficam selecionáveis apenas para diagnóstico local do
-split Kaggle original.
+O Streamlit mostra apenas dois modos para a demonstração pública:
+`Non-symbolic`, que usa `tabularisai/multilingual-sentiment-analysis`, e
+`Symbolic`, que usa OpLexicon com regras explícitas. No primeiro uso do modo
+`Non-symbolic`, o modelo é baixado do Hugging Face e depois fica em cache local.
 
 Rodar o baseline simbolico oficial (`oplexicon_regex`) no corpus comum, com
 perfil do dataset, metricas, predicoes, casos de erro e figuras para o texto
@@ -96,7 +93,7 @@ Rodar os baselines classicos da etapa 2 no mesmo split Kaggle usado pela etapa 1
 uv run python etapas/etapa2_subsimbolica/pipelines/run_classical_benchmark_suite.py
 ```
 
-Exportar os modelos TF-IDF tratados que o Streamlit deve usar por padrão:
+Exportar modelos TF-IDF tratados para os benchmarks da Etapa 2:
 
 ```bash
 uv run python etapas/etapa2_subsimbolica/pipelines/run_classical_benchmark_suite.py \

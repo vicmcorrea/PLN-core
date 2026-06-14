@@ -1,15 +1,8 @@
 from __future__ import annotations
 
-import json
 import sys
-import tempfile
 import unittest
 from pathlib import Path
-
-import joblib
-from sklearn.dummy import DummyClassifier
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.pipeline import Pipeline
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SRC_DIR = PROJECT_ROOT / "src"
@@ -17,243 +10,113 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from pln_core.app_models import (  # noqa: E402
+    HUGGINGFACE_APP_MODEL_NAME,
     AppModelInfo,
+    HuggingFaceSentimentAnalyzer,
     choose_default_model_id,
     default_comparison_model_ids,
     discover_app_models,
-    load_app_model,
     predict_sentiment,
 )
-from pln_core.samples import SAMPLE_TEXTS  # noqa: E402
+
+
+class FakeSentimentPipeline:
+    def __call__(self, texts: list[str]) -> list[list[dict[str, float | str]]]:
+        return [
+            [
+                {"label": "Very Negative", "score": 0.2},
+                {"label": "Negative", "score": 0.3},
+                {"label": "Neutral", "score": 0.1},
+                {"label": "Positive", "score": 0.35},
+                {"label": "Very Positive", "score": 0.05},
+            ]
+            for _ in texts
+        ]
 
 
 class AppModelTests(unittest.TestCase):
-    def test_choose_default_prefers_cleaned_tfidf_logreg(self) -> None:
+    def test_choose_default_prefers_non_symbolic_mode(self) -> None:
         models = (
             AppModelInfo(
-                id="symbolic:strip",
-                display_name="OpLexicon",
+                id="symbolic:raw",
+                display_name="Symbolic",
                 family="symbolic",
                 model_name="oplexicon_regex",
-                text_treatment="strip_emoticons_urls",
-                description="",
-            ),
-            AppModelInfo(
-                id="classical:raw:tfidf_logreg",
-                display_name="TF-IDF raw",
-                family="classical",
-                model_name="tfidf_logreg",
                 text_treatment="raw",
                 description="",
-                artifact_path=Path("raw.joblib"),
             ),
             AppModelInfo(
-                id="classical:clean:tfidf_logreg",
-                display_name="TF-IDF clean",
-                family="classical",
-                model_name="tfidf_logreg",
-                text_treatment="strip_emoticons_urls",
+                id="external:tabularisai_multilingual_sentiment",
+                display_name="Non-symbolic",
+                family="external",
+                model_name=HUGGINGFACE_APP_MODEL_NAME,
+                text_treatment="raw",
                 description="",
-                artifact_path=Path("clean.joblib"),
             ),
         )
 
-        self.assertEqual(choose_default_model_id(models), "classical:clean:tfidf_logreg")
+        self.assertEqual(
+            choose_default_model_id(models),
+            "external:tabularisai_multilingual_sentiment",
+        )
 
-    def test_default_comparison_uses_cleaned_symbolic_logreg_and_svm(self) -> None:
+    def test_default_comparison_uses_two_public_modes(self) -> None:
         models = (
             AppModelInfo(
-                id="symbolic:clean",
-                display_name="OpLexicon clean",
+                id="symbolic:raw",
+                display_name="Symbolic",
                 family="symbolic",
                 model_name="oplexicon_regex",
-                text_treatment="strip_emoticons_urls",
-                description="",
-            ),
-            AppModelInfo(
-                id="classical:raw:tfidf_logreg",
-                display_name="TF-IDF raw",
-                family="classical",
-                model_name="tfidf_logreg",
                 text_treatment="raw",
                 description="",
-                artifact_path=Path("raw.joblib"),
             ),
             AppModelInfo(
-                id="classical:clean:tfidf_logreg",
-                display_name="TF-IDF LogReg clean",
-                family="classical",
-                model_name="tfidf_logreg",
-                text_treatment="strip_emoticons_urls",
+                id="external:tabularisai_multilingual_sentiment",
+                display_name="Non-symbolic",
+                family="external",
+                model_name=HUGGINGFACE_APP_MODEL_NAME,
+                text_treatment="raw",
                 description="",
-                artifact_path=Path("logreg.joblib"),
-            ),
-            AppModelInfo(
-                id="classical:clean:tfidf_linear_svm",
-                display_name="TF-IDF SVM clean",
-                family="classical",
-                model_name="tfidf_linear_svm",
-                text_treatment="strip_emoticons_urls",
-                description="",
-                artifact_path=Path("svm.joblib"),
             ),
         )
 
         self.assertEqual(
             default_comparison_model_ids(models),
             (
-                "symbolic:clean",
-                "classical:clean:tfidf_logreg",
-                "classical:clean:tfidf_linear_svm",
+                "external:tabularisai_multilingual_sentiment",
+                "symbolic:raw",
             ),
         )
 
-    def test_discover_classical_metadata_and_predicts_with_treatment(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            project_root = Path(tmpdir)
-            artifact_dir = project_root / "data/models/etapa2_subsymbolic/20260614_app_test"
-            artifact_dir.mkdir(parents=True)
-            artifact_path = artifact_dir / "tfidf_logreg.joblib"
+    def test_discover_app_models_lists_only_public_modes(self) -> None:
+        models = discover_app_models(PROJECT_ROOT)
 
-            pipeline = Pipeline(
-                [
-                    ("tfidf", TfidfVectorizer()),
-                    ("classifier", DummyClassifier(strategy="constant", constant="positive")),
-                ]
-            )
-            pipeline.fit(
-                ["amei o produto", "odiei o produto", "produto entregue"],
-                ["positive", "negative", "neutral"],
-            )
-            joblib.dump(pipeline, artifact_path)
-
-            metadata = {
-                "schema_version": 1,
-                "family": "classical",
-                "run_id": "20260614_app_test",
-                "model": "tfidf_logreg",
-                "text_treatment": "strip_emoticons_urls",
-                "metrics": {
-                    "accuracy": 0.8,
-                    "macro_f1": 0.79,
-                },
-            }
-            artifact_path.with_suffix(".metadata.json").write_text(
-                json.dumps(metadata),
-                encoding="utf-8",
-            )
-
-            models = discover_app_models(project_root)
-            model_info = next(model for model in models if model.id.endswith(":tfidf_logreg"))
-            symbolic_info = next(
-                model for model in models if model.id == "symbolic:strip_emoticons_urls"
-            )
-
-            self.assertEqual(model_info.text_treatment, "strip_emoticons_urls")
-            self.assertEqual(model_info.metrics["macro_f1"], 0.79)
-            self.assertIn("TF-IDF de palavras + Regressão Logística", model_info.description)
-            self.assertIn("Versão do app: 20260614_app_test", model_info.description)
-            self.assertIn("OpLexicon v3.0 + regras simbólicas", symbolic_info.description)
-            self.assertEqual(
-                [model.model_name for model in models],
-                [
-                    "oplexicon_regex",
-                    "tfidf_logreg",
-                    "distilbert_multilingual",
-                    "xlm_roberta_base",
-                    "albertina_ptbr_100m",
-                ],
-            )
-
-            model = load_app_model(model_info)
-            prediction = predict_sentiment(
-                model_info,
-                model,
-                "Amei esse produto :) http://exemplo.com",
-            )
-
-        self.assertEqual(prediction.label, "positive")
-        self.assertEqual(prediction.processed_text, "Amei esse produto")
-        self.assertGreaterEqual(prediction.class_scores["positive"], 0.0)
-
-    def test_discover_prefers_committed_deploy_artifact_over_local_duplicate(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            project_root = Path(tmpdir)
-            run_id = "20260614_app_test"
-            deploy_dir = project_root / f"data/app_models/etapa2_subsymbolic/{run_id}"
-            local_dir = project_root / f"data/models/etapa2_subsymbolic/{run_id}"
-            deploy_dir.mkdir(parents=True)
-            local_dir.mkdir(parents=True)
-
-            pipeline = Pipeline(
-                [
-                    ("tfidf", TfidfVectorizer()),
-                    ("classifier", DummyClassifier(strategy="constant", constant="positive")),
-                ]
-            )
-            pipeline.fit(
-                ["amei o produto", "odiei o produto", "produto entregue"],
-                ["positive", "negative", "neutral"],
-            )
-            for artifact_dir, macro_f1 in ((deploy_dir, 0.81), (local_dir, 0.79)):
-                artifact_path = artifact_dir / "tfidf_logreg.joblib"
-                joblib.dump(pipeline, artifact_path)
-                artifact_path.with_suffix(".metadata.json").write_text(
-                    json.dumps(
-                        {
-                            "schema_version": 1,
-                            "family": "classical",
-                            "run_id": run_id,
-                            "model": "tfidf_logreg",
-                            "text_treatment": "strip_emoticons_urls",
-                            "metrics": {"accuracy": 0.8, "macro_f1": macro_f1},
-                        }
-                    ),
-                    encoding="utf-8",
-                )
-
-            matches = [
-                model
-                for model in discover_app_models(project_root)
-                if model.id == f"classical:{run_id}:tfidf_logreg"
-            ]
-
-        self.assertEqual(len(matches), 1)
-        self.assertIn("data/app_models", str(matches[0].artifact_path))
-        self.assertEqual(matches[0].metrics["macro_f1"], 0.81)
-
-    def test_discover_lists_transformer_benchmarks_as_reference_only(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            project_root = Path(tmpdir)
-
-            models = discover_app_models(project_root)
-
-        transformer_models = [model for model in models if model.family == "transformer"]
         self.assertEqual(
-            [model.model_name for model in transformer_models],
-            ["distilbert_multilingual", "xlm_roberta_base", "albertina_ptbr_100m"],
+            [(model.display_name, model.family) for model in models],
+            [
+                ("Non-symbolic", "external"),
+                ("Symbolic", "symbolic"),
+            ],
         )
-        self.assertTrue(all(not model.can_predict for model in transformer_models))
-        self.assertIn("fine-tuned", transformer_models[0].description)
-        self.assertAlmostEqual(transformer_models[-1].metrics["macro_f1"], 0.7808)
+        self.assertTrue(all(model.can_predict for model in models))
 
-    def test_streamlit_examples_match_packaged_tfidf_models(self) -> None:
-        models = [
-            model
-            for model in discover_app_models(PROJECT_ROOT)
-            if model.family == "classical" and model.can_predict
-        ]
-        self.assertEqual(
-            [model.model_name for model in models],
-            ["tfidf_logreg", "tfidf_linear_svm"],
+    def test_huggingface_adapter_maps_five_way_sentiment_to_three_labels(self) -> None:
+        model_info = AppModelInfo(
+            id="external:tabularisai_multilingual_sentiment",
+            display_name="Non-symbolic",
+            family="external",
+            model_name=HUGGINGFACE_APP_MODEL_NAME,
+            text_treatment="raw",
+            description="",
         )
+        analyzer = HuggingFaceSentimentAnalyzer("fake/model", FakeSentimentPipeline())
 
-        resources = {model.id: load_app_model(model) for model in models}
-        for expected_label, text in SAMPLE_TEXTS.items():
-            for model in models:
-                with self.subTest(model=model.model_name, expected_label=expected_label):
-                    prediction = predict_sentiment(model, resources[model.id], text)
-                    self.assertEqual(prediction.label, expected_label)
+        prediction = predict_sentiment(model_info, analyzer, "texto de teste")
+
+        self.assertEqual(prediction.label, "negative")
+        self.assertAlmostEqual(prediction.class_scores["negative"], 0.5)
+        self.assertAlmostEqual(prediction.class_scores["neutral"], 0.1)
+        self.assertAlmostEqual(prediction.class_scores["positive"], 0.4)
 
 
 if __name__ == "__main__":

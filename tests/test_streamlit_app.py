@@ -27,61 +27,42 @@ class StreamlitAppImportTests(unittest.TestCase):
         self.assertTrue(callable(module.main))
         self.assertTrue(callable(module.default_comparison_model_ids))
 
-    def test_fallback_comparison_prefers_cleaned_models(self) -> None:
+    def test_fallback_comparison_uses_public_modes(self) -> None:
         module = _load_streamlit_app()
         model_cls = module.AppModelInfo
         models = (
             model_cls(
-                id="symbolic:clean",
-                display_name="Leitor de palavras",
+                id="symbolic:raw",
+                display_name="Symbolic",
                 family="symbolic",
                 model_name="oplexicon_regex",
-                text_treatment="strip_emoticons_urls",
+                text_treatment="raw",
                 description="",
             ),
             model_cls(
-                id="classical:raw:tfidf_logreg",
-                display_name="TF-IDF + Reg. Logística",
-                family="classical",
-                model_name="tfidf_logreg",
+                id="external:tabularisai_multilingual_sentiment",
+                display_name="Non-symbolic",
+                family="external",
+                model_name="tabularisai_multilingual_sentiment",
                 text_treatment="raw",
                 description="",
-                artifact_path=Path("raw.joblib"),
             ),
             model_cls(
                 id="classical:clean:tfidf_logreg",
-                display_name="TF-IDF + Reg. Logística",
+                display_name="TF-IDF + SVM linear",
                 family="classical",
                 model_name="tfidf_logreg",
                 text_treatment="strip_emoticons_urls",
                 description="",
                 artifact_path=Path("logreg.joblib"),
             ),
-            model_cls(
-                id="classical:clean:tfidf_linear_svm",
-                display_name="TF-IDF + SVM linear",
-                family="classical",
-                model_name="tfidf_linear_svm",
-                text_treatment="strip_emoticons_urls",
-                description="",
-                artifact_path=Path("svm.joblib"),
-            ),
-            model_cls(
-                id="transformer:clean:albertina_ptbr_100m",
-                display_name="Albertina 100M pt-BR",
-                family="transformer",
-                model_name="albertina_ptbr_100m",
-                text_treatment="strip_emoticons_urls",
-                description="",
-            ),
         )
 
         self.assertEqual(
             module._fallback_default_comparison_model_ids(models),
             (
-                "symbolic:clean",
-                "classical:clean:tfidf_logreg",
-                "classical:clean:tfidf_linear_svm",
+                "external:tabularisai_multilingual_sentiment",
+                "symbolic:raw",
             ),
         )
 

@@ -62,17 +62,13 @@ SCORE_TRANSLATIONS: dict[str, str] = {
 
 
 def _fallback_default_comparison_model_ids(models: tuple[AppModelInfo, ...]) -> tuple[str, ...]:
-    """Choose cleaned symbolic and TF-IDF modes if the helper is unavailable."""
+    """Choose symbolic and non-symbolic modes if the helper is unavailable."""
 
-    preferred_names = ("oplexicon_regex", "tfidf_logreg", "tfidf_linear_svm")
+    preferred_names = ("tabularisai_multilingual_sentiment", "oplexicon_regex")
     selected: list[str] = []
     for model_name in preferred_names:
         for model in models:
-            if (
-                model.model_name == model_name
-                and model.text_treatment == "strip_emoticons_urls"
-                and model.can_predict
-            ):
+            if model.model_name == model_name and model.can_predict:
                 selected.append(model.id)
                 break
     return tuple(selected)
@@ -174,6 +170,9 @@ def analyze_current_text(model: AppModelInfo) -> None:
     except FileNotFoundError:
         st.error("Esse modo de análise não está disponível agora. Tente outro.")
         st.session_state.last_prediction = None
+    except RuntimeError:
+        st.error("Não foi possível carregar o modelo não simbólico agora.")
+        st.session_state.last_prediction = None
 
 
 def compare_current_text(models: tuple[AppModelInfo, ...]) -> None:
@@ -194,6 +193,8 @@ def compare_current_text(models: tuple[AppModelInfo, ...]) -> None:
         except LexiconDownloadError:
             failed.append(f"{model.display_name}: indisponível agora")
         except FileNotFoundError:
+            failed.append(f"{model.display_name}: indisponível agora")
+        except RuntimeError:
             failed.append(f"{model.display_name}: indisponível agora")
 
     st.session_state.last_comparison_predictions = tuple(predictions)
@@ -477,12 +478,6 @@ def main() -> None:
         else:
             selected_model = render_model_selector(models)
             selected_models = ()
-
-        if not any(model.is_classical for model in models):
-            st.info(
-                "Alguns modos de análise não estão disponíveis nesta versão do app.",
-                icon=":material/info:",
-            )
 
         st.space("medium")
 

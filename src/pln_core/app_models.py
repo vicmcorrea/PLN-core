@@ -21,13 +21,17 @@ DEPLOY_CLASSICAL_MODELS_DIR = Path("data/app_models/etapa2_subsymbolic")
 LOCAL_CLASSICAL_MODELS_DIR = Path("data/models/etapa2_subsymbolic")
 DEFAULT_CLASSICAL_REPORTS_DIR = Path("outputs/etapa2_subsymbolic/benchmark_suite")
 DEFAULT_APP_TEXT_TREATMENT = "strip_emoticons_urls"
+DEMO_TEXT_TREATMENT = "raw"
+HUGGINGFACE_APP_MODEL_ID = "tabularisai/multilingual-sentiment-analysis"
+HUGGINGFACE_APP_MODEL_NAME = "tabularisai_multilingual_sentiment"
 CLASSICAL_MODEL_SEARCH_DIRS = (
     DEPLOY_CLASSICAL_MODELS_DIR,
     LOCAL_CLASSICAL_MODELS_DIR,
 )
 
 MODEL_DISPLAY_NAMES = {
-    "oplexicon_regex": "OpLexicon regex",
+    "oplexicon_regex": "Symbolic",
+    HUGGINGFACE_APP_MODEL_NAME: "Non-symbolic",
     "tfidf_logreg": "TF-IDF + Reg. Logística",
     "tfidf_linear_svm": "TF-IDF + SVM linear",
     "distilbert_multilingual": "DistilBERT multilingual",
@@ -37,6 +41,7 @@ MODEL_DISPLAY_NAMES = {
 
 MODEL_TECHNICAL_NAMES = {
     "oplexicon_regex": "OpLexicon v3.0 + regras simbólicas",
+    HUGGINGFACE_APP_MODEL_NAME: HUGGINGFACE_APP_MODEL_ID,
     "tfidf_logreg": "TF-IDF de palavras + Regressão Logística",
     "tfidf_linear_svm": "TF-IDF de palavras + SVM linear",
     "distilbert_multilingual": "distilbert/distilbert-base-multilingual-cased fine-tuned",
@@ -80,6 +85,7 @@ BEST_TRANSFORMER_MODELS = (
 )
 
 APP_MODEL_ORDER = (
+    HUGGINGFACE_APP_MODEL_NAME,
     "oplexicon_regex",
     "tfidf_logreg",
     "tfidf_linear_svm",
@@ -102,6 +108,56 @@ class PredictivePipeline(Protocol):
 
     def decision_function(self, texts: list[str]) -> Any:
         """Optionally return class margins."""
+
+
+class HuggingFaceSentimentAnalyzer:
+    """Small adapter from a Hugging Face text-classification pipeline to the app API."""
+
+    classes_ = ("negative", "neutral", "positive")
+
+    def __init__(self, model_id: str, pipeline_instance: Any | None = None) -> None:
+        self.model_id = model_id
+        if pipeline_instance is None:
+            try:
+                from transformers import pipeline
+            except ImportError as exc:
+                raise RuntimeError(
+                    "The non-symbolic app model requires the transformers extra."
+                ) from exc
+            pipeline_instance = pipeline(
+                "text-classification",
+                model=model_id,
+                tokenizer=model_id,
+                top_k=None,
+                truncation=True,
+            )
+        self._pipeline = pipeline_instance
+
+    def predict(self, texts: list[str]) -> list[str]:
+        return [self._best_label(scores) for scores in self.predict_proba(texts)]
+
+    def predict_proba(self, texts: list[str]) -> list[list[float]]:
+        outputs = self._pipeline(texts)
+        return [self._score_row(output) for output in outputs]
+
+    @classmethod
+    def _best_label(cls, scores: list[float]) -> str:
+        best_index = max(range(len(scores)), key=scores.__getitem__)
+        return cls.classes_[best_index]
+
+    @classmethod
+    def _score_row(cls, output: Any) -> list[float]:
+        if isinstance(output, Mapping):
+            output = [output]
+        scores = {label: 0.0 for label in cls.classes_}
+        for item in output:
+            label = _normalize_hf_sentiment_label(str(item.get("label", "")))
+            if label in scores:
+                scores[label] += float(item.get("score", 0.0))
+        total = sum(scores.values())
+        if total > 0:
+            scores = {label: value / total for label, value in scores.items()}
+        return [scores[label] for label in cls.classes_]
 
 
 @dataclass(frozen=True, slots=True)
@@ -129,8 +185,12 @@ class AppModelInfo:
         return self.family == "classical"
 
     @property
+    def is_external(self) -> bool:
+        return self.family == "external"
+
+    @property
     def can_predict(self) -> bool:
-        return self.is_symbolic or self.artifact_path is not None
+        return self.is_symbolic or self.is_external or self.artifact_path is not None
 
 
 @dataclass(frozen=True, slots=True)
@@ -216,18 +276,33 @@ def _symbolic_models() -> tuple[AppModelInfo, ...]:
     technical_name = model_technical_name(PRODUCTION_ANALYZER_NAME)
     return (
         AppModelInfo(
-            id=f"symbolic:{DEFAULT_APP_TEXT_TREATMENT}",
+            id=f"symbolic:{DEMO_TEXT_TREATMENT}",
             display_name=MODEL_DISPLAY_NAMES[PRODUCTION_ANALYZER_NAME],
             family="symbolic",
             model_name=PRODUCTION_ANALYZER_NAME,
-            text_treatment=DEFAULT_APP_TEXT_TREATMENT,
+            text_treatment=DEMO_TEXT_TREATMENT,
             description=(
-                f"Modelo usado: {technical_name}. Melhor versão válida com "
-                f"{text_treatment_label(DEFAULT_APP_TEXT_TREATMENT)}. Procura "
-                "palavras positivas e negativas e combina regras simples para "
-                f"decidir o sentimento.{_metric_text(SYMBOLIC_BEST_METRICS)}"
+                f"Modelo usado: {technical_name}. Procura palavras positivas "
+                "e negativas e combina regras explícitas para decidir o "
+                "sentimento da frase."
             ),
-            metrics=SYMBOLIC_BEST_METRICS,
+        ),
+    )
+
+
+def _external_models() -> tuple[AppModelInfo, ...]:
+    return (
+        AppModelInfo(
+            id=f"external:{HUGGINGFACE_APP_MODEL_NAME}",
+            display_name=MODEL_DISPLAY_NAMES[HUGGINGFACE_APP_MODEL_NAME],
+            family="external",
+            model_name=HUGGINGFACE_APP_MODEL_NAME,
+            text_treatment=DEMO_TEXT_TREATMENT,
+            description=(
+                f"Modelo usado: {HUGGINGFACE_APP_MODEL_ID}. Modelo multilíngue "
+                "pré-treinado para sentimento, com respostas positiva, negativa "
+                "ou neutra em frases curtas."
+            ),
         ),
     )
 
@@ -331,49 +406,25 @@ def _model_order_key(model: AppModelInfo) -> tuple[int, str]:
 
 
 def discover_app_models(project_root: Path) -> tuple[AppModelInfo, ...]:
-    """Discover the best valid app and benchmark models."""
+    """Return the two public demo modes exposed by the Streamlit app."""
 
     models = list(_symbolic_models())
-    candidates: dict[str, list[AppModelInfo]] = {
-        "tfidf_logreg": [],
-        "tfidf_linear_svm": [],
-    }
-    for relative_root in CLASSICAL_MODEL_SEARCH_DIRS:
-        classical_root = project_root / relative_root
-        if not classical_root.exists():
-            continue
-
-        artifacts = sorted(classical_root.glob("*/*.joblib"), reverse=True)
-        for artifact_path in artifacts:
-            model_name = artifact_path.stem
-            if model_name not in candidates:
-                continue
-            info = _classical_info_from_artifact(project_root, artifact_path)
-            if info.text_treatment == DEFAULT_APP_TEXT_TREATMENT:
-                candidates[model_name].append(info)
-
-    for model_name in ("tfidf_logreg", "tfidf_linear_svm"):
-        if candidates[model_name]:
-            models.append(candidates[model_name][0])
-
-    models.extend(_benchmark_transformer_models())
+    models.extend(_external_models())
     return tuple(sorted(models, key=_model_order_key))
 
 
 def default_comparison_model_ids(models: tuple[AppModelInfo, ...]) -> tuple[str, ...]:
-    """Return the preferred cleaned models for side-by-side comparison."""
+    """Return the two public demo modes for side-by-side comparison."""
 
     preferred_names = (
+        HUGGINGFACE_APP_MODEL_NAME,
         PRODUCTION_ANALYZER_NAME,
-        "tfidf_logreg",
-        "tfidf_linear_svm",
     )
     selected: list[str] = []
     for model_name in preferred_names:
         for model in models:
             if (
                 model.model_name == model_name
-                and model.text_treatment == DEFAULT_APP_TEXT_TREATMENT
                 and model.can_predict
             ):
                 selected.append(model.id)
@@ -382,14 +433,11 @@ def default_comparison_model_ids(models: tuple[AppModelInfo, ...]) -> tuple[str,
 
 
 def choose_default_model_id(models: tuple[AppModelInfo, ...]) -> str:
-    """Prefer the cleaned TF-IDF LogReg artifact when it exists."""
+    """Prefer the non-symbolic public demo model when it exists."""
 
     preferences = (
-        ("classical", "tfidf_logreg", DEFAULT_APP_TEXT_TREATMENT),
-        ("classical", "tfidf_linear_svm", DEFAULT_APP_TEXT_TREATMENT),
-        ("classical", "tfidf_logreg", "strip_social_source_cues"),
-        ("classical", "tfidf_logreg", "raw"),
-        ("symbolic", PRODUCTION_ANALYZER_NAME, DEFAULT_APP_TEXT_TREATMENT),
+        ("external", HUGGINGFACE_APP_MODEL_NAME, DEMO_TEXT_TREATMENT),
+        ("symbolic", PRODUCTION_ANALYZER_NAME, DEMO_TEXT_TREATMENT),
     )
     for family, model_name, text_treatment in preferences:
         for model in models:
@@ -413,6 +461,8 @@ def load_app_model(info: AppModelInfo) -> SymbolicSentimentAnalyzer | Predictive
 
     if info.is_symbolic:
         return build_production_analyzer()
+    if info.is_external:
+        return HuggingFaceSentimentAnalyzer(HUGGINGFACE_APP_MODEL_ID)
     if info.artifact_path is None:
         raise FileNotFoundError(f"model artifact is not configured for {info.id}")
     return joblib.load(info.artifact_path)
@@ -448,6 +498,17 @@ def _signed_sentiment_score(label: str, strength: float) -> float:
 
 def _squash_margin(margin: float) -> float:
     return margin / (1.0 + abs(margin))
+
+
+def _normalize_hf_sentiment_label(label: str) -> str:
+    normalized = label.strip().lower().replace("_", " ").replace("-", " ")
+    if "negative" in normalized or normalized in {"negativo", "neg"}:
+        return "negative"
+    if "neutral" in normalized or normalized in {"neutro", "neu"}:
+        return "neutral"
+    if "positive" in normalized or normalized in {"positivo", "pos"}:
+        return "positive"
+    return normalized
 
 
 def _class_scores(
