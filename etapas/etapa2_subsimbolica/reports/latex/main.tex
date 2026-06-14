@@ -75,7 +75,7 @@
 
 \subsection{Autoria do grupo e recursos externos}
 
-Uma preocupação trazida da revisão da Etapa 1 foi deixar explícito o que foi feito pela equipe e o que veio de recursos externos. Nesta etapa, a equipe definiu o protocolo de comparação, preparou as versões tratadas do texto, treinou e avaliou os classificadores estatísticos, executou rodadas neurais controladas, investigou o vazamento de rótulo por sinais superficiais e produziu as tabelas e figuras do relatório. Os recursos externos foram usados como base de dados, léxico, bibliotecas de aprendizado de máquina e modelos pré-treinados. A Tabela~\ref{tab:autoria} separa esses papéis de forma resumida.
+Uma preocupação trazida da revisão da Etapa 1 foi deixar explícito o que foi feito pela equipe e o que veio de recursos externos. Nesta etapa, a equipe definiu o protocolo de comparação, preparou as versões tratadas do texto, treinou e avaliou os classificadores estatísticos, fez ajuste fino supervisionado dos transformers, investigou o vazamento de rótulo por sinais superficiais e produziu as tabelas e figuras do relatório. Os recursos externos foram usados como base de dados, léxico, bibliotecas de aprendizado de máquina e modelos pré-treinados. A Tabela~\ref{tab:autoria} separa esses papéis de forma resumida.
 
 \begin{table}[h]
 \small
@@ -92,7 +92,7 @@ Solução simbólica revisada & Classificação por léxico, regras explícitas 
 \addlinespace[0.25em]
 Modelos estatísticos & TF-IDF com Regressão Logística e SVM linear & scikit-learn \citep{pedregosa2011scikit} \\
 \addlinespace[0.25em]
-Rodadas neurais & DistilBERT, XLM-R e Albertina avaliados nas mesmas condições de texto & Modelos pré-treinados \citep{sanh2019distilbert,conneau2020xlmr,rodrigues2023albertina} \\
+Transformers ajustados & Ajuste fino supervisionado de DistilBERT, XLM-R e Albertina, seguido de avaliação nas mesmas condições de texto & Modelos pré-treinados \citep{sanh2019distilbert,conneau2020xlmr,rodrigues2023albertina} \\
 \addlinespace[0.25em]
 Diagnóstico e visualização & Teste de vazamento, análise de erros e figuras do relatório & Hugging Face Transformers \citep{wolf2020transformers} e Hydra \citep{yadan2019hydra} \\
 \bottomrule
@@ -301,7 +301,7 @@ TF-IDF com Regressão Logística & 100.000 tweets & Modelo estatístico principa
 \addlinespace[0.3em]
 TF-IDF com SVM linear & 100.000 tweets & Baseline clássico forte para texto esparso. Testado nas três condições de texto \\
 \addlinespace[0.3em]
-Albertina 100M pt-BR & 3.000 tweets estratificados & Exemplo neural em português. Rodada de desenvolvimento no texto bruto e sem emoticons e URLs \\
+Albertina 100M pt-BR & 3.000 tweets estratificados & Exemplo neural em português. Ajuste fino de desenvolvimento no texto bruto e sem emoticons e URLs \\
 \addlinespace[0.3em]
 Baseline de pistas & 100.000 tweets & Diagnóstico de vazamento. Usa só emoticon positivo, emoticon negativo e URL \\
 \bottomrule
