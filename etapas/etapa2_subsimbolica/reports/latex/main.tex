@@ -17,6 +17,8 @@
 \usepackage{amsmath}
 \usepackage{tikz}
 \usepackage{placeins}
+\usepackage{listings}
+\usepackage{needspace}
 \usepackage[round]{natbib}
 
 \usetikzlibrary{arrows.meta,positioning}
@@ -36,6 +38,24 @@
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \newcommand{\altrowcolors}{\rowcolors{2}{black!4}{white}}
 \newcommand{\clearrowcolors}{\rowcolors{2}{}{}}
+\newcommand{\commandlabel}[1]{\Needspace{7\baselineskip}\vspace{0.25em}\noindent\textbf{#1}\par\vspace{-0.35em}}
+
+\lstdefinestyle{commandblock}{
+  basicstyle=\ttfamily\footnotesize,
+  backgroundcolor=\color{black!4},
+  frame=single,
+  framerule=0.35pt,
+  rulecolor=\color{black!35},
+  columns=fullflexible,
+  keepspaces=true,
+  breaklines=true,
+  breakatwhitespace=false,
+  showstringspaces=false,
+  xleftmargin=0.45em,
+  xrightmargin=0.45em,
+  aboveskip=0.45em,
+  belowskip=0.75em
+}
 
 \tikzset{
   flowbox/.style={
@@ -500,53 +520,47 @@ Também há uma limitação do corpus. O tratamento sem emoticons/URLs melhora a
 
 \section{Instruções para execução}
 
-Para preparar o ambiente e rodar os testes, use os comandos abaixo.
-
-\begin{verbatim}
+\commandlabel{Preparar ambiente e rodar testes}
+\begin{lstlisting}[style=commandblock]
 uv sync
 uv run pytest
-\end{verbatim}
+\end{lstlisting}
 
-Para reproduzir o baseline simbólico da Etapa 1, use o comando abaixo.
-
-\begin{verbatim}
+\commandlabel{Reproduzir o baseline simbólico da Etapa 1}
+\begin{lstlisting}[style=commandblock]
 uv run python \
   etapas/etapa1_simbolica/pipelines/run_symbolic_benchmark_suite.py \
   'text_treatments=[raw,strip_emoticons_urls,strip_social_source_cues]'
-\end{verbatim}
+\end{lstlisting}
 
-Para executar os baselines TF-IDF da Etapa 2, use o comando abaixo.
-
-\begin{verbatim}
+\commandlabel{Executar os baselines TF-IDF da Etapa 2}
+\begin{lstlisting}[style=commandblock]
 uv run python \
   etapas/etapa2_subsimbolica/pipelines/run_classical_benchmark_suite.py
-\end{verbatim}
+\end{lstlisting}
 
-Para executar o diagnóstico de vazamento, use os comandos abaixo.
-
-\begin{verbatim}
+\commandlabel{Executar o diagnóstico de vazamento}
+\begin{lstlisting}[style=commandblock]
 uv run python \
   etapas/etapa2_subsimbolica/pipelines/run_leakage_diagnostics.py
 
 uv run python \
   etapas/etapa2_subsimbolica/pipelines/run_leakage_diagnostics.py \
   stripped_treatment=strip_social_source_cues
-\end{verbatim}
+\end{lstlisting}
 
-Para executar um transformer em modo de desenvolvimento, use o comando abaixo.
-
-\begin{verbatim}
+\commandlabel{Executar um transformer em modo de desenvolvimento}
+\begin{lstlisting}[style=commandblock]
 uv run --extra transformers python \
   etapas/etapa2_subsimbolica/pipelines/run_transformer_benchmark.py \
   model=xlm_roberta_base train_per_class=1000 \
   model.training.epochs=1 trainer.use_cpu=true
-\end{verbatim}
+\end{lstlisting}
 
-Para abrir a aplicação Streamlit, use o comando abaixo.
-
-\begin{verbatim}
+\commandlabel{Abrir a aplicação Streamlit}
+\begin{lstlisting}[style=commandblock]
 uv run streamlit run streamlit_app.py
-\end{verbatim}
+\end{lstlisting}
 
 A aplicação Streamlit carrega primeiro o modelo TF-IDF tratado versionado para a demonstração. Quando esse modelo está disponível, ele é selecionado como modo padrão. A interface também permite alternar para o leitor simbólico e comparar modelos lado a lado, mas a cópia pública da aplicação evita expor detalhes do corpus, métricas de benchmark e informações internas da avaliação, pois a demonstração final será voltada para uso em feira.
 
