@@ -7,6 +7,7 @@ data/raw/
 data/processed/
 data/models/
 docs/
+_local_notes/
 outputs/
 multirun/
 __pycache__/

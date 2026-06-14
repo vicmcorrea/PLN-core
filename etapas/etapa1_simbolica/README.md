@@ -19,7 +19,6 @@ A etapa 1 contém a solução simbólica de análise de sentimentos em portuguê
 - `pipelines/`: entrada executável da etapa 1.
 - `experiments/`: índice dos experimentos simbólicos e saídas esperadas.
 - `reports/`: espaço do relatório e LaTeX desta etapa.
-- `proximos_passos.md`: checklist específico da etapa 1.
 
 ## corpus comum
 

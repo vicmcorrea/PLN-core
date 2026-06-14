@@ -18,8 +18,6 @@ Comparar a solução simbólica da etapa 1 com abordagens treinadas no mesmo cor
 - `pipelines/`: scripts de treino, avaliação, diagnostico de vazamento e consolidação.
 - `experiments/`: índice dos experimentos da etapa 2.
 - `reports/`: espaço do relatório e LaTeX desta etapa.
-- `especificacao_etapa2.md`: leitura da especificação oficial da segunda etapa.
-- `plano_modelagem.md`: plano de execução técnico.
 
 ## corpus comum
 
@@ -27,7 +25,7 @@ O corpus recomendado é o Kaggle "Portuguese Tweets for Sentiment Analysis":
 
 https://www.kaggle.com/datasets/augustop/portuguese-tweets-for-sentiment-analysis
 
-Arquivos planejados:
+Arquivos usados:
 
 - `TrainingDatasets/Train3Classes.csv` para treino dos modelos estatísticos e neurais.
 - `TestDatasets/Test3classes.csv` para avaliação comum contra a etapa 1.
@@ -125,7 +123,7 @@ na comparacao: o `oplexicon_regex` cai de macro-F1 `0.5960` no texto bruto para
 `0.3668` sem emoticons/URLs, mostrando que o baseline simbolico bruto tambem
 era afetado por pistas superficiais do corpus.
 
-## arquitetura planejada
+## arquitetura
 
 1. Carregamento do corpus e padronização dos rótulos.
 2. Pré-processamento mínimo e reprodutível.

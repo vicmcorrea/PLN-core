@@ -148,7 +148,7 @@ O quarto processo é a avaliação. O projeto salva métricas agregadas, F1 por 
 
 \subsection{Recursos, ferramentas e modelos}
 
-O corpus operacional é o Kaggle \emph{Portuguese Tweets for Sentiment Analysis}. Embora o grupo tenha considerado outros corpora de português brasileiro durante o planejamento, a comparação final usa esse corpus comum para que a Etapa 1 e a Etapa 2 possam ser confrontadas diretamente. O corpus contém 100.000 exemplos de treino e 4.999 exemplos de teste, com três classes praticamente balanceadas.
+O corpus operacional é o Kaggle \emph{Portuguese Tweets for Sentiment Analysis}. A comparação final usa esse corpus comum para que a Etapa 1 e a Etapa 2 possam ser confrontadas diretamente. O corpus contém 100.000 exemplos de treino e 4.999 exemplos de teste, com três classes praticamente balanceadas.
 
 Os baselines clássicos usam \texttt{TfidfVectorizer} com n-gramas de palavra de tamanho 1 e 2, \texttt{min\_df=2}, \texttt{max\_df=0.95} e \texttt{sublinear\_tf=true}. A Regressão Logística funciona como baseline simples e interpretável; o Linear SVM funciona como baseline clássico forte para texto esparso, frequentemente competitivo em tarefas de classificação textual.
 
