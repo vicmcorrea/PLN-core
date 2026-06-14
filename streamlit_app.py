@@ -68,7 +68,11 @@ def _fallback_default_comparison_model_ids(models: tuple[AppModelInfo, ...]) -> 
     selected: list[str] = []
     for model_name in preferred_names:
         for model in models:
-            if model.model_name == model_name and model.text_treatment == "strip_emoticons_urls":
+            if (
+                model.model_name == model_name
+                and model.text_treatment == "strip_emoticons_urls"
+                and model.can_predict
+            ):
                 selected.append(model.id)
                 break
     return tuple(selected)
@@ -155,6 +159,10 @@ def analyze_current_text(model: AppModelInfo) -> None:
     if not text:
         st.warning("Escreva algum texto antes de classificar.")
         return
+    if not model.can_predict:
+        st.warning("Esse modelo aparece como referência, mas não está carregado para classificar.")
+        st.session_state.last_prediction = None
+        return
 
     try:
         resource = get_model_resource(model.id, model_resource_key(model))
@@ -227,7 +235,10 @@ def render_model_selector(models: tuple[AppModelInfo, ...]) -> AppModelInfo:
     options = list(model_by_id)
 
     def _label(model_id: str) -> str:
-        return model_by_id[model_id].display_name
+        model = model_by_id[model_id]
+        if model.can_predict:
+            return model.display_name
+        return f"{model.display_name} · referência"
 
     if len(options) <= 5:
         st.segmented_control(
@@ -253,7 +264,9 @@ def render_model_selector(models: tuple[AppModelInfo, ...]) -> AppModelInfo:
 def render_comparison_selector(models: tuple[AppModelInfo, ...]) -> tuple[AppModelInfo, ...]:
     model_by_id = {model.id: model for model in models}
     cleaned_ids = [
-        model.id for model in models if model.text_treatment == "strip_emoticons_urls"
+        model.id
+        for model in models
+        if model.text_treatment == "strip_emoticons_urls" and model.can_predict
     ]
     options = cleaned_ids or list(model_by_id)
     current_ids = tuple(st.session_state.get("comparison_model_choices", ()))
@@ -278,6 +291,22 @@ def render_model_card(model: AppModelInfo) -> None:
         st.caption("Modo escolhido")
         st.markdown(f"### {model.display_name}")
         st.write(model.description)
+        if model.metrics:
+            accuracy = model.metrics.get("accuracy")
+            macro_f1 = model.metrics.get("macro_f1")
+            metric_parts = []
+            if macro_f1 is not None:
+                metric_parts.append(f"macro F1 `{macro_f1:.3f}`")
+            if accuracy is not None:
+                metric_parts.append(f"accuracy `{accuracy:.3f}`")
+            if metric_parts:
+                st.caption(" · ".join(metric_parts))
+        if not model.can_predict:
+            st.info(
+                "Esta opção é mostrada para comparar as melhores versões, mas não "
+                "classifica frases nesta versão leve da demonstração.",
+                icon=":material/info:",
+            )
 
 
 def render_comparison_model_card(models: tuple[AppModelInfo, ...]) -> None:
@@ -488,7 +517,14 @@ def main() -> None:
                 with st.container(horizontal=True, horizontal_alignment="distribute"):
                     clear_clicked = st.form_submit_button("Limpar")
                     action_label = "Comparar" if app_mode == MODE_COMPARE else "Classificar"
-                    analyze_clicked = st.form_submit_button(action_label, type="primary")
+                    can_submit = app_mode == MODE_COMPARE or (
+                        selected_model is not None and selected_model.can_predict
+                    )
+                    analyze_clicked = st.form_submit_button(
+                        action_label,
+                        type="primary",
+                        disabled=not can_submit,
+                    )
 
         if clear_clicked:
             reset_analysis_state()

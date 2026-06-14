@@ -43,6 +43,7 @@ class AppModelTests(unittest.TestCase):
                 model_name="tfidf_logreg",
                 text_treatment="raw",
                 description="",
+                artifact_path=Path("raw.joblib"),
             ),
             AppModelInfo(
                 id="classical:clean:tfidf_logreg",
@@ -51,6 +52,7 @@ class AppModelTests(unittest.TestCase):
                 model_name="tfidf_logreg",
                 text_treatment="strip_emoticons_urls",
                 description="",
+                artifact_path=Path("clean.joblib"),
             ),
         )
 
@@ -73,6 +75,7 @@ class AppModelTests(unittest.TestCase):
                 model_name="tfidf_logreg",
                 text_treatment="raw",
                 description="",
+                artifact_path=Path("raw.joblib"),
             ),
             AppModelInfo(
                 id="classical:clean:tfidf_logreg",
@@ -81,6 +84,7 @@ class AppModelTests(unittest.TestCase):
                 model_name="tfidf_logreg",
                 text_treatment="strip_emoticons_urls",
                 description="",
+                artifact_path=Path("logreg.joblib"),
             ),
             AppModelInfo(
                 id="classical:clean:tfidf_linear_svm",
@@ -89,6 +93,7 @@ class AppModelTests(unittest.TestCase):
                 model_name="tfidf_linear_svm",
                 text_treatment="strip_emoticons_urls",
                 description="",
+                artifact_path=Path("svm.joblib"),
             ),
         )
 
@@ -147,6 +152,16 @@ class AppModelTests(unittest.TestCase):
             self.assertIn("TF-IDF de palavras + Regressão Logística", model_info.description)
             self.assertIn("Versão do app: 20260614_app_test", model_info.description)
             self.assertIn("OpLexicon v3.0 + regras simbólicas", symbolic_info.description)
+            self.assertEqual(
+                [model.model_name for model in models],
+                [
+                    "oplexicon_regex",
+                    "tfidf_logreg",
+                    "distilbert_multilingual",
+                    "xlm_roberta_base",
+                    "albertina_ptbr_100m",
+                ],
+            )
 
             model = load_app_model(model_info)
             prediction = predict_sentiment(
@@ -204,6 +219,21 @@ class AppModelTests(unittest.TestCase):
         self.assertEqual(len(matches), 1)
         self.assertIn("data/app_models", str(matches[0].artifact_path))
         self.assertEqual(matches[0].metrics["macro_f1"], 0.81)
+
+    def test_discover_lists_transformer_benchmarks_as_reference_only(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+
+            models = discover_app_models(project_root)
+
+        transformer_models = [model for model in models if model.family == "transformer"]
+        self.assertEqual(
+            [model.model_name for model in transformer_models],
+            ["distilbert_multilingual", "xlm_roberta_base", "albertina_ptbr_100m"],
+        )
+        self.assertTrue(all(not model.can_predict for model in transformer_models))
+        self.assertIn("fine-tuned", transformer_models[0].description)
+        self.assertAlmostEqual(transformer_models[-1].metrics["macro_f1"], 0.7808)
 
 
 if __name__ == "__main__":

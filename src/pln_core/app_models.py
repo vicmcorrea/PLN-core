@@ -27,15 +27,21 @@ CLASSICAL_MODEL_SEARCH_DIRS = (
 )
 
 MODEL_DISPLAY_NAMES = {
-    "oplexicon_regex": "Leitor de palavras",
-    "tfidf_logreg": "Modelo leve",
-    "tfidf_linear_svm": "Modelo alternativo",
+    "oplexicon_regex": "OpLexicon regex",
+    "tfidf_logreg": "TF-IDF + Reg. Logística",
+    "tfidf_linear_svm": "TF-IDF + SVM linear",
+    "distilbert_multilingual": "DistilBERT multilingual",
+    "xlm_roberta_base": "XLM-R base",
+    "albertina_ptbr_100m": "Albertina 100M pt-BR",
 }
 
 MODEL_TECHNICAL_NAMES = {
     "oplexicon_regex": "OpLexicon v3.0 + regras simbólicas",
     "tfidf_logreg": "TF-IDF de palavras + Regressão Logística",
     "tfidf_linear_svm": "TF-IDF de palavras + SVM linear",
+    "distilbert_multilingual": "distilbert/distilbert-base-multilingual-cased fine-tuned",
+    "xlm_roberta_base": "FacebookAI/xlm-roberta-base fine-tuned",
+    "albertina_ptbr_100m": "PORTULAN/albertina-100m-portuguese-ptbr-encoder fine-tuned",
 }
 
 TEXT_TREATMENT_DISPLAY_NAMES = {
@@ -46,6 +52,41 @@ TEXT_TREATMENT_DISPLAY_NAMES = {
     "strip_emoticons": "sem emoticons",
     "strip_urls": "sem URLs",
 }
+
+SYMBOLIC_BEST_METRICS = {
+    "accuracy": 0.3697,
+    "macro_f1": 0.3668,
+}
+
+BEST_TRANSFORMER_MODELS = (
+    {
+        "model_name": "distilbert_multilingual",
+        "run_id": "20260612_132142_936441",
+        "accuracy": 0.7465,
+        "macro_f1": 0.7385,
+    },
+    {
+        "model_name": "xlm_roberta_base",
+        "run_id": "20260612_132734_004665",
+        "accuracy": 0.7586,
+        "macro_f1": 0.7494,
+    },
+    {
+        "model_name": "albertina_ptbr_100m",
+        "run_id": "20260612_134601_518530",
+        "accuracy": 0.7822,
+        "macro_f1": 0.7808,
+    },
+)
+
+APP_MODEL_ORDER = (
+    "oplexicon_regex",
+    "tfidf_logreg",
+    "tfidf_linear_svm",
+    "distilbert_multilingual",
+    "xlm_roberta_base",
+    "albertina_ptbr_100m",
+)
 
 
 class PredictivePipeline(Protocol):
@@ -86,6 +127,10 @@ class AppModelInfo:
     @property
     def is_classical(self) -> bool:
         return self.family == "classical"
+
+    @property
+    def can_predict(self) -> bool:
+        return self.is_symbolic or self.artifact_path is not None
 
 
 @dataclass(frozen=True, slots=True)
@@ -132,6 +177,19 @@ def _metric_summary(payload: Mapping[str, Any]) -> dict[str, float]:
     return summary
 
 
+def _metric_text(metrics: Mapping[str, float]) -> str:
+    accuracy = metrics.get("accuracy")
+    macro_f1 = metrics.get("macro_f1")
+    parts: list[str] = []
+    if macro_f1 is not None:
+        parts.append(f"macro F1 {macro_f1:.3f}")
+    if accuracy is not None:
+        parts.append(f"accuracy {accuracy:.3f}")
+    if not parts:
+        return ""
+    return " Resultado validado: " + ", ".join(parts) + "."
+
+
 def text_treatment_label(text_treatment: str) -> str:
     """Return a human-friendly treatment label."""
 
@@ -151,12 +209,7 @@ def model_technical_name(model_name: str) -> str:
 
 
 def _display_name_for_model(model_name: str, text_treatment: str) -> str:
-    base_name = model_label(model_name)
-    if text_treatment in {DEFAULT_APP_TEXT_TREATMENT, "strip_social_source_cues"}:
-        return base_name
-    if text_treatment == "raw":
-        return f"{base_name} direto"
-    return base_name
+    return model_label(model_name)
 
 
 def _symbolic_models() -> tuple[AppModelInfo, ...]:
@@ -169,20 +222,12 @@ def _symbolic_models() -> tuple[AppModelInfo, ...]:
             model_name=PRODUCTION_ANALYZER_NAME,
             text_treatment=DEFAULT_APP_TEXT_TREATMENT,
             description=(
-                f"Modelo usado: {technical_name}. Procura palavras positivas e "
-                "negativas e combina regras simples para decidir o sentimento."
+                f"Modelo usado: {technical_name}. Melhor versão válida com "
+                f"{text_treatment_label(DEFAULT_APP_TEXT_TREATMENT)}. Procura "
+                "palavras positivas e negativas e combina regras simples para "
+                f"decidir o sentimento.{_metric_text(SYMBOLIC_BEST_METRICS)}"
             ),
-        ),
-        AppModelInfo(
-            id="symbolic:raw",
-            display_name=f"{MODEL_DISPLAY_NAMES[PRODUCTION_ANALYZER_NAME]} direto",
-            family="symbolic",
-            model_name=PRODUCTION_ANALYZER_NAME,
-            text_treatment="raw",
-            description=(
-                f"Modelo usado: {technical_name}. Lê a frase original de forma "
-                "mais direta para comparar respostas."
-            ),
+            metrics=SYMBOLIC_BEST_METRICS,
         ),
     )
 
@@ -225,9 +270,9 @@ def _classical_info_from_artifact(project_root: Path, artifact_path: Path) -> Ap
     technical_name = model_technical_name(model_name)
     treatment_label = text_treatment_label(text_treatment)
     description = (
-        f"Modelo usado: {technical_name}. Versão do app: {run_id}. "
-        f"Tratamento: {treatment_label}. Aprende padrões de palavras em frases "
-        "curtas e responde rapidamente."
+        f"Modelo usado: {technical_name}. Melhor versão válida com "
+        f"{treatment_label}. Versão do app: {run_id}. Aprende padrões de "
+        f"palavras em frases curtas e responde rapidamente.{_metric_text(_metric_summary(payload))}"
     )
 
     return AppModelInfo(
@@ -245,11 +290,54 @@ def _classical_info_from_artifact(project_root: Path, artifact_path: Path) -> Ap
     )
 
 
+def _benchmark_transformer_models() -> tuple[AppModelInfo, ...]:
+    models: list[AppModelInfo] = []
+    treatment_label = text_treatment_label(DEFAULT_APP_TEXT_TREATMENT)
+    for payload in BEST_TRANSFORMER_MODELS:
+        model_name = str(payload["model_name"])
+        metrics = {
+            "accuracy": float(payload["accuracy"]),
+            "macro_f1": float(payload["macro_f1"]),
+        }
+        technical_name = model_technical_name(model_name)
+        run_id = str(payload["run_id"])
+        models.append(
+            AppModelInfo(
+                id=f"transformer:{run_id}:{model_name}",
+                display_name=model_label(model_name),
+                family="transformer",
+                model_name=model_name,
+                text_treatment=DEFAULT_APP_TEXT_TREATMENT,
+                description=(
+                    f"Modelo usado: {technical_name}. Melhor versão válida com "
+                    f"{treatment_label}. Esta rodada fine-tuned fica cadastrada "
+                    "como referência da Etapa 2. Para classificar frases com "
+                    "ela, é preciso carregar o modelo fine-tuned completo."
+                    f"{_metric_text(metrics)}"
+                ),
+                run_id=run_id,
+                metrics=metrics,
+            )
+        )
+    return tuple(models)
+
+
+def _model_order_key(model: AppModelInfo) -> tuple[int, str]:
+    try:
+        index = APP_MODEL_ORDER.index(model.model_name)
+    except ValueError:
+        index = len(APP_MODEL_ORDER)
+    return index, model.display_name
+
+
 def discover_app_models(project_root: Path) -> tuple[AppModelInfo, ...]:
-    """Discover symbolic and saved app-loadable classical models."""
+    """Discover the best valid app and benchmark models."""
 
     models = list(_symbolic_models())
-    seen: set[tuple[str, str]] = set()
+    candidates: dict[str, list[AppModelInfo]] = {
+        "tfidf_logreg": [],
+        "tfidf_linear_svm": [],
+    }
     for relative_root in CLASSICAL_MODEL_SEARCH_DIRS:
         classical_root = project_root / relative_root
         if not classical_root.exists():
@@ -257,12 +345,19 @@ def discover_app_models(project_root: Path) -> tuple[AppModelInfo, ...]:
 
         artifacts = sorted(classical_root.glob("*/*.joblib"), reverse=True)
         for artifact_path in artifacts:
-            key = (artifact_path.parent.name, artifact_path.stem)
-            if key in seen:
+            model_name = artifact_path.stem
+            if model_name not in candidates:
                 continue
-            seen.add(key)
-            models.append(_classical_info_from_artifact(project_root, artifact_path))
-    return tuple(models)
+            info = _classical_info_from_artifact(project_root, artifact_path)
+            if info.text_treatment == DEFAULT_APP_TEXT_TREATMENT:
+                candidates[model_name].append(info)
+
+    for model_name in ("tfidf_logreg", "tfidf_linear_svm"):
+        if candidates[model_name]:
+            models.append(candidates[model_name][0])
+
+    models.extend(_benchmark_transformer_models())
+    return tuple(sorted(models, key=_model_order_key))
 
 
 def default_comparison_model_ids(models: tuple[AppModelInfo, ...]) -> tuple[str, ...]:
@@ -279,6 +374,7 @@ def default_comparison_model_ids(models: tuple[AppModelInfo, ...]) -> tuple[str,
             if (
                 model.model_name == model_name
                 and model.text_treatment == DEFAULT_APP_TEXT_TREATMENT
+                and model.can_predict
             ):
                 selected.append(model.id)
                 break
@@ -301,8 +397,12 @@ def choose_default_model_id(models: tuple[AppModelInfo, ...]) -> str:
                 model.family == family
                 and model.model_name == model_name
                 and model.text_treatment == text_treatment
+                and model.can_predict
             ):
                 return model.id
+    for model in models:
+        if model.can_predict:
+            return model.id
     if not models:
         raise ValueError("no app models available")
     return models[0].id
