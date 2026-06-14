@@ -95,7 +95,7 @@
 
 \subsection{Autoria do grupo e recursos externos}
 
-Uma preocupação trazida da revisão da Etapa 1 foi deixar explícito o que foi feito pela equipe e o que veio de recursos externos. Nesta etapa, a equipe definiu o protocolo de comparação, preparou as versões tratadas do texto, treinou e avaliou os classificadores estatísticos, treinou versões fine-tuned dos transformers, investigou o vazamento de rótulo por sinais superficiais, adaptou a aplicação interativa para o modelo treinado e manteve o módulo de recomendação musical. Os recursos externos foram usados como base de dados, léxico, bibliotecas de aprendizado de máquina, modelos pré-treinados e links de reprodução. A Tabela~\ref{tab:autoria} separa esses papéis de forma resumida.
+Uma preocupação trazida da revisão da Etapa 1 foi deixar explícito o que foi feito pela equipe e o que veio de recursos externos. Nesta etapa, a equipe definiu o protocolo de comparação, preparou os tratamentos do texto, treinou os classificadores estatísticos e versões fine-tuned dos transformers, avaliou um classificador pronto multilíngue, investigou vazamento de rótulo e adaptou a aplicação para recomendação musical. A Tabela~\ref{tab:autoria} resume essa separação.
 
 \begin{table}[h]
 \small
@@ -112,11 +112,11 @@ Solução simbólica revisada & Classificação por léxico, regras explícitas 
 \addlinespace[0.25em]
 Modelos estatísticos & TF-IDF com Regressão Logística e SVM linear & scikit-learn \citep{pedregosa2011scikit} \\
 \addlinespace[0.25em]
-Transformers fine-tuned & Versões fine-tuned de DistilBERT, XLM-R e Albertina, seguidas de avaliação nas mesmas condições de texto & Modelos pré-treinados \citep{sanh2019distilbert,conneau2020xlmr,rodrigues2023albertina} \\
+Modelos neurais & XLM-R e Albertina em versões fine-tuned, além de um classificador pronto multilíngue baseado em DistilBERT & Modelos pré-treinados e TabularisAI \citep{sanh2019distilbert,conneau2020xlmr,rodrigues2023albertina,tabularisai2025multilingualsentiment} \\
 \addlinespace[0.25em]
 Aplicação e recomendação musical & Classificação de texto livre digitado pelo usuário e ordenação de músicas por rótulo e valência & Catálogo musical curado pela equipe e links públicos do YouTube \\
 \addlinespace[0.25em]
-Diagnóstico e visualização & Teste de vazamento, análise de erros e figuras do relatório & Hugging Face Transformers \citep{wolf2020transformers} e Hydra \citep{yadan2019hydra} \\
+Diagnóstico e visualização & Teste de vazamento, análise de erros e figuras do relatório & Hugging Face Transformers e Hydra \\
 \bottomrule
 \end{tabularx}
 \clearrowcolors
@@ -132,11 +132,11 @@ Além da avaliação quantitativa, o projeto tem uma aplicação demonstrável. 
 
 Essa tarefa é relevante porque opiniões em português brasileiro aparecem continuamente em comentários, avaliações de produtos, publicações políticas, mensagens de atendimento e discussões em redes sociais. Sistemas de análise de sentimentos permitem resumir grandes volumes de texto e apoiar decisões, mas a tarefa continua difícil porque a polaridade de uma frase depende de contexto, domínio e recursos linguísticos informais. A palavra ``bomba'', por exemplo, pode ser negativa em ``o filme é uma bomba'', mas não tem a mesma função em uma notícia factual. A expressão ``adorei esperar duas horas'' tem palavras positivas, mas pode carregar ironia negativa. Em tweets, emoticons, URLs, menções, hashtags, risadas e alongamentos gráficos também alteram fortemente a interpretação.
 
-Na Etapa 1, a equipe desenvolveu uma solução simbólica baseada em OpLexicon e regras explícitas. Essa solução é interpretável e permite ver quais termos contribuíram para a decisão, mas sofre quando o léxico não cobre gírias, quando a classe neutra contém termos aparentemente polarizados ou quando o significado depende de contexto amplo. A Etapa 2 parte exatamente desse ponto. O objetivo não é apenas obter um valor maior de \emph{accuracy}, mas comparar uma solução simbólica com modelos que aprendem a partir de dados, verificando quando o ganho numérico parece confiável e quando ele aparece por causa de atalhos do corpus. A aplicação final usa essa comparação para escolher um modelo leve e estável para classificar frases livres e alimentar a recomendação musical.
+Na Etapa 1, a equipe desenvolveu uma solução simbólica baseada em OpLexicon e regras explícitas. Essa solução é interpretável e permite ver quais termos contribuíram para a decisão, mas sofre quando o léxico não cobre gírias, quando a classe neutra contém termos aparentemente polarizados ou quando o significado depende de contexto amplo. A Etapa 2 parte exatamente desse ponto. O objetivo não é apenas obter um valor maior de \emph{accuracy}, mas comparar uma solução simbólica com modelos que aprendem a partir de dados, verificando quando o ganho numérico parece confiável e quando ele aparece por causa de atalhos do corpus. A aplicação final usa essa comparação, junto com testes em frases livres, para escolher um modo não simbólico estável para a recomendação musical.
 
 \section{Tópico do trabalho prático}
 
-O tópico do trabalho prático é análise de sentimentos em português brasileiro. A comparação central desta etapa é entre três paradigmas. O primeiro é o baseline simbólico da Etapa 1, representado pelo sistema baseado em OpLexicon e regras. O segundo é estatístico clássico, com TF-IDF combinado a Regressão Logística e SVM linear. O terceiro é neural, com modelos transformer multilíngues ou focados em português, em versões fine-tuned para a tarefa de três classes. O uso público desses modelos aparece na aplicação interativa, em que uma frase digitada pelo usuário recebe um rótulo de sentimento e pode gerar uma recomendação musical.
+O tópico do trabalho prático é análise de sentimentos em português brasileiro. A comparação central desta etapa é entre três paradigmas. O primeiro é o baseline simbólico da Etapa 1, representado pelo sistema baseado em OpLexicon e regras. O segundo é estatístico clássico, com TF-IDF combinado a Regressão Logística e SVM linear. O terceiro é neural, com modelos transformer fine-tuned e um classificador pronto multilíngue para sentimentos. O uso público desses modelos aparece na aplicação interativa, em que uma frase digitada pelo usuário recebe um rótulo de sentimento e pode gerar uma recomendação musical.
 
 A comparação é feita no mesmo corpus e no mesmo \emph{split}, evitando a situação em que dois sistemas parecem diferentes apenas porque foram avaliados em bases incompatíveis. Essa decisão não foi tomada depois de observar os resultados. Ela vem do desenho experimental de benchmark, em que os sistemas devem ser comparados sob o mesmo teste sempre que a pergunta é qual método funciona melhor para o mesmo problema. Em análise de sentimentos, essa cautela é importante porque mudanças de domínio, pré-processamento, anotação e distribuição das classes alteram bastante os resultados \citep{ribeiro2016sentibench}. Em avaliação de PLN, também é comum tratar a comparação de sistemas no mesmo conjunto de exemplos como uma comparação pareada, pois cada item do teste oferece a mesma dificuldade para todos os métodos \citep{dror2017replicability}.
 
@@ -144,7 +144,7 @@ A comparação é feita no mesmo corpus e no mesmo \emph{split}, evitando a situ
 
 \subsection{Arquitetura geral}
 
-A Figura~\ref{fig:pipeline-etapa2} mostra a arquitetura planejada para a Etapa 2. Todos os modelos recebem o mesmo treino e o mesmo teste. O texto pode ser usado em sua forma bruta, preservando o \emph{split} original do corpus, ou em versões tratadas para diagnóstico, removendo pistas que podem revelar o rótulo sem exigir compreensão semântica. Depois da avaliação, o modelo leve escolhido para a demonstração é usado na aplicação Streamlit, que conecta a saída de sentimento a uma recomendação musical.
+A Figura~\ref{fig:pipeline-etapa2} mostra a arquitetura planejada para a Etapa 2. Todos os modelos avaliáveis no corpus recebem o mesmo teste, e os modelos treinados pela equipe usam o mesmo treino quando isso é viável. O texto é avaliado em forma bruta e em versões tratadas, que removem pistas capazes de revelar o rótulo sem exigir compreensão semântica. Depois da avaliação, o modo não simbólico escolhido para a demonstração é usado na aplicação Streamlit, que conecta a saída de sentimento a uma recomendação musical.
 
 \begin{figure}[h]
 \centering
@@ -152,7 +152,7 @@ A Figura~\ref{fig:pipeline-etapa2} mostra a arquitetura planejada para a Etapa 2
 \begin{tikzpicture}[node distance=0.45cm]
   \node[flowbox] (dataset) {Corpus Kaggle\\treino/teste};
   \node[flowbox, right=of dataset] (prep) {carregamento\\e tratamento};
-  \node[flowbox, right=of prep] (models) {modelos\\TF-IDF e transformers};
+  \node[flowbox, right=of prep] (models) {modelos\\TF-IDF e neurais};
   \node[flowbox, right=of models] (eval) {métricas\\e erros};
   \node[flowbox, right=of eval] (compare) {comparação\\com Etapa 1};
 
@@ -182,7 +182,7 @@ O primeiro processo é o carregamento do corpus. O projeto usa uma camada comum 
 
 O segundo processo é o tratamento textual. O modo bruto preserva o corpus original. Para diagnóstico, foram implementadas duas versões tratadas. A primeira remove emoticons e URLs, que são os símbolos mais diretamente associados à supervisão distante. A segunda também remove menções, hashtags e marcadores de fontes neutras recorrentes. A função desses tratamentos não é ``corrigir'' definitivamente o corpus, mas medir quanto do desempenho depende de atalhos superficiais.
 
-O terceiro processo é o treinamento. Nos modelos clássicos, os textos são convertidos em vetores TF-IDF de unigramas e bigramas. Em seguida, treina-se uma Regressão Logística ou um classificador SVM linear. Nos modelos neurais, o texto é dividido em subpalavras pelo tokenizador do modelo pré-treinado e a versão final fine-tuned decide entre positivo, negativo e neutro. A diferença de quantidade de treino entre os modelos clássicos e neurais não é uma conclusão empírica a favor de um método. Os modelos TF-IDF foram treinados com o treino completo porque são leves. Os modelos neurais foram treinados em uma amostra estratificada de desenvolvimento por limite de tempo e memória, e por isso seus números são discutidos como benchmark parcial e não como ranking final absoluto.
+O terceiro processo é o treinamento. Nos modelos clássicos, os textos são convertidos em vetores TF-IDF de unigramas e bigramas. Em seguida, treina-se uma Regressão Logística ou um classificador SVM linear. Nos transformers fine-tuned, o texto é dividido em subpalavras pelo tokenizador do modelo pré-treinado e a versão final decide entre positivo, negativo e neutro. O modelo pronto multilíngue não recebe treino local. Ele já vem treinado para cinco níveis de sentimento e sua saída é agrupada nas três classes do trabalho. A diferença de quantidade de treino entre os modelos clássicos e neurais não é uma conclusão empírica a favor de um método. Os modelos TF-IDF foram treinados com o treino completo porque são leves. Os modelos fine-tuned foram treinados em uma amostra estratificada de desenvolvimento por limite de tempo e memória, e por isso seus números são discutidos como benchmark parcial e não como ranking final absoluto.
 
 O quarto processo é a avaliação. Cada rodada produz métricas agregadas, F1 por classe, matriz de confusão, predições e casos de erro. As rodadas recebem identificadores próprios, o que evita misturar resultados de sistemas diferentes e facilita conferir de onde saiu cada número apresentado no relatório.
 
@@ -216,48 +216,49 @@ Contraste & ``bom, mas caro'' & A parte depois de ``mas'' recebe mais peso, pois
 
 Os baselines clássicos usam vetorização TF-IDF com unigramas e bigramas de palavras. TF-IDF representa um texto dando peso maior a termos que aparecem naquele texto, mas não aparecem em todos os textos do corpus, seguindo a tradição de ponderação termo-documento em recuperação de informação \citep{salton1988termweighting}. Assim, uma palavra frequente em um tweet e relativamente específica no conjunto ganha mais importância do que uma palavra muito comum. A escolha de TF-IDF com modelos lineares não veio apenas de conveniência de implementação. Métodos de aprendizado de máquina com representações esparsas, incluindo SVM, foram usados desde trabalhos clássicos de análise de sentimentos \citep{pang2002thumbs}, e SVMs lineares são uma referência forte para categorização de texto com muitas variáveis relevantes \citep{joachims1998text}. A Regressão Logística foi incluída como baseline simples e interpretável, pois aprende pesos por classe e gera probabilidades úteis para a demonstração. O SVM linear foi incluído como baseline clássico forte, pois aprende uma fronteira de decisão com margem entre as classes.
 
-Os modelos neurais avaliados são DistilBERT multilíngue, XLM-R base e Albertina-100M pt-BR. Um transformer é um modelo neural pré-treinado em grande volume de texto, capaz de produzir representações contextuais para palavras e subpalavras. Fine-tuning supervisionado, neste trabalho, significa continuar o treinamento desse modelo usando os tweets rotulados do corpus e substituir a saída original por uma camada de classificação em três classes. O DistilBERT foi usado porque é uma versão destilada e mais leve da família BERT \citep{sanh2019distilbert}. XLM-R foi usado porque é um modelo multilíngue forte, adequado quando se quer comparar português com uma arquitetura treinada em muitos idiomas \citep{conneau2020xlmr}. Albertina foi usada porque é uma alternativa voltada ao português e, portanto, testa se pré-treinamento mais próximo da língua-alvo ajuda no cenário limpo \citep{rodrigues2023albertina}.
+Os modelos neurais avaliados combinam duas estratégias. A primeira usa XLM-R base e Albertina-100M pt-BR em versões fine-tuned no corpus do trabalho. Um transformer é um modelo neural pré-treinado em grande volume de texto, capaz de produzir representações contextuais para palavras e subpalavras. Fine-tuning supervisionado, neste trabalho, significa continuar o treinamento desse modelo usando os tweets rotulados do corpus e substituir a saída original por uma camada de classificação em três classes. XLM-R foi usado porque é um modelo multilíngue forte, adequado quando se quer comparar português com uma arquitetura treinada em muitos idiomas \citep{conneau2020xlmr}. Albertina foi usada porque é uma alternativa voltada ao português e, portanto, testa se pré-treinamento mais próximo da língua-alvo ajuda no cenário limpo \citep{rodrigues2023albertina}.
 
-Para a demonstração no Streamlit, o modelo padrão escolhido foi o TF-IDF com Regressão Logística na condição sem emoticons e URLs. Essa escolha é deliberadamente conservadora. O modelo é pequeno, carrega rápido, foi treinado no mesmo corpus comum e evita transformar a apresentação pública em uma demonstração dependente de um modelo neural pesado. Os transformers ficam, nesta etapa, como modelos de benchmark e discussão metodológica no relatório. O mesmo modelo padrão alimenta a recomendação musical da aplicação.
+A segunda estratégia usa o TabularisAI multilingual sentiment analysis, um modelo pronto baseado em DistilBERT multilíngue e treinado para cinco classes de sentimento em 23 idiomas, incluindo português \citep{sanh2019distilbert,tabularisai2025multilingualsentiment}. Esse modelo não foi fine-tuned pela equipe no corpus de tweets. Ele foi avaliado como classificador externo pronto para uso e como candidato prático para a aplicação. Para compará-lo com os demais sistemas, agrupamos as classes \emph{Very Negative} e \emph{Negative} em negativo, preservamos \emph{Neutral} como neutro, e agrupamos \emph{Positive} e \emph{Very Positive} em positivo. Essa escolha aproxima a saída do modelo pronto das três classes pedidas no projeto.
 
 \subsection{Aplicação e recomendação musical}
 
-A aplicação é a parte voltada ao usuário final. Ela recebe uma frase curta em português, aplica o tratamento textual escolhido, executa o classificador selecionado e mostra uma resposta em linguagem simples. Na versão de demonstração, o modo padrão usa TF-IDF com Regressão Logística, pois esse modelo apresentou bom desempenho na condição sem emoticons e URLs e é leve o suficiente para carregar rapidamente em ambiente público. A interface também permite comparar respostas com o leitor simbólico, mas a experiência principal é escrever uma frase, apertar o botão de classificação e ver uma interpretação de sentimento.
+A aplicação é a parte voltada ao usuário final. Ela recebe uma frase curta em português, executa o classificador selecionado e mostra uma resposta simples. Na demonstração pública, há apenas dois modos. O modo simbólico usa o leitor de léxico e regras da Etapa 1, e o modo não simbólico usa TabularisAI. Essa decisão não vem da Tabela~\ref{tab:metricas-limpa}, em que TF-IDF é mais forte no corpus tratado, mas de uma amostra manual de vinte frases livres. A própria equipe escreveu cerca de cinco frases curtas por integrante, sem tema fixo e sem tentar imitar tweets. A orientação foi apenas criar entradas parecidas com o que visitantes poderiam digitar na feira, mantendo exemplos positivos, negativos e neutros. A amostra final tem sete frases positivas, sete negativas e seis neutras, sem emoticons e URLs. Ela é pequena e serve apenas como teste de uso, mas ajuda a justificar o modelo pronto na interface.
 
-A recomendação musical usa o rótulo e o escore produzidos pelo classificador. O rótulo restringe o conjunto de músicas candidatas. Se a frase foi classificada como positiva, apenas músicas positivas entram na comparação. Se foi negativa, entram músicas negativas. Se foi neutra, entram músicas neutras. Depois disso, o sistema ordena as candidatas pela distância entre o escore da frase e a valência atribuída à música. A valência é uma medida afetiva no eixo desagradável--agradável, inspirada pela tradição do modelo circumplexo do afeto \citep{russell1980circumplex} e usada em estudos de emoção musical como uma dimensão contínua ao lado de ativação ou arousal \citep{eerola2011music}. Ela não mede volume, velocidade, popularidade nem intensidade emocional. Uma música calma pode ter valência positiva se for percebida como agradável, enquanto uma música intensa pode ter valência negativa se soar tensa ou ameaçadora. No nosso catálogo, essa ideia foi simplificada para o intervalo de $-1$ a $+1$. Valores próximos de $+1$ indicam músicas percebidas como alegres ou luminosas, valores próximos de $-1$ indicam músicas percebidas como tristes, tensas ou críticas, e valores perto de zero indicam clima mais contemplativo ou ambíguo.
+A recomendação musical usa o rótulo e o escore do classificador. O rótulo filtra músicas positivas, negativas ou neutras, e o escore ordena as candidatas pela proximidade da valência. Valência é uma dimensão afetiva no eixo desagradável--agradável, inspirada pelo modelo circumplexo do afeto \citep{russell1980circumplex} e usada em estudos de emoção musical ao lado de ativação, ou arousal \citep{eerola2011music}. Ela não mede volume, velocidade ou popularidade. No catálogo, usamos o intervalo de $-1$ a $+1$. Valores positivos indicam músicas percebidas como alegres ou agradáveis, valores negativos indicam músicas tristes, tensas ou críticas, e valores próximos de zero indicam clima mais contemplativo ou ambíguo. O catálogo foi definido empiricamente pelo grupo, com dez faixas rotuladas manualmente a partir da letra, do clima geral da gravação e da impressão afetiva dos integrantes. Por exemplo, ``País Tropical'' recebeu valência $0{,}90$, ``Tempo Perdido'' recebeu $-0{,}55$ e ``Sampa'' recebeu $0{,}00$. O YouTube aparece apenas como link de reprodução.
 
-O catálogo musical não foi aprendido automaticamente. Ele foi definido empiricamente pelos participantes do grupo, que escolheram dez faixas e atribuíram manualmente o rótulo de sentimento e a valência de cada uma. Essa escolha considerou letra, clima geral da gravação e impressão afetiva dos integrantes. O catálogo tem quatro músicas positivas, três negativas e três neutras. Por exemplo, ``País Tropical'', de Jorge Ben Jor, recebeu valência $0{,}90$ porque foi tratada como uma faixa positiva e solar. ``Tempo Perdido'', de Legião Urbana, recebeu valência $-0{,}55$ porque foi tratada como mais melancólica, embora não extrema. ``Sampa'', de Caetano Veloso, recebeu valência $0{,}00$ porque foi usada como caso neutro e contemplativo. O YouTube é usado apenas como link de reprodução. Nenhuma API externa decide a recomendação.
-
-A regra de ordenação é determinística. Para cada música candidata $s$, calculamos a distância
+Para cada música candidata $s$, calculamos a distância
 \[
 d(s) = |\,\text{valência}(s) - \text{escore}_{\text{texto}}\,|.
 \]
-A música com menor distância aparece primeiro. Se o texto recebe rótulo positivo e escore próximo de $0{,}97$, uma música positiva de valência $0{,}90$ fica mais próxima do que uma música positiva de valência $0{,}60$. Se o texto recebe rótulo negativo e escore $-0{,}67$, uma música negativa de valência $-0{,}55$ fica mais próxima do que outra de valência $-0{,}90$. Essa regra torna a recomendação explicável, mas também mostra uma limitação. As valências são julgamentos manuais do grupo, não medidas musicais obtidas por anotação ampla ou por análise acústica.
+A música com menor distância aparece primeiro. A regra é explicável e previsível para a demonstração, mas limitada porque as valências são julgamentos manuais do grupo, não medidas musicais obtidas por anotação ampla ou análise acústica.
 
 \begin{table}[h]
 \small
 \centering
-\renewcommand{\arraystretch}{1.16}
+\renewcommand{\arraystretch}{1.08}
 \altrowcolors
-\begin{tabularx}{\linewidth}{@{}Y L{2.4cm} L{3.1cm} L{2.2cm}@{}}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}lrrrrr@{}}
 \toprule
-\textbf{Frase digitada} & \textbf{Saída do modelo} & \textbf{Música recomendada} & \textbf{Valência} \\
+\textbf{Sistema} & \textbf{Accuracy} & \textbf{Macro precision} & \textbf{Macro recall} & \textbf{Macro F1} & \textbf{Erros} \\
 \midrule
-\texttt{Hoje foi um dia maravilhoso, estou muito feliz} & positivo, $0{,}968$ & ``País Tropical'', Jorge Ben Jor & $0{,}90$ \\
-\addlinespace[0.3em]
-\texttt{Estou cansado e frustrado com tudo isso} & negativo, $-0{,}673$ & ``Tempo Perdido'', Legião Urbana & $-0{,}55$ \\
-\addlinespace[0.3em]
-\texttt{A notícia foi publicada no site oficial} & neutro, $0{,}000$ & ``Sampa'', Caetano Veloso & $0{,}00$ \\
+OpLexicon com regras & 0,900 & 0,917 & 0,905 & 0,897 & 2/20 \\
+TF-IDF + Reg. Logística & 0,650 & 0,778 & 0,635 & 0,634 & 7/20 \\
+TF-IDF + SVM linear & 0,700 & 0,793 & 0,690 & 0,701 & 6/20 \\
+XLM-R fine-tuned & 0,800 & 0,879 & 0,786 & 0,789 & 4/20 \\
+Albertina fine-tuned & 0,550 & 0,812 & 0,548 & 0,508 & 9/20 \\
+\textbf{TabularisAI pronto} & \textbf{1,000} & \textbf{1,000} & \textbf{1,000} & \textbf{1,000} & \textbf{0/20} \\
 \bottomrule
-\end{tabularx}
+\end{tabular}%
+}
 \clearrowcolors
-\caption{Exemplos reais da aplicação usando o modelo padrão TF-IDF com Regressão Logística e a regra de recomendação por valência.}
-\label{tab:app-recomendacao}
+\caption{Amostra manual de vinte frases livres usadas para escolher o modo não simbólico da aplicação. A tabela não substitui o benchmark no corpus, mas mostra o comportamento esperado em entradas curtas de demonstração.}
+\label{tab:amostra-aplicacao}
 \end{table}
 
 \subsection{Recursos e ferramentas}
 
-Os recursos usados nesta etapa têm papéis diferentes. O corpus define a tarefa e os exemplos de avaliação. O OpLexicon dá a base lexical do sistema simbólico. As bibliotecas de aprendizado de máquina permitem treinar os modelos estatísticos e neurais sem reimplementar algoritmos já consolidados. A Tabela~\ref{tab:recursos-detalhados} resume tamanho, característica e função de cada recurso principal. Essa separação também ajuda a deixar claro o que foi herdado de recursos externos e o que foi decidido pela equipe durante a comparação.
+Os recursos usados nesta etapa têm papéis diferentes. O corpus define a tarefa, o OpLexicon dá a base lexical do sistema simbólico, as bibliotecas permitem treinar e avaliar modelos, e TabularisAI funciona como comparação externa e opção prática de demonstração. A Tabela~\ref{tab:recursos-detalhados} resume tamanho, característica e função de cada recurso principal.
 
 \begin{table}[h]
 \small
@@ -274,9 +275,9 @@ OpLexicon v3.0 & 31\,944 termos distintos após agregar duplicatas; polaridades 
 \addlinespace[0.3em]
 scikit-learn & Biblioteca de aprendizado de máquina clássico & Vetorização TF-IDF, Regressão Logística, SVM linear e métricas agregadas \\
 \addlinespace[0.3em]
-Hugging Face Transformers & Biblioteca para tokenização e fine-tuning de transformers & Execução de DistilBERT, XLM-R e Albertina como modelos neurais de benchmark \\
+Hugging Face Transformers & Biblioteca para tokenização, fine-tuning e inferência neural & Execução de XLM-R, Albertina e TabularisAI. O último é o modo não simbólico pronto, com cinco classes e suporte a português \\
 \addlinespace[0.3em]
-Hydra e Streamlit & Configuração de experimentos e interface interativa & Organização das rodadas e demonstração pública com modelo leve \\
+Hydra e Streamlit & Configuração de experimentos e interface interativa & Organização das rodadas e demonstração pública com dois modos, simbólico e não simbólico \\
 \addlinespace[0.3em]
 Catálogo musical & Dez músicas escolhidas e anotadas manualmente pelo grupo & Recomendação por rótulo de sentimento e proximidade de valência \\
 \bottomrule
@@ -305,7 +306,7 @@ Teste & 4.999 & 1.667 & 1.666 & 1.666 \\
 \label{tab:dataset}
 \end{table}
 
-O \emph{split} de treino e teste usado no relatório é o \emph{split} disponibilizado junto ao corpus. A equipe preferiu preservar essa divisão porque ela fixa uma base comum de comparação e evita que uma nova separação aleatória crie um teste diferente do que seria usado por outras reproduções do mesmo corpus. O teste ficou intocado para todos os sistemas. O treino foi usado de maneiras diferentes porque os métodos têm naturezas diferentes. O sistema simbólico não estima parâmetros supervisionados, então aparece com treino zero nas tabelas. Os modelos TF-IDF usam todo o treino, pois o custo computacional é baixo. Os transformers usam uma amostra estratificada de desenvolvimento nesta versão, o que mantém as três classes balanceadas, mas deve ser lido como limitação experimental. A Tabela~\ref{tab:decisoes} resume a origem dessas escolhas.
+O \emph{split} de treino e teste usado no relatório é o \emph{split} disponibilizado junto ao corpus. A equipe preferiu preservar essa divisão porque ela fixa uma base comum de comparação e evita que uma nova separação aleatória crie um teste diferente do que seria usado por outras reproduções do mesmo corpus. O teste ficou intocado para todos os sistemas. O treino foi usado de maneiras diferentes porque os métodos têm naturezas diferentes. O sistema simbólico não estima parâmetros supervisionados, então aparece com treino zero nas tabelas. Os modelos TF-IDF usam todo o treino, pois o custo computacional é baixo. Os transformers fine-tuned usam uma amostra estratificada de desenvolvimento nesta versão, o que mantém as três classes balanceadas, mas deve ser lido como limitação experimental. O modelo pronto é apenas avaliado no mesmo teste. A Tabela~\ref{tab:decisoes} resume a origem dessas escolhas.
 
 \begin{table}[h]
 \small
@@ -322,7 +323,7 @@ Sistema simbólico sem treino & Propriedade do método & O sistema aplica léxic
 \addlinespace[0.3em]
 TF-IDF com treino completo & Decisão experimental viável & Baselines lineares são baratos e tradicionais em categorização de texto e sentimento \citep{salton1988termweighting,pang2002thumbs,joachims1998text} \\
 \addlinespace[0.3em]
-Transformers com amostra estratificada & Limitação prática desta versão & A amostra permite comparar sensibilidade ao tratamento textual, mas não deve ser usada como ranking final de modelos neurais \\
+Transformers fine-tuned com amostra estratificada & Limitação prática desta versão & A amostra permite comparar sensibilidade ao tratamento textual, mas não deve ser usada como ranking final de modelos neurais \\
 \addlinespace[0.3em]
 Condição sem emoticons e URLs & Diagnóstico feito nos dados & A remoção testa se o desempenho permanece quando as pistas mais próximas da supervisão distante são apagadas \citep{go2009distant,gururangan2018artifacts,poliak2018hypothesis} \\
 \bottomrule
@@ -368,7 +369,9 @@ TF-IDF com Regressão Logística & 100.000 tweets & Modelo estatístico principa
 \addlinespace[0.3em]
 TF-IDF com SVM linear & 100.000 tweets & Baseline clássico forte para texto esparso. Testado nas três condições de texto \\
 \addlinespace[0.3em]
-Albertina 100M pt-BR & 3.000 tweets estratificados & Exemplo neural em português. Versão fine-tuned de desenvolvimento no texto bruto e sem emoticons e URLs \\
+XLM-R e Albertina 100M pt-BR & 3.000 tweets estratificados & Exemplos neurais fine-tuned de desenvolvimento no texto bruto e sem emoticons e URLs \\
+\addlinespace[0.3em]
+TabularisAI multilingual sentiment & Sem treino local & Modelo pronto avaliado no texto bruto, sem emoticons e URLs e na condição mais estrita \\
 \addlinespace[0.3em]
 Baseline de pistas & 100.000 tweets & Diagnóstico de vazamento. Usa só emoticon positivo, emoticon negativo e URL \\
 \bottomrule
@@ -380,7 +383,7 @@ Baseline de pistas & 100.000 tweets & Diagnóstico de vazamento. Usa só emotico
 
 \section{Ilustração da execução}
 
-Para tornar o processo mais concreto, a Tabela~\ref{tab:execucao-exemplo} mostra como um texto curto passa pelas etapas do sistema. A ideia é que a entrada seja primeiro padronizada, depois analisada por cada família de método e finalmente comparada com o rótulo esperado quando o exemplo pertence ao teste. No sistema simbólico, a decisão depende de palavras encontradas no léxico e das regras de contexto. No TF-IDF, a decisão depende dos pesos aprendidos para padrões frequentes no treino. No transformer, a decisão depende da representação contextual produzida pelo modelo pré-treinado depois do fine-tuning supervisionado.
+Para tornar o processo mais concreto, a Tabela~\ref{tab:execucao-exemplo} mostra como um texto curto passa pelas etapas do sistema. A ideia é que a entrada seja primeiro padronizada, depois analisada por cada família de método e finalmente comparada com o rótulo esperado quando o exemplo pertence ao teste. No sistema simbólico, a decisão depende de palavras encontradas no léxico e das regras de contexto. No TF-IDF, a decisão depende dos pesos aprendidos para padrões frequentes no treino. Nos modelos neurais, a decisão depende da representação contextual produzida pelo transformer. Nos modelos fine-tuned, essa representação foi adaptada ao corpus. No modelo pronto, ela já vem adaptada para sentimento multilíngue antes de entrar no projeto.
 
 \begin{table}[h]
 \small
@@ -399,7 +402,7 @@ Leitura simbólica & O léxico encontra \texttt{amei}, \texttt{rápido} e \textt
 \addlinespace[0.3em]
 Leitura TF-IDF & Termos positivos recorrentes no treino favorecem a classe positiva & A palavra \texttt{feliz} pode pesar demais e levar a erro positivo \\
 \addlinespace[0.3em]
-Leitura neural & O modelo contextual tende a juntar a avaliação positiva do atendimento & Albertina acertou negativo no caso salvo, pois capturou melhor a tensão entre alegria e medo \\
+Leitura neural & O modelo contextual tende a juntar a avaliação positiva do atendimento & Albertina acertou negativo no caso salvo. TabularisAI também tende a reconhecer mistura afetiva, mas pode sofrer por ter sido treinado fora do domínio de tweets \\
 \bottomrule
 \end{tabularx}
 \clearrowcolors
@@ -409,9 +412,9 @@ Leitura neural & O modelo contextual tende a juntar a avaliação positiva do at
 
 \section{Resultados atuais}
 
-A Figura~\ref{fig:macro-f1} resume os resultados consolidados nas execuções atuais. A leitura principal é que o melhor número não é necessariamente o melhor resultado científico. No texto bruto, os transformers chegam a \emph{macro F1} quase perfeito, mas uma baseline deliberadamente simples usando apenas três pistas superficiais, emoticon positivo, emoticon negativo e URL, também chega a 0,9970. Esse valor é o resultado da baseline de pistas, também chamada de \emph{cue-only baseline}. Ela recebe esse nome porque ignora o conteúdo linguístico do tweet e toma decisão apenas a partir de sinais externos muito próximos do rótulo. Portanto, o valor 0,9970 não significa que um sistema simples compreendeu sentimento em português. Ele significa que, no teste bruto, quase todo o rótulo pode ser recuperado por atalhos de coleta, o que segue a lógica de baselines de artefato usadas para revelar vieses em conjuntos de dados \citep{gururangan2018artifacts,poliak2018hypothesis}. Isso é um sinal ruim do ponto de vista metodológico. Se um classificador que não lê palavras de sentimento resolve o teste quase inteiro, então a avaliação bruta está medindo principalmente atalhos do corpus, não a capacidade real de compreender polaridade.
+A Figura~\ref{fig:macro-f1} resume os resultados consolidados nas execuções atuais. A leitura principal é que o melhor número não é necessariamente o melhor resultado científico. No texto bruto, os modelos fine-tuned chegam a \emph{macro F1} quase perfeito, mas uma baseline deliberadamente simples usando apenas três pistas superficiais, emoticon positivo, emoticon negativo e URL, também chega a 0,9970. Esse valor é o resultado da baseline de pistas, também chamada de \emph{cue-only baseline}. Ela recebe esse nome porque ignora o conteúdo linguístico do tweet e toma decisão apenas a partir de sinais externos muito próximos do rótulo. Portanto, o valor 0,9970 não significa que um sistema simples compreendeu sentimento em português. Ele significa que, no teste bruto, quase todo o rótulo pode ser recuperado por atalhos de coleta, o que segue a lógica de baselines de artefato usadas para revelar vieses em conjuntos de dados \citep{gururangan2018artifacts,poliak2018hypothesis}. Isso é um sinal ruim do ponto de vista metodológico. Se um classificador que não lê palavras de sentimento resolve o teste quase inteiro, então a avaliação bruta está medindo principalmente atalhos do corpus, não a capacidade real de compreender polaridade.
 
-Por isso, um valor bruto de \emph{accuracy} de 99\% não deve ser interpretado como ``o modelo aprendeu sentimentos em português''. A interpretação mais cuidadosa é que o modelo aprendeu muito bem o protocolo de rotulagem do corpus. A comparação mais informativa é a condição em que as pistas usadas na supervisão distante são removidas. Quando emoticons e URLs são apagados, os transformers caem para a faixa de 0,7385 a 0,7808 de \emph{macro F1}. O sistema simbólico também cai de 0,5960 para 0,3668 de \emph{macro F1}, porque o OpLexicon contém entradas polarizadas para emoticons. Essa queda é justamente o resultado mais importante do diagnóstico. Os modelos continuam úteis, mas a versão bruta estava inflada por vazamento de rótulo.
+Por isso, um valor bruto de \emph{accuracy} de 99\% não deve ser interpretado como ``o modelo aprendeu sentimentos em português''. A interpretação mais cuidadosa é que o modelo aprendeu muito bem o protocolo de rotulagem do corpus. Quando emoticons e URLs são apagados, XLM-R e Albertina caem para a faixa de 0,7494 a 0,7808 de \emph{macro F1}. O sistema simbólico também cai de 0,5960 para 0,3668, pois o OpLexicon contém emoticons polarizados. TabularisAI segue outro padrão. Ele não fica artificialmente alto no texto bruto e melhora um pouco com a limpeza, chegando a 0,5557, o que sugere menor dependência dos atalhos do Kaggle e maior desajuste ao domínio de tweets.
 
 \begin{figure}[h]
 \centering
@@ -438,17 +441,18 @@ TF-IDF + Reg. Logística & 100.000 & 4.999 & bruto com pistas & 0,8172 & 0,8164 
 TF-IDF + SVM linear & 100.000 & 4.999 & bruto com pistas & 0,8080 & 0,8084 \\
 \textbf{TF-IDF + SVM linear} & \textbf{100.000} & \textbf{4.999} & \textbf{sem emoticons/URLs} & \textbf{0,8020} & \textbf{0,8030} \\
 Baseline de pistas & 100.000 & 4.999 & bruto com pistas & 0,9970 & 0,9970 \\
-DistilBERT multilíngue & 3.000 & 4.999 & bruto com pistas & 0,9950 & 0,9950 \\
 XLM-R base & 3.000 & 4.999 & bruto com pistas & 0,9968 & 0,9968 \\
 Albertina 100M pt-BR & 3.000 & 4.999 & bruto com pistas & 0,9972 & 0,9972 \\
-\textbf{DistilBERT multilíngue} & \textbf{3.000} & \textbf{4.999} & \textbf{sem emoticons/URLs} & \textbf{0,7465} & \textbf{0,7385} \\
+TabularisAI multilingual & 0 & 4.999 & bruto com pistas & 0,5541 & 0,5248 \\
 \textbf{XLM-R base} & \textbf{3.000} & \textbf{4.999} & \textbf{sem emoticons/URLs} & \textbf{0,7586} & \textbf{0,7494} \\
 \textbf{Albertina 100M pt-BR} & \textbf{3.000} & \textbf{4.999} & \textbf{sem emoticons/URLs} & \textbf{0,7822} & \textbf{0,7808} \\
+\textbf{TabularisAI multilingual} & \textbf{0} & \textbf{4.999} & \textbf{sem emoticons/URLs} & \textbf{0,5657} & \textbf{0,5557} \\
+TabularisAI multilingual & 0 & 4.999 & sem pistas sociais/fontes & 0,5819 & 0,5723 \\
 \bottomrule
 \end{tabular}%
 }
 \clearrowcolors
-\caption{Resultados atuais usados como base para a escrita da Etapa 2. As linhas em negrito indicam a condição principal de comparação para cada sistema, sem emoticons e URLs. As linhas ``bruto com pistas'' têm valor maior de \emph{accuracy}, mas são problemáticas porque a baseline de pistas mostra que o rótulo pode ser inferido quase diretamente por artefatos do corpus. Os resultados neurais são execuções de desenvolvimento com 1.000 exemplos por classe no treino.}
+\caption{Resultados atuais usados como base para a escrita da Etapa 2. As linhas em negrito indicam a condição principal de comparação, sem emoticons e URLs. As linhas brutas têm valores maiores, mas são problemáticas porque a baseline de pistas quase recupera o rótulo por artefatos. XLM-R e Albertina usam 1.000 exemplos por classe no treino. TabularisAI é avaliado sem treino local.}
 \label{tab:resultados}
 \end{table}
 \FloatBarrier
@@ -466,9 +470,9 @@ A Tabela~\ref{tab:metricas-limpa} e a Figura~\ref{fig:confusao-limpa} detalham a
 OpLexicon com regras & 0,3697 & 0,3821 & 0,3697 & 0,3668 \\
 TF-IDF + Reg. Logística & \textbf{0,8086} & \textbf{0,8109} & \textbf{0,8086} & \textbf{0,8094} \\
 TF-IDF + SVM linear & 0,8020 & 0,8043 & 0,8020 & 0,8030 \\
-DistilBERT multilíngue & 0,7465 & 0,7426 & 0,7466 & 0,7385 \\
 XLM-R base & 0,7586 & 0,7638 & 0,7586 & 0,7494 \\
 Albertina 100M pt-BR & 0,7822 & 0,7798 & 0,7822 & 0,7808 \\
+TabularisAI multilingual & 0,5657 & 0,5576 & 0,5657 & 0,5557 \\
 \bottomrule
 \end{tabular}
 \clearrowcolors
@@ -483,7 +487,7 @@ Albertina 100M pt-BR & 0,7822 & 0,7798 & 0,7822 & 0,7808 \\
 \label{fig:confusao-limpa}
 \end{figure}
 
-O padrão principal é que os modelos estatísticos e neurais reconhecem muito bem a classe neutra, mas ainda confundem bastante positivo e negativo. Esse comportamento combina com a natureza dos tweets depois da limpeza. Muitos textos ficam curtos, irônicos ou dependentes de contexto, e uma parte deles perde justamente o emoticon que sustentava o rótulo original. O OpLexicon sofre mais nesse cenário porque depende de palavras encontradas no léxico e tende a deslocar muitos casos para neutro. Entre os métodos treinados, a Regressão Logística com TF-IDF fica com o melhor conjunto de métricas na condição limpa, liderando \emph{accuracy}, \emph{macro precision}, \emph{macro recall} e \emph{macro F1}. Albertina fica como o melhor resultado neural, mas ainda abaixo do TF-IDF nessa execução de desenvolvimento.
+O padrão principal é que os modelos estatísticos e neurais reconhecem muito bem a classe neutra, mas ainda confundem bastante positivo e negativo. Esse comportamento combina com a natureza dos tweets depois da limpeza. Muitos textos ficam curtos, irônicos ou dependentes de contexto, e uma parte deles perde justamente o emoticon que sustentava o rótulo original. O OpLexicon sofre mais nesse cenário porque depende de palavras encontradas no léxico e tende a deslocar muitos casos para neutro. Entre os métodos treinados, a Regressão Logística com TF-IDF fica com o melhor conjunto de métricas na condição limpa, liderando \emph{accuracy}, \emph{macro precision}, \emph{macro recall} e \emph{macro F1}. Albertina fica como o melhor resultado neural fine-tuned. TabularisAI fica abaixo no teste Kaggle, principalmente por confundir polaridades e por tender à classe neutra, o que é coerente com um modelo externo treinado em dados sintéticos multilíngues e não no estilo específico dos tweets deste corpus.
 \FloatBarrier
 
 \section{Diagnóstico de artefatos e dificuldades encontradas}
@@ -499,16 +503,16 @@ Chamamos isso de vazamento de rótulo. O termo descreve a situação em que uma 
 \label{fig:pistas}
 \end{figure}
 
-Esse achado mudou a interpretação dos resultados. Antes do diagnóstico, os valores quase perfeitos dos transformers pareciam indicar que os modelos tinham aprendido a tarefa. Depois do diagnóstico, a interpretação ficou mais severa. O desempenho bruto quase perfeito é fraco como evidência científica exatamente porque é fácil demais de reproduzir com uma baseline que usa apenas pistas de rótulo. A metodologia adotada segue a lógica de baselines de artefato, em que um classificador propositalmente limitado é usado para medir quanto do corpus pode ser resolvido por pistas indesejadas \citep{gururangan2018artifacts,poliak2018hypothesis}.
+Esse achado mudou a interpretação dos resultados. O desempenho bruto quase perfeito é fraco como evidência científica porque é fácil demais de reproduzir com uma baseline que usa apenas pistas de rótulo. A metodologia adotada segue a lógica de baselines de artefato, em que um classificador propositalmente limitado mede quanto do corpus pode ser resolvido por pistas indesejadas \citep{gururangan2018artifacts,poliak2018hypothesis}.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.72\linewidth]{figures/transformer_drop.pdf}
-\caption{Queda de \emph{macro F1} dos transformers ao remover emoticons e URLs. O ponto à esquerda é maior, mas não é melhor como evidência metodológica, pois está contaminado por pistas de rótulo. O ponto à direita é menor, porém mais informativo sobre robustez.}
+\caption{Mudança de \emph{macro F1} ao remover emoticons e URLs nos modelos neurais. XLM-R e Albertina caem porque a execução bruta explorava pistas do corpus. TabularisAI começa mais baixo e melhora levemente, sinal de que não estava ajustado aos mesmos atalhos do teste bruto.}
 \label{fig:queda-transformers}
 \end{figure}
 
-Além da dificuldade metodológica, houve dificuldades práticas. O treino local em MPS no macOS falhou por memória compartilhada em execuções maiores, então as rodadas de desenvolvimento foram feitas em CPU com 1.000 exemplos por classe. Também foi necessário tomar cuidado para que rodadas diferentes não fossem comparadas por engano, já que o mesmo corpus foi testado em versões bruta, limpa e mais estrita. Na aplicação Streamlit, a equipe optou por usar o TF-IDF tratado como opção padrão e manter os transformers no relatório, porque eles exigem mais memória, mais tempo de carregamento e maior cuidado de empacotamento para uma demonstração pública.
+Além da dificuldade metodológica, houve dificuldades práticas. O treino local em MPS no macOS falhou por memória compartilhada em execuções maiores, então as rodadas de desenvolvimento foram feitas em CPU com 1.000 exemplos por classe. Também foi necessário evitar comparação indevida entre rodadas brutas, limpas e estritas. Na aplicação Streamlit, TabularisAI foi escolhido porque a demonstração recebe frases livres de usuários, não apenas tweets do corpus.
 
 \section{Exemplos qualitativos de execução}
 
@@ -542,13 +546,13 @@ Modelo bruto parece melhor por vazamento & \texttt{Overdose deixou Demi Lovato �
 
 \section{Comparação com a Etapa 1}
 
-O sistema simbólico da Etapa 1 obteve 0,5979 de \emph{accuracy} e 0,5960 de \emph{macro F1} no teste bruto. Após remover emoticons e URLs, o mesmo sistema caiu para 0,3697 de \emph{accuracy} e 0,3668 de \emph{macro F1}. Na versão mais estrita, sem pistas sociais e fontes, ficou em 0,3695 de \emph{accuracy} e 0,3665 de \emph{macro F1}. Portanto, o baseline simbólico bruto também deve ser lido com cuidado. Ele é útil como reprodução da Etapa 1 no corpus original, mas a comparação científica principal com os modelos da Etapa 2 é a condição tratada. Os baselines TF-IDF superam esse valor com margem clara, chegando a 0,8094 de \emph{macro F1} sem emoticons e URLs. Esse ganho é esperado, pois os modelos estatísticos aprendem pesos diretamente do corpus e conseguem explorar combinações de palavras que não aparecem como entradas polarizadas no OpLexicon. Além disso, o TF-IDF com Regressão Logística foi escolhido como modelo padrão do Streamlit porque mantém bom desempenho tratado, é leve para deploy e torna a demonstração mais estável.
+O sistema simbólico da Etapa 1 obteve 0,5979 de \emph{accuracy} e 0,5960 de \emph{macro F1} no teste bruto. Após remover emoticons e URLs, o mesmo sistema caiu para 0,3697 de \emph{accuracy} e 0,3668 de \emph{macro F1}. Na versão mais estrita, sem pistas sociais e fontes, ficou em 0,3695 de \emph{accuracy} e 0,3665 de \emph{macro F1}. Portanto, o baseline simbólico bruto também deve ser lido com cuidado. Ele é útil como reprodução da Etapa 1 no corpus original, mas a comparação científica principal com os modelos da Etapa 2 é a condição tratada. Os baselines TF-IDF superam esse valor com margem clara, chegando a 0,8094 de \emph{macro F1} sem emoticons e URLs. Esse ganho é esperado, pois os modelos estatísticos aprendem pesos diretamente do corpus e conseguem explorar combinações de palavras que não aparecem como entradas polarizadas no OpLexicon.
 
-A comparação com transformers exige duas leituras. No teste bruto, DistilBERT, XLM-R e Albertina ficam próximos de 0,997 de \emph{macro F1}, mas esse valor está no mesmo nível da baseline de pistas. Na condição sem emoticons e URLs, Albertina chega a 0,7808 de \emph{macro F1}, XLM-R a 0,7494 e DistilBERT a 0,7385. Esses valores continuam acima do sistema simbólico tratado, mas ficam abaixo do TF-IDF tratado. Assim, a conclusão da etapa não é que o transformer bruto ``venceu'' com 99\%, e sim que os transformers são benchmarks úteis para discutir custo computacional, pré-treinamento e robustez, enquanto a comparação principal deve usar a condição limpa.
+A comparação com modelos neurais exige duas leituras. No teste bruto, XLM-R e Albertina ficam próximos de 0,997 de \emph{macro F1}, mas esse valor está no mesmo nível da baseline de pistas. Na condição sem emoticons e URLs, Albertina chega a 0,7808 e XLM-R a 0,7494. Esses valores ficam acima do sistema simbólico tratado, mas abaixo do TF-IDF tratado. TabularisAI fica em 0,5557 no mesmo teste limpo, resultado menor que os modelos treinados no corpus. Mesmo assim, ele foi mantido como modo não simbólico da aplicação por já chegar treinado para sentimento multilíngue, oferecer cinco níveis agrupáveis em três classes e se comportar melhor em frases livres de demonstração.
 
 \section{Limitações e possibilidades de melhoria}
 
-Os modelos neurais foram treinados em amostras estratificadas de 3.000 exemplos por limitação de tempo e máquina local. Essa decisão deve ser apresentada como limitação experimental, não como falha do fluxo experimental. Os artefatos de desenvolvimento já mostram a queda esperada quando as pistas superficiais são removidas, mas uma execução final maior poderia alterar a ordem relativa entre Albertina, XLM-R e DistilBERT. Outra limitação é que os exemplos qualitativos revelam inconsistências de rotulagem depois da limpeza. Em alguns tweets, o rótulo parece depender mais do emoticon removido do que do texto restante.
+Os modelos fine-tuned foram treinados em amostras estratificadas de 3.000 exemplos por limitação de tempo e máquina local. Essa decisão deve ser apresentada como limitação experimental, não como falha do fluxo experimental. Os artefatos de desenvolvimento já mostram a queda esperada quando as pistas superficiais são removidas, mas uma execução final maior poderia alterar a ordem relativa entre Albertina e XLM-R. TabularisAI tem outra limitação. Por ser um modelo externo treinado em dados sintéticos multilíngues, ele não recebe adaptação ao vocabulário e aos artefatos deste corpus de tweets. Outra limitação é que os exemplos qualitativos revelam inconsistências de rotulagem depois da limpeza. Em alguns tweets, o rótulo parece depender mais do emoticon removido do que do texto restante.
 
 Também há uma limitação do corpus. O tratamento sem emoticons/URLs melhora a honestidade da avaliação, mas não remove todos os vieses de coleta. A condição mais estrita, que também remove pistas sociais e marcadores de fontes, mostra que os TF-IDF ainda mantêm \emph{macro F1} próximo de 0,80, o que pode indicar tanto aprendizado lexical real quanto novos vieses de tópico. Por isso, essa condição é tratada como diagnóstico adicional, não como uma solução definitiva para o problema de validade externa.
 
@@ -600,12 +604,22 @@ uv run --extra transformers python \
   model.training.epochs=1 trainer.use_cpu=true
 \end{lstlisting}
 
+\commandlabel{Executar o modelo pronto multilíngue}
+\begin{lstlisting}[style=commandblock]
+uv run --extra transformers python \
+  etapas/etapa2_subsimbolica/pipelines/run_external_pretrained_benchmark.py
+\end{lstlisting}
+
+\commandlabel{Executar a sondagem de frases livres da aplicação}
+\begin{lstlisting}[style=commandblock]
+uv run --extra transformers python \
+  etapas/etapa2_subsimbolica/pipelines/run_free_text_probe.py
+\end{lstlisting}
+
 \commandlabel{Abrir a aplicação Streamlit}
 \begin{lstlisting}[style=commandblock]
 uv run streamlit run streamlit_app.py
 \end{lstlisting}
-
-A aplicação Streamlit carrega primeiro o modelo TF-IDF tratado versionado para a demonstração. Quando esse modelo está disponível, ele é selecionado como modo padrão. A interface também permite alternar para o leitor simbólico e comparar modelos lado a lado, mas a cópia pública da aplicação evita expor detalhes do corpus, métricas de benchmark e informações internas da avaliação, pois a demonstração final será voltada para uso em feira.
 
 \bibliographystyle{plainnat}
 \bibliography{references}

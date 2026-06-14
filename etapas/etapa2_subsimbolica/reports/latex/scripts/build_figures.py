@@ -68,13 +68,13 @@ def plot_macro_f1_tracks() -> None:
         "OpLexicon\n+ regras",
         "TF-IDF\nReg. Log.",
         "TF-IDF\nSVM linear",
-        "DistilBERT",
         "XLM-R",
         "Albertina",
+        "TabularisAI",
     ]
-    raw = np.array([0.9970, 0.5960, 0.8164, 0.8084, 0.9950, 0.9968, 0.9972])
-    stripped = np.array([0.1666, 0.3668, 0.8094, 0.8030, 0.7385, 0.7494, 0.7808])
-    strict = np.array([0.1666, 0.3665, 0.8030, 0.7962, np.nan, np.nan, np.nan])
+    raw = np.array([0.9970, 0.5960, 0.8164, 0.8084, 0.9968, 0.9972, 0.5248])
+    stripped = np.array([0.1666, 0.3668, 0.8094, 0.8030, 0.7494, 0.7808, 0.5557])
+    strict = np.array([0.1666, 0.3665, 0.8030, 0.7962, np.nan, np.nan, 0.5723])
 
     x = np.arange(len(systems))
     width = 0.25
@@ -176,12 +176,12 @@ def plot_cue_prevalence() -> None:
 
 
 def plot_transformer_drop() -> None:
-    systems = ["DistilBERT", "XLM-R", "Albertina"]
-    raw = np.array([0.9950, 0.9968, 0.9972])
-    stripped = np.array([0.7385, 0.7494, 0.7808])
-    colors = [OKABE_ITO["sky"], OKABE_ITO["red"], OKABE_ITO["purple"]]
+    systems = ["XLM-R fine-tuned", "Albertina fine-tuned", "TabularisAI pronto"]
+    raw = np.array([0.9968, 0.9972, 0.5248])
+    stripped = np.array([0.7494, 0.7808, 0.5557])
+    colors = [OKABE_ITO["red"], OKABE_ITO["purple"], OKABE_ITO["sky"]]
 
-    fig, ax = plt.subplots(figsize=(5.2, 3.2))
+    fig, ax = plt.subplots(figsize=(5.6, 3.2))
     for index, system in enumerate(systems):
         ax.plot([0, 1], [raw[index], stripped[index]], marker="o", color=colors[index])
         ax.text(
@@ -193,11 +193,11 @@ def plot_transformer_drop() -> None:
             fontsize=8,
         )
 
-    ax.set_xlim(-0.2, 1.55)
-    ax.set_ylim(0.68, 1.03)
+    ax.set_xlim(-0.2, 1.65)
+    ax.set_ylim(0.48, 1.03)
     ax.set_xticks([0, 1], ["bruto\n(com pistas)", "sem emoticons/URLs"])
     ax.set_ylabel("Macro F1")
-    ax.set_title("O melhor resultado bruto desaparece quando removemos atalhos")
+    ax.set_title("O efeito da limpeza muda conforme o tipo de modelo neural")
     ax.grid(axis="y", alpha=0.25)
     ax.annotate(
         "bruto quase perfeito,\nmas contaminado",
@@ -211,8 +211,8 @@ def plot_transformer_drop() -> None:
     )
     ax.text(
         1.0,
-        0.705,
-        "comparação mais honesta",
+        0.505,
+        "modelo pronto melhora um pouco\nquando retiramos pistas",
         ha="center",
         va="bottom",
         fontsize=8,
@@ -258,16 +258,6 @@ def plot_clean_confusion_matrices() -> None:
             ),
         ),
         (
-            "DistilBERT\nMacro F1 0,738",
-            np.array(
-                [
-                    [842, 700, 125],
-                    [368, 1259, 39],
-                    [34, 1, 1631],
-                ]
-            ),
-        ),
-        (
             "XLM-R\nMacro F1 0,749",
             np.array(
                 [
@@ -284,6 +274,16 @@ def plot_clean_confusion_matrices() -> None:
                     [1113, 490, 64],
                     [468, 1173, 25],
                     [22, 20, 1624],
+                ]
+            ),
+        ),
+        (
+            "TabularisAI\nMacro F1 0,556",
+            np.array(
+                [
+                    [660, 524, 483],
+                    [495, 868, 303],
+                    [99, 267, 1300],
                 ]
             ),
         ),
