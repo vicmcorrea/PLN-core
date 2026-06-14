@@ -69,6 +69,10 @@ uv run python etapas/etapa2_subsimbolica/pipelines/run_classical_benchmark_suite
 ```
 
 Execução local de referência para esse export: `20260614_113447_389024`.
+Os artefatos leves dessa execução foram copiados para
+`../../data/app_models/etapa2_subsymbolic/20260614_113447_389024/`, que é
+versionado e usado pelo deploy do Streamlit. A pasta `../../data/models/`
+continua reservada para artefatos experimentais locais e ignorados pelo Git.
 
 ## pipeline transformer
 
@@ -93,6 +97,11 @@ modelo padrão do Streamlit. A aplicação carrega por padrão o TF-IDF tratado,
 porque ele é leve, rápido e suficiente para a demonstração interativa. O suporte
 a checkpoints transformer no app deve ser adicionado depois apenas se o custo de
 memória/latência ficar aceitável para a apresentação.
+
+O app também possui modo de comparação para aplicar o mesmo texto ao
+`oplexicon_regex`, ao TF-IDF + Regressão Logística e ao TF-IDF + Linear SVM na
+condição sem emoticons/URLs. Esse modo deve ser usado para gerar exemplos
+qualitativos do relatório.
 
 ## diagnostico de vazamento
 

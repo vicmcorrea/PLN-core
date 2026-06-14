@@ -54,6 +54,11 @@ Saidas por execucao:
 - modelos exportados: `../../data/models/etapa2_subsymbolic/<run_id>/`;
 - metadados app-ready: `../../data/models/etapa2_subsymbolic/<run_id>/<model>.metadata.json`.
 
+Para deploy do Streamlit, copie apenas o par leve escolhido para demonstração
+para `../../data/app_models/etapa2_subsymbolic/<run_id>/`. Essa pasta é
+versionada; `../../data/models/` permanece ignorada e pode conter execuções
+locais maiores ou diagnósticas.
+
 ## analise de artefatos do corpus
 
 O pipeline `run_data_artifact_analysis.py` mede duplicatas exatas e pistas

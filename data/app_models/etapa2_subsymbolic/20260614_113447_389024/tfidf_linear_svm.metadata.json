@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "stage": "etapa2_subsimbolica",
+  "family": "classical",
+  "run_id": "20260614_113447_389024",
+  "model": "tfidf_linear_svm",
+  "kind": "classical",
+  "dataset": "kaggle_tweets[test]",
+  "text_treatment": "strip_emoticons_urls",
+  "train_examples": 100000,
+  "test_examples": 4999,
+  "vocabulary_size": 153180,
+  "model_artifact": "data/app_models/etapa2_subsymbolic/20260614_113447_389024/tfidf_linear_svm.joblib",
+  "report_path": "outputs/etapa2_subsymbolic/benchmark_suite/20260614_113447_389024/reports/tfidf_linear_svm/report.json",
+  "metrics": {
+    "total": 4999,
+    "correct": 4009,
+    "accuracy": 0.8019603920784156,
+    "macro_f1": 0.8030390468562513,
+    "per_class_f1": {
+      "positive": 0.7156891932122655,
+      "negative": 0.7372502236802864,
+      "neutral": 0.956177723676202
+    },
+    "support": {
+      "positive": 1667,
+      "negative": 1666,
+      "neutral": 1666
+    },
+    "confusion": {
+      "positive->positive": 1202,
+      "positive->negative": 433,
+      "positive->neutral": 32,
+      "negative->positive": 413,
+      "negative->negative": 1236,
+      "negative->neutral": 17,
+      "neutral->positive": 77,
+      "neutral->negative": 18,
+      "neutral->neutral": 1571
+    },
+    "classification_report": "              precision    recall  f1-score   support\n\n    positive      0.710     0.721     0.716      1667\n    negative      0.733     0.742     0.737      1666\n     neutral      0.970     0.943     0.956      1666\n\n    accuracy                          0.802      4999\n   macro avg      0.804     0.802     0.803      4999\nweighted avg      0.804     0.802     0.803      4999\n"
+  },
+  "model_config": {
+    "name": "tfidf_linear_svm",
+    "kind": "classical",
+    "vectorizer": {
+      "analyzer": "word",
+      "ngram_range": [
+        1,
+        2
+      ],
+      "min_df": 2,
+      "max_df": 0.95,
+      "sublinear_tf": true
+    },
+    "classifier": {
+      "class_path": "sklearn.svm.LinearSVC",
+      "class_weight": "balanced",
+      "random_state": 42
+    }
+  }
+}

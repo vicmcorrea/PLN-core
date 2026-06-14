@@ -33,3 +33,8 @@ dist/
 *.synctex.gz
 *.toc
 docs/processes/09_research_and_sources.md
+
+# Curated lightweight artifacts required by the deployed Streamlit app.
+!data/app_models/
+!data/app_models/**
+!data/app_models/**/*.joblib

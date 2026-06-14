@@ -51,11 +51,13 @@ Rodar Streamlit:
 uv run streamlit run streamlit_app.py
 ```
 
-O Streamlit descobre modelos locais em `data/models/etapa2_subsymbolic/`.
-Quando existir um artefato `tfidf_logreg` treinado com
-`strip_emoticons_urls`, ele vira o modelo padrão do app. O `oplexicon_regex`
-continua disponível como opção simbólica, e os artefatos TF-IDF brutos ficam
-selecionáveis apenas para diagnóstico do split Kaggle original.
+O Streamlit descobre primeiro os modelos leves versionados em
+`data/app_models/etapa2_subsymbolic/` e, em seguida, artefatos locais ignorados
+em `data/models/etapa2_subsymbolic/`. Quando existir um artefato
+`tfidf_logreg` treinado com `strip_emoticons_urls`, ele vira o modelo padrão do
+app. O `oplexicon_regex` continua disponível como opção simbólica, e os
+artefatos TF-IDF brutos ficam selecionáveis apenas para diagnóstico local do
+split Kaggle original.
 
 Rodar o baseline simbolico oficial (`oplexicon_regex`) no corpus comum, com
 perfil do dataset, metricas, predicoes, casos de erro e figuras para o texto

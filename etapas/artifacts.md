@@ -1,6 +1,9 @@
 # organizacao de outputs e artefatos
 
-Este projeto separa resultados gerados por etapa e por execucao. Nada dentro de `outputs/`, `data/raw/`, `data/processed/` ou `data/models/` deve ser versionado.
+Este projeto separa resultados gerados por etapa e por execucao. Nada dentro de
+`outputs/`, `data/raw/`, `data/processed/` ou `data/models/` deve ser
+versionado. A exceção é `data/app_models/`, que guarda apenas artefatos leves
+curados para o deploy do Streamlit.
 
 ## etapa 1
 
@@ -95,12 +98,18 @@ data/models/etapa2_subsymbolic/
   <run_id>/<model>.metadata.json
   transformers/<run_id>/<model>/
     Hugging Face model checkpoint
+
+data/app_models/etapa2_subsymbolic/
+  <run_id>/<model>.joblib
+  <run_id>/<model>.metadata.json
 ```
 
 Treinos TF-IDF devem salvar metricas, predicoes e, se necessario, um artefato
 `.joblib` em `data/models/etapa2_subsymbolic/<run_id>/`. Quando o artefato é
 exportado, o pipeline também grava `<model>.metadata.json`, usado pelo
 Streamlit para descobrir tratamento textual, métricas e relatório associado.
+Somente os modelos leves escolhidos para demonstração devem ser copiados para
+`data/app_models/etapa2_subsymbolic/<run_id>/` e versionados.
 Treinos transformer devem usar `transformer_benchmark/<run_id>/` para
 resultados e `data/models/etapa2_subsymbolic/transformers/<run_id>/<model>/`
 para checkpoints/modelo final.

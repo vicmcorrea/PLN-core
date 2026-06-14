@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "stage": "etapa2_subsimbolica",
+  "family": "classical",
+  "run_id": "20260614_113447_389024",
+  "model": "tfidf_logreg",
+  "kind": "classical",
+  "dataset": "kaggle_tweets[test]",
+  "text_treatment": "strip_emoticons_urls",
+  "train_examples": 100000,
+  "test_examples": 4999,
+  "vocabulary_size": 153180,
+  "model_artifact": "data/app_models/etapa2_subsymbolic/20260614_113447_389024/tfidf_logreg.joblib",
+  "report_path": "outputs/etapa2_subsymbolic/benchmark_suite/20260614_113447_389024/reports/tfidf_logreg/report.json",
+  "metrics": {
+    "total": 4999,
+    "correct": 4042,
+    "accuracy": 0.8085617123424685,
+    "macro_f1": 0.8094358557864175,
+    "per_class_f1": {
+      "positive": 0.7321480617895657,
+      "negative": 0.7416692143075512,
+      "neutral": 0.9544902912621359
+    },
+    "support": {
+      "positive": 1667,
+      "negative": 1666,
+      "neutral": 1666
+    },
+    "confusion": {
+      "positive->positive": 1256,
+      "positive->negative": 379,
+      "positive->neutral": 32,
+      "negative->positive": 428,
+      "negative->negative": 1213,
+      "negative->neutral": 25,
+      "neutral->positive": 80,
+      "neutral->negative": 13,
+      "neutral->neutral": 1573
+    },
+    "classification_report": "              precision    recall  f1-score   support\n\n    positive      0.712     0.753     0.732      1667\n    negative      0.756     0.728     0.742      1666\n     neutral      0.965     0.944     0.954      1666\n\n    accuracy                          0.809      4999\n   macro avg      0.811     0.809     0.809      4999\nweighted avg      0.811     0.809     0.809      4999\n"
+  },
+  "model_config": {
+    "name": "tfidf_logreg",
+    "kind": "classical",
+    "vectorizer": {
+      "analyzer": "word",
+      "ngram_range": [
+        1,
+        2
+      ],
+      "min_df": 2,
+      "max_df": 0.95,
+      "sublinear_tf": true
+    },
+    "classifier": {
+      "class_path": "sklearn.linear_model.LogisticRegression",
+      "max_iter": 1000,
+      "class_weight": "balanced",
+      "random_state": 42
+    }
+  }
+}

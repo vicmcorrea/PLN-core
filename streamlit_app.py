@@ -16,6 +16,7 @@ from pln_core.app_models import (  # noqa: E402
     AppModelInfo,
     AppPrediction,
     choose_default_model_id,
+    default_comparison_model_ids,
     discover_app_models,
     load_app_model,
     model_label,
@@ -31,8 +32,12 @@ SESSION_KEYS_TO_CLEAR = (
     "text_input",
     "sample_choice",
     "last_prediction",
+    "last_comparison_predictions",
     "recommendation_index",
 )
+
+MODE_SINGLE = "Classificar"
+MODE_COMPARE = "Comparar"
 
 LABEL_COLORS: dict[str, str] = {
     "positive": "green",
@@ -74,11 +79,17 @@ def initialize_session_state(models: tuple[AppModelInfo, ...]) -> None:
     st.session_state.setdefault("text_input", "")
     st.session_state.setdefault("sample_choice", None)
     st.session_state.setdefault("last_prediction", None)
+    st.session_state.setdefault("last_comparison_predictions", ())
     st.session_state.setdefault("recommendation_index", 0)
+    st.session_state.setdefault("app_mode", MODE_SINGLE)
 
     model_ids = {model.id for model in models}
     if st.session_state.get("model_choice") not in model_ids:
         st.session_state.model_choice = choose_default_model_id(models)
+
+    comparison_choices = tuple(st.session_state.get("comparison_model_choices", ()))
+    if not comparison_choices or not set(comparison_choices).issubset(model_ids):
+        st.session_state.comparison_model_choices = default_comparison_model_ids(models)
 
 
 @st.cache_resource(show_spinner="Carregando modelo...")
@@ -100,11 +111,19 @@ def on_sample_change() -> None:
     if sample:
         st.session_state.text_input = SAMPLE_TEXTS[sample]
         st.session_state.last_prediction = None
+        st.session_state.last_comparison_predictions = ()
         st.session_state.recommendation_index = 0
 
 
 def on_model_change() -> None:
     st.session_state.last_prediction = None
+    st.session_state.last_comparison_predictions = ()
+    st.session_state.recommendation_index = 0
+
+
+def on_mode_change() -> None:
+    st.session_state.last_prediction = None
+    st.session_state.last_comparison_predictions = ()
     st.session_state.recommendation_index = 0
 
 
@@ -112,6 +131,7 @@ def reset_analysis_state() -> None:
     for key in SESSION_KEYS_TO_CLEAR:
         st.session_state.pop(key, None)
     st.session_state.last_prediction = None
+    st.session_state.last_comparison_predictions = ()
     st.session_state.recommendation_index = 0
     st.session_state.text_input = ""
     st.session_state.sample_choice = None
@@ -136,6 +156,34 @@ def analyze_current_text(model: AppModelInfo) -> None:
         st.session_state.last_prediction = None
 
 
+def compare_current_text(models: tuple[AppModelInfo, ...]) -> None:
+    text = st.session_state.text_input.strip()
+    if not text:
+        st.warning("Escreva algum texto antes de comparar.")
+        return
+    if not models:
+        st.warning("Selecione pelo menos um modelo para comparar.")
+        return
+
+    predictions: list[AppPrediction] = []
+    failed: list[str] = []
+    for model in models:
+        try:
+            resource = get_model_resource(model.id, model_resource_key(model))
+            predictions.append(predict_sentiment(model, resource, text))
+        except LexiconDownloadError:
+            failed.append(f"{model.display_name}: OpLexicon indisponível")
+        except FileNotFoundError:
+            failed.append(f"{model.display_name}: artefato não encontrado")
+
+    st.session_state.last_comparison_predictions = tuple(predictions)
+    st.session_state.last_prediction = None
+    st.session_state.recommendation_index = 0
+
+    if failed:
+        st.warning("Alguns modelos não foram executados: " + "; ".join(failed))
+
+
 def translate_label(label: str) -> str:
     return LABEL_TRANSLATIONS.get(label, label)
 
@@ -156,6 +204,18 @@ def format_prediction_score(prediction: AppPrediction) -> str:
     if prediction.score_name == "confianca" and prediction.confidence is not None:
         return f"{prediction.confidence:.1%}"
     return f"{prediction.score:.3f}"
+
+
+def render_mode_selector() -> str:
+    return str(
+        st.segmented_control(
+            "Modo",
+            options=[MODE_SINGLE, MODE_COMPARE],
+            key="app_mode",
+            on_change=on_mode_change,
+            selection_mode="single",
+        )
+    )
 
 
 def render_model_selector(models: tuple[AppModelInfo, ...]) -> AppModelInfo:
@@ -186,6 +246,29 @@ def render_model_selector(models: tuple[AppModelInfo, ...]) -> AppModelInfo:
     return model_by_id[str(st.session_state.model_choice)]
 
 
+def render_comparison_selector(models: tuple[AppModelInfo, ...]) -> tuple[AppModelInfo, ...]:
+    model_by_id = {model.id: model for model in models}
+    cleaned_ids = [
+        model.id for model in models if model.text_treatment == "strip_emoticons_urls"
+    ]
+    options = cleaned_ids or list(model_by_id)
+    current_ids = tuple(st.session_state.get("comparison_model_choices", ()))
+    if not current_ids or not set(current_ids).issubset(set(options)):
+        st.session_state.comparison_model_choices = default_comparison_model_ids(models)
+
+    st.pills(
+        "Modelos",
+        options=options,
+        format_func=lambda model_id: model_by_id[model_id].display_name,
+        key="comparison_model_choices",
+        on_change=on_model_change,
+        selection_mode="multi",
+    )
+
+    selected_ids = tuple(st.session_state.get("comparison_model_choices", ()))
+    return tuple(model_by_id[model_id] for model_id in selected_ids if model_id in model_by_id)
+
+
 def render_model_card(model: AppModelInfo) -> None:
     with st.container(border=True):
         st.caption("Modelo selecionado")
@@ -210,6 +293,35 @@ def render_model_card(model: AppModelInfo) -> None:
                 "pistas fortes do rótulo; use estes resultados só como diagnóstico.",
                 icon=":material/warning:",
             )
+
+
+def render_comparison_model_card(models: tuple[AppModelInfo, ...]) -> None:
+    with st.container(border=True):
+        st.caption("Modelos comparados")
+        if not models:
+            st.write("Nenhum modelo selecionado.")
+            return
+
+        rows = [
+            {
+                "modelo": model_label(model.model_name),
+                "tratamento": text_treatment_label(model.text_treatment),
+                "acurácia": model.metrics.get("accuracy"),
+                "macro-F1": model.metrics.get("macro_f1"),
+            }
+            for model in models
+        ]
+        st.dataframe(
+            rows,
+            hide_index=True,
+            width="stretch",
+            column_config={
+                "modelo": st.column_config.TextColumn("modelo", pinned=True),
+                "tratamento": st.column_config.TextColumn("tratamento"),
+                "acurácia": st.column_config.NumberColumn("acurácia", format="%.4f"),
+                "macro-F1": st.column_config.NumberColumn("macro-F1", format="%.4f"),
+            },
+        )
 
 
 def render_label_card(prediction: AppPrediction) -> None:
@@ -378,6 +490,51 @@ def render_prediction(prediction: AppPrediction) -> None:
         render_recommendations(prediction)
 
 
+def render_comparison(predictions: tuple[AppPrediction, ...]) -> None:
+    if not predictions:
+        return
+
+    cols = st.columns(len(predictions))
+    for col, prediction in zip(cols, predictions, strict=True):
+        color = LABEL_COLORS.get(prediction.label, "gray")
+        with col.container(border=True):
+            st.caption(model_label(prediction.model.model_name))
+            st.markdown(f"### :{color}[{translate_label(prediction.label)}]")
+            st.caption(text_treatment_label(prediction.model.text_treatment))
+            st.write(f"`{format_prediction_score(prediction)}`")
+
+    rows = [
+        {
+            "modelo": model_label(prediction.model.model_name),
+            "família": prediction.model.family,
+            "tratamento": text_treatment_label(prediction.model.text_treatment),
+            "rótulo": translate_label(prediction.label),
+            "saída": format_prediction_score(prediction),
+            "acurácia teste": prediction.model.metrics.get("accuracy"),
+            "macro-F1 teste": prediction.model.metrics.get("macro_f1"),
+            "texto entregue": prediction.processed_text,
+        }
+        for prediction in predictions
+    ]
+
+    st.space("medium")
+    st.dataframe(
+        rows,
+        hide_index=True,
+        width="stretch",
+        column_config={
+            "modelo": st.column_config.TextColumn("modelo", pinned=True),
+            "família": st.column_config.TextColumn("família"),
+            "tratamento": st.column_config.TextColumn("tratamento"),
+            "rótulo": st.column_config.TextColumn("rótulo"),
+            "saída": st.column_config.TextColumn("saída"),
+            "acurácia teste": st.column_config.NumberColumn("acurácia teste", format="%.4f"),
+            "macro-F1 teste": st.column_config.NumberColumn("macro-F1 teste", format="%.4f"),
+            "texto entregue": st.column_config.TextColumn("texto entregue"),
+        },
+    )
+
+
 def main() -> None:
     models = discover_app_models(PROJECT_ROOT)
     initialize_session_state(models)
@@ -392,12 +549,18 @@ def main() -> None:
         )
 
         st.space("medium")
-        selected_model = render_model_selector(models)
+        app_mode = render_mode_selector()
+        if app_mode == MODE_COMPARE:
+            selected_models = render_comparison_selector(models)
+            selected_model = None
+        else:
+            selected_model = render_model_selector(models)
+            selected_models = ()
 
         if not any(model.is_classical for model in models):
             st.info(
-                "Nenhum artefato TF-IDF foi encontrado em `data/models/etapa2_subsymbolic/`. "
-                "Rode a suíte clássica da Etapa 2 para habilitar o modelo padrão do app.",
+                "Nenhum artefato TF-IDF foi encontrado em `data/app_models/` "
+                "ou `data/models/`.",
                 icon=":material/info:",
             )
 
@@ -406,7 +569,10 @@ def main() -> None:
         control_col, result_col = st.columns([1, 2], gap="large", vertical_alignment="top")
 
         with control_col:
-            render_model_card(selected_model)
+            if selected_model is not None:
+                render_model_card(selected_model)
+            else:
+                render_comparison_model_card(selected_models)
 
         with result_col:
             st.pills(
@@ -430,19 +596,29 @@ def main() -> None:
 
                 with st.container(horizontal=True, horizontal_alignment="distribute"):
                     clear_clicked = st.form_submit_button("Limpar")
-                    analyze_clicked = st.form_submit_button("Classificar", type="primary")
+                    action_label = "Comparar" if app_mode == MODE_COMPARE else "Classificar"
+                    analyze_clicked = st.form_submit_button(action_label, type="primary")
 
         if clear_clicked:
             reset_analysis_state()
 
         if analyze_clicked:
-            analyze_current_text(selected_model)
+            if app_mode == MODE_COMPARE:
+                compare_current_text(selected_models)
+            elif selected_model is not None:
+                analyze_current_text(selected_model)
 
-        prediction = st.session_state.last_prediction
-        if prediction is not None:
-            with result_col:
-                st.space("medium")
-                render_prediction(prediction)
+        with result_col:
+            if app_mode == MODE_COMPARE:
+                comparison_predictions = tuple(st.session_state.last_comparison_predictions)
+                if comparison_predictions:
+                    st.space("medium")
+                    render_comparison(comparison_predictions)
+            else:
+                prediction = st.session_state.last_prediction
+                if prediction is not None:
+                    st.space("medium")
+                    render_prediction(prediction)
 
 
 main()

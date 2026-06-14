@@ -45,4 +45,6 @@ Artefatos locais da execucao tratada usada como padrão no Streamlit:
 - `../../outputs/etapa2_subsymbolic/benchmark_suite/20260614_113447_389024/figures/`;
 - `../../outputs/etapa2_subsymbolic/benchmark_suite/20260614_113447_389024/predictions/`;
 - `../../outputs/etapa2_subsymbolic/benchmark_suite/20260614_113447_389024/cases/`;
-- `../../data/models/etapa2_subsymbolic/20260614_113447_389024/`.
+- `../../data/models/etapa2_subsymbolic/20260614_113447_389024/`;
+- `../../data/app_models/etapa2_subsymbolic/20260614_113447_389024/`
+  para o deploy do Streamlit.

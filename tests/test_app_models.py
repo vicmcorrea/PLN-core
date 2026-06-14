@@ -18,6 +18,7 @@ if str(SRC_DIR) not in sys.path:
 from pln_core.app_models import (  # noqa: E402
     AppModelInfo,
     choose_default_model_id,
+    default_comparison_model_ids,
     discover_app_models,
     load_app_model,
     predict_sentiment,
@@ -54,6 +55,51 @@ class AppModelTests(unittest.TestCase):
         )
 
         self.assertEqual(choose_default_model_id(models), "classical:clean:tfidf_logreg")
+
+    def test_default_comparison_uses_cleaned_symbolic_logreg_and_svm(self) -> None:
+        models = (
+            AppModelInfo(
+                id="symbolic:clean",
+                display_name="OpLexicon clean",
+                family="symbolic",
+                model_name="oplexicon_regex",
+                text_treatment="strip_emoticons_urls",
+                description="",
+            ),
+            AppModelInfo(
+                id="classical:raw:tfidf_logreg",
+                display_name="TF-IDF raw",
+                family="classical",
+                model_name="tfidf_logreg",
+                text_treatment="raw",
+                description="",
+            ),
+            AppModelInfo(
+                id="classical:clean:tfidf_logreg",
+                display_name="TF-IDF LogReg clean",
+                family="classical",
+                model_name="tfidf_logreg",
+                text_treatment="strip_emoticons_urls",
+                description="",
+            ),
+            AppModelInfo(
+                id="classical:clean:tfidf_linear_svm",
+                display_name="TF-IDF SVM clean",
+                family="classical",
+                model_name="tfidf_linear_svm",
+                text_treatment="strip_emoticons_urls",
+                description="",
+            ),
+        )
+
+        self.assertEqual(
+            default_comparison_model_ids(models),
+            (
+                "symbolic:clean",
+                "classical:clean:tfidf_logreg",
+                "classical:clean:tfidf_linear_svm",
+            ),
+        )
 
     def test_discover_classical_metadata_and_predicts_with_treatment(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -106,6 +152,52 @@ class AppModelTests(unittest.TestCase):
         self.assertEqual(prediction.label, "positive")
         self.assertEqual(prediction.processed_text, "Amei esse produto")
         self.assertGreaterEqual(prediction.class_scores["positive"], 0.0)
+
+    def test_discover_prefers_committed_deploy_artifact_over_local_duplicate(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            run_id = "20260614_app_test"
+            deploy_dir = project_root / f"data/app_models/etapa2_subsymbolic/{run_id}"
+            local_dir = project_root / f"data/models/etapa2_subsymbolic/{run_id}"
+            deploy_dir.mkdir(parents=True)
+            local_dir.mkdir(parents=True)
+
+            pipeline = Pipeline(
+                [
+                    ("tfidf", TfidfVectorizer()),
+                    ("classifier", DummyClassifier(strategy="constant", constant="positive")),
+                ]
+            )
+            pipeline.fit(
+                ["amei o produto", "odiei o produto", "produto entregue"],
+                ["positive", "negative", "neutral"],
+            )
+            for artifact_dir, macro_f1 in ((deploy_dir, 0.81), (local_dir, 0.79)):
+                artifact_path = artifact_dir / "tfidf_logreg.joblib"
+                joblib.dump(pipeline, artifact_path)
+                artifact_path.with_suffix(".metadata.json").write_text(
+                    json.dumps(
+                        {
+                            "schema_version": 1,
+                            "family": "classical",
+                            "run_id": run_id,
+                            "model": "tfidf_logreg",
+                            "text_treatment": "strip_emoticons_urls",
+                            "metrics": {"accuracy": 0.8, "macro_f1": macro_f1},
+                        }
+                    ),
+                    encoding="utf-8",
+                )
+
+            matches = [
+                model
+                for model in discover_app_models(project_root)
+                if model.id == f"classical:{run_id}:tfidf_logreg"
+            ]
+
+        self.assertEqual(len(matches), 1)
+        self.assertIn("data/app_models", str(matches[0].artifact_path))
+        self.assertEqual(matches[0].metrics["macro_f1"], 0.81)
 
 
 if __name__ == "__main__":

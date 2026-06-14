@@ -18,9 +18,14 @@ from pln_core.factory import (
 )
 from pln_core.pipeline import AnalysisResult, SymbolicSentimentAnalyzer
 
-DEFAULT_CLASSICAL_MODELS_DIR = Path("data/models/etapa2_subsymbolic")
+DEPLOY_CLASSICAL_MODELS_DIR = Path("data/app_models/etapa2_subsymbolic")
+LOCAL_CLASSICAL_MODELS_DIR = Path("data/models/etapa2_subsymbolic")
 DEFAULT_CLASSICAL_REPORTS_DIR = Path("outputs/etapa2_subsymbolic/benchmark_suite")
 DEFAULT_APP_TEXT_TREATMENT = "strip_emoticons_urls"
+CLASSICAL_MODEL_SEARCH_DIRS = (
+    DEPLOY_CLASSICAL_MODELS_DIR,
+    LOCAL_CLASSICAL_MODELS_DIR,
+)
 
 MODEL_DISPLAY_NAMES = {
     "oplexicon_regex": "OpLexicon regex",
@@ -222,11 +227,40 @@ def discover_app_models(project_root: Path) -> tuple[AppModelInfo, ...]:
     """Discover symbolic and saved app-loadable classical models."""
 
     models = list(_symbolic_models())
-    classical_root = project_root / DEFAULT_CLASSICAL_MODELS_DIR
-    if classical_root.exists():
+    seen: set[tuple[str, str]] = set()
+    for relative_root in CLASSICAL_MODEL_SEARCH_DIRS:
+        classical_root = project_root / relative_root
+        if not classical_root.exists():
+            continue
+
         artifacts = sorted(classical_root.glob("*/*.joblib"), reverse=True)
-        models.extend(_classical_info_from_artifact(project_root, path) for path in artifacts)
+        for artifact_path in artifacts:
+            key = (artifact_path.parent.name, artifact_path.stem)
+            if key in seen:
+                continue
+            seen.add(key)
+            models.append(_classical_info_from_artifact(project_root, artifact_path))
     return tuple(models)
+
+
+def default_comparison_model_ids(models: tuple[AppModelInfo, ...]) -> tuple[str, ...]:
+    """Return the preferred cleaned models for side-by-side comparison."""
+
+    preferred_names = (
+        PRODUCTION_ANALYZER_NAME,
+        "tfidf_logreg",
+        "tfidf_linear_svm",
+    )
+    selected: list[str] = []
+    for model_name in preferred_names:
+        for model in models:
+            if (
+                model.model_name == model_name
+                and model.text_treatment == DEFAULT_APP_TEXT_TREATMENT
+            ):
+                selected.append(model.id)
+                break
+    return tuple(selected)
 
 
 def choose_default_model_id(models: tuple[AppModelInfo, ...]) -> str:
