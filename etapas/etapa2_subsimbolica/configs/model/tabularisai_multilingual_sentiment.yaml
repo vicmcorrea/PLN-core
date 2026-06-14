@@ -1,0 +1,25 @@
+name: tabularisai_multilingual_sentiment
+kind: external_pretrained
+model_id: tabularisai/multilingual-sentiment-analysis
+base_model: distilbert/distilbert-base-multilingual-cased
+role: off_the_shelf_multilingual_sentiment
+labels:
+  - Very Negative
+  - Negative
+  - Neutral
+  - Positive
+  - Very Positive
+mapped_labels:
+  negative:
+    - Very Negative
+    - Negative
+  neutral:
+    - Neutral
+  positive:
+    - Positive
+    - Very Positive
+inference:
+  batch_size: 32
+  max_length: 128
+  device: auto
+  progress_interval: 512

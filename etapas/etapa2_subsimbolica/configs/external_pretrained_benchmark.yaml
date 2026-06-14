@@ -1,0 +1,26 @@
+# Etapa 2 external pretrained sentiment benchmark on the shared Kaggle corpus.
+defaults:
+  - dataset: kaggle_portuguese_tweets
+  - model: tabularisai_multilingual_sentiment
+  - _self_
+
+seed: 42
+output_dir: outputs/etapa2_subsymbolic/external_pretrained_benchmark
+run_id: ${now:%Y%m%d_%H%M%S_%f}
+overwrite: false
+save_predictions: true
+make_figures: true
+
+text_treatments:
+  - raw
+  - strip_emoticons_urls
+  - strip_social_source_cues
+
+test_max_examples: null
+test_per_class: null
+
+hydra:
+  run:
+    dir: ${output_dir}/_hydra/${run_id}
+  job:
+    chdir: false
