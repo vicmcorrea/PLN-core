@@ -31,10 +31,18 @@ acuracia `0.3697` e macro-F1 `0.3668`, enquanto o TF-IDF + Regressao Logistica
 fica em macro-F1 `0.8094`. Portanto, a tabela bruta deve ser apresentada como
 resultado no split Kaggle original, mas nao como unica evidencia de robustez.
 
-Artefatos locais da execucao consolidada:
+Artefatos locais da execucao bruta consolidada:
 
 - `../../outputs/etapa2_subsymbolic/benchmark_suite/20260612_103137_624831/reports/summary_metrics.md`;
 - `../../outputs/etapa2_subsymbolic/benchmark_suite/20260612_103137_624831/figures/`;
 - `../../outputs/etapa2_subsymbolic/benchmark_suite/20260612_103137_624831/predictions/`;
 - `../../outputs/etapa2_subsymbolic/benchmark_suite/20260612_103137_624831/cases/`;
 - `../../data/models/etapa2_subsymbolic/20260612_103137_624831/`.
+
+Artefatos locais da execucao tratada usada como padrão no Streamlit:
+
+- `../../outputs/etapa2_subsymbolic/benchmark_suite/20260614_113447_389024/reports/summary_metrics.md`;
+- `../../outputs/etapa2_subsymbolic/benchmark_suite/20260614_113447_389024/figures/`;
+- `../../outputs/etapa2_subsymbolic/benchmark_suite/20260614_113447_389024/predictions/`;
+- `../../outputs/etapa2_subsymbolic/benchmark_suite/20260614_113447_389024/cases/`;
+- `../../data/models/etapa2_subsymbolic/20260614_113447_389024/`.

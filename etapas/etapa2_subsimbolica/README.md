@@ -49,6 +49,26 @@ Cada execução cria uma pasta com `run_id` próprio em
 configuração resolvida, manifesto do dataset, métricas por modelo, tabela
 comparativa, predições, casos de erro e figuras. Os modelos `.joblib` ficam em
 `../../data/models/etapa2_subsymbolic/<run_id>/`, que também é ignorado pelo Git.
+Quando `save_models=true`, cada `.joblib` recebe um arquivo
+`<model>.metadata.json` com tratamento textual, métricas, caminho do relatório e
+configuração do modelo. O Streamlit usa esses metadados para escolher o modelo
+padrão e evitar confundir resultados brutos com resultados tratados.
+
+Para preparar o modelo padrão atual do Streamlit, use a condição tratada sem
+emoticons/URLs:
+
+```bash
+uv run python etapas/etapa2_subsimbolica/pipelines/run_classical_benchmark_suite.py \
+  text_treatment=strip_emoticons_urls \
+  symbolic_baseline.text_treatment=strip_emoticons_urls \
+  symbolic_baseline.accuracy=0.36967393478695737 \
+  symbolic_baseline.macro_f1=0.3667637673993909 \
+  symbolic_baseline.positive_f1=0.3958817668548655 \
+  symbolic_baseline.negative_f1=0.3174382178907066 \
+  symbolic_baseline.neutral_f1=0.3869713174526009
+```
+
+Execução local de referência para esse export: `20260614_113447_389024`.
 
 ## pipeline transformer
 
@@ -67,6 +87,12 @@ resultados ficam em `../../outputs/etapa2_subsymbolic/transformer_benchmark/<run
 e os checkpoints/modelos em `../../data/models/etapa2_subsymbolic/transformers/<run_id>/`.
 Em Mac com MPS, use lotes pequenos ou `trainer.use_cpu=true` para testes
 rapidos se houver erro de memoria compartilhada.
+
+No estado atual, transformers ficam no relatório e nos benchmarks, não como
+modelo padrão do Streamlit. A aplicação carrega por padrão o TF-IDF tratado,
+porque ele é leve, rápido e suficiente para a demonstração interativa. O suporte
+a checkpoints transformer no app deve ser adicionado depois apenas se o custo de
+memória/latência ficar aceitável para a apresentação.
 
 ## diagnostico de vazamento
 

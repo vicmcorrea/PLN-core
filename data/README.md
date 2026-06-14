@@ -32,3 +32,15 @@ para diagnosticar vazamento de rótulo:
 
 Arquivos grandes e recursos externos completos, como OpLexicon quando baixado
 localmente, ficam em subpastas ignoradas pelo Git.
+
+Modelos treinados também são locais e ignorados pelo Git. A aplicação
+Streamlit procura artefatos TF-IDF em:
+
+```text
+data/models/etapa2_subsymbolic/<run_id>/<model>.joblib
+data/models/etapa2_subsymbolic/<run_id>/<model>.metadata.json
+```
+
+Para o estado atual do projeto, o modelo padrão esperado é
+`tfidf_logreg` treinado com `strip_emoticons_urls`. A execução local de
+referência é `20260614_113447_389024`.

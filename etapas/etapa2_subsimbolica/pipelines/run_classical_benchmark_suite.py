@@ -350,6 +350,7 @@ def _run_model(
     metrics = compute_metrics(test_labels, predictions)
     vocabulary_size = len(pipeline.named_steps["tfidf"].vocabulary_)
 
+    artifact_path: Path | None = None
     model_artifact = ""
     if save_models:
         artifact_path = model_dir / f"{model_name}.joblib"
@@ -383,6 +384,27 @@ def _run_model(
     )
     report_path = run_dir / "reports" / model_name / "report.json"
     _write_json(report_path, report.as_dict())
+    if artifact_path is not None:
+        _write_json(
+            artifact_path.with_suffix(".metadata.json"),
+            {
+                "schema_version": 1,
+                "stage": "etapa2_subsimbolica",
+                "family": "classical",
+                "run_id": run_dir.name,
+                "model": model_name,
+                "kind": str(model_config["kind"]),
+                "dataset": test_dataset.name,
+                "text_treatment": text_treatment,
+                "train_examples": len(train_dataset.examples),
+                "test_examples": len(test_dataset.examples),
+                "vocabulary_size": vocabulary_size,
+                "model_artifact": model_artifact,
+                "report_path": _display_path(report_path),
+                "metrics": _metrics_as_dict(metrics),
+                "model_config": model_config,
+            },
+        )
     if make_figures:
         _plot_confusion(
             model_name=model_name,

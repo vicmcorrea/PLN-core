@@ -24,6 +24,20 @@ use `text_treatment=strip_emoticons_urls`. Para um diagnostico exploratorio
 mais forte contra pistas sociais e fontes de noticias, use
 `text_treatment=strip_social_source_cues`.
 
+O app Streamlit usa como padrão o melhor artefato TF-IDF leve na condição
+`strip_emoticons_urls`. Para gerar esse artefato app-ready, rode:
+
+```bash
+uv run python etapas/etapa2_subsimbolica/pipelines/run_classical_benchmark_suite.py \
+  text_treatment=strip_emoticons_urls \
+  symbolic_baseline.text_treatment=strip_emoticons_urls \
+  symbolic_baseline.accuracy=0.36967393478695737 \
+  symbolic_baseline.macro_f1=0.3667637673993909 \
+  symbolic_baseline.positive_f1=0.3958817668548655 \
+  symbolic_baseline.negative_f1=0.3174382178907066 \
+  symbolic_baseline.neutral_f1=0.3869713174526009
+```
+
 Entradas:
 
 - treino: `../../data/raw/portuguese-tweets-for-sentiment-analysis/TrainingDatasets/Train3Classes.csv`;
@@ -37,7 +51,8 @@ Saidas por execucao:
 - predicoes: `../../outputs/etapa2_subsymbolic/benchmark_suite/<run_id>/predictions/`;
 - casos de erro: `../../outputs/etapa2_subsymbolic/benchmark_suite/<run_id>/cases/`;
 - figuras: `../../outputs/etapa2_subsymbolic/benchmark_suite/<run_id>/figures/`;
-- modelos exportados: `../../data/models/etapa2_subsymbolic/<run_id>/`.
+- modelos exportados: `../../data/models/etapa2_subsymbolic/<run_id>/`;
+- metadados app-ready: `../../data/models/etapa2_subsymbolic/<run_id>/<model>.metadata.json`.
 
 ## analise de artefatos do corpus
 
@@ -134,6 +149,11 @@ uv run --extra transformers python etapas/etapa2_subsimbolica/pipelines/run_tran
 Em ambiente sem GPU dedicada, rode primeiro com `trainer.use_cpu=true` e uma
 amostra pequena. Em Mac com MPS, os defaults usam lotes menores, mas o treino
 completo ainda pode exigir reduzir `model.training.batch_size` ou usar CPU.
+
+Os transformers ainda são tratados como experimentos de relatório. O app foi
+preparado para carregar modelos locais leves e usa TF-IDF por padrão; carregar
+checkpoints transformer no Streamlit fica como próxima evolução, depois de
+validar memória, latência e tamanho dos artefatos.
 
 Saidas por execucao:
 

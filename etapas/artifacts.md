@@ -92,11 +92,18 @@ outputs/etapa2_subsymbolic/
 
 data/models/etapa2_subsymbolic/
   <run_id>/<model>.joblib
+  <run_id>/<model>.metadata.json
   transformers/<run_id>/<model>/
     Hugging Face model checkpoint
 ```
 
-Treinos TF-IDF devem salvar metricas, predicoes e, se necessario, um artefato `.joblib` em `data/models/etapa2_subsymbolic/<run_id>/`. Treinos transformer devem usar `transformer_benchmark/<run_id>/` para resultados e `data/models/etapa2_subsymbolic/transformers/<run_id>/<model>/` para checkpoints/modelo final.
+Treinos TF-IDF devem salvar metricas, predicoes e, se necessario, um artefato
+`.joblib` em `data/models/etapa2_subsymbolic/<run_id>/`. Quando o artefato é
+exportado, o pipeline também grava `<model>.metadata.json`, usado pelo
+Streamlit para descobrir tratamento textual, métricas e relatório associado.
+Treinos transformer devem usar `transformer_benchmark/<run_id>/` para
+resultados e `data/models/etapa2_subsymbolic/transformers/<run_id>/<model>/`
+para checkpoints/modelo final.
 Analises de artefatos do corpus devem usar `data_artifacts/<run_id>/` e nunca
 misturar tabelas de dataset com relatorios de modelos.
 Diagnosticos de vazamento por pistas superficiais devem usar
