@@ -98,7 +98,7 @@ def plot_macro_f1_tracks() -> None:
         color=OKABE_ITO["green"],
     )
 
-    ax.set_ylabel("F1 macro")
+    ax.set_ylabel("Macro F1")
     ax.set_ylim(0, 1.19)
     ax.set_xticks(x, systems)
     ax.grid(axis="y", alpha=0.25)
@@ -196,7 +196,7 @@ def plot_transformer_drop() -> None:
     ax.set_xlim(-0.2, 1.55)
     ax.set_ylim(0.68, 1.03)
     ax.set_xticks([0, 1], ["bruto\n(com pistas)", "sem emoticons/URLs"])
-    ax.set_ylabel("F1 macro")
+    ax.set_ylabel("Macro F1")
     ax.set_title("O melhor resultado bruto desaparece quando removemos atalhos")
     ax.grid(axis="y", alpha=0.25)
     ax.annotate(
@@ -228,7 +228,7 @@ def plot_clean_confusion_matrices() -> None:
     cmap = plt.get_cmap("cividis")
     systems = [
         (
-            "OpLexicon\nF1 macro 0,367",
+            "OpLexicon\nMacro F1 0,367",
             np.array(
                 [
                     [596, 329, 742],
@@ -238,7 +238,7 @@ def plot_clean_confusion_matrices() -> None:
             ),
         ),
         (
-            "TF-IDF Reg. Log.\nF1 macro 0,809",
+            "TF-IDF Reg. Log.\nMacro F1 0,809",
             np.array(
                 [
                     [1256, 379, 32],
@@ -248,7 +248,7 @@ def plot_clean_confusion_matrices() -> None:
             ),
         ),
         (
-            "TF-IDF SVM\nF1 macro 0,803",
+            "TF-IDF SVM\nMacro F1 0,803",
             np.array(
                 [
                     [1202, 433, 32],
@@ -258,7 +258,7 @@ def plot_clean_confusion_matrices() -> None:
             ),
         ),
         (
-            "DistilBERT\nF1 macro 0,738",
+            "DistilBERT\nMacro F1 0,738",
             np.array(
                 [
                     [842, 700, 125],
@@ -268,7 +268,7 @@ def plot_clean_confusion_matrices() -> None:
             ),
         ),
         (
-            "XLM-R\nF1 macro 0,749",
+            "XLM-R\nMacro F1 0,749",
             np.array(
                 [
                     [809, 783, 75],
@@ -278,7 +278,7 @@ def plot_clean_confusion_matrices() -> None:
             ),
         ),
         (
-            "Albertina\nF1 macro 0,781",
+            "Albertina\nMacro F1 0,781",
             np.array(
                 [
                     [1113, 490, 64],

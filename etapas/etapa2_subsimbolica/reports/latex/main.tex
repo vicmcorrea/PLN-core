@@ -132,7 +132,7 @@ Além da avaliação quantitativa, o projeto tem uma aplicação demonstrável. 
 
 Essa tarefa é relevante porque opiniões em português brasileiro aparecem continuamente em comentários, avaliações de produtos, publicações políticas, mensagens de atendimento e discussões em redes sociais. Sistemas de análise de sentimentos permitem resumir grandes volumes de texto e apoiar decisões, mas a tarefa continua difícil porque a polaridade de uma frase depende de contexto, domínio e recursos linguísticos informais. A palavra ``bomba'', por exemplo, pode ser negativa em ``o filme é uma bomba'', mas não tem a mesma função em uma notícia factual. A expressão ``adorei esperar duas horas'' tem palavras positivas, mas pode carregar ironia negativa. Em tweets, emoticons, URLs, menções, hashtags, risadas e alongamentos gráficos também alteram fortemente a interpretação.
 
-Na Etapa 1, a equipe desenvolveu uma solução simbólica baseada em OpLexicon e regras explícitas. Essa solução é interpretável e permite ver quais termos contribuíram para a decisão, mas sofre quando o léxico não cobre gírias, quando a classe neutra contém termos aparentemente polarizados ou quando o significado depende de contexto amplo. A Etapa 2 parte exatamente desse ponto. O objetivo não é apenas obter uma acurácia maior, mas comparar uma solução simbólica com modelos que aprendem a partir de dados, verificando quando o ganho numérico parece confiável e quando ele aparece por causa de atalhos do corpus. A aplicação final usa essa comparação para escolher um modelo leve e estável para classificar frases livres e alimentar a recomendação musical.
+Na Etapa 1, a equipe desenvolveu uma solução simbólica baseada em OpLexicon e regras explícitas. Essa solução é interpretável e permite ver quais termos contribuíram para a decisão, mas sofre quando o léxico não cobre gírias, quando a classe neutra contém termos aparentemente polarizados ou quando o significado depende de contexto amplo. A Etapa 2 parte exatamente desse ponto. O objetivo não é apenas obter um valor maior de \emph{accuracy}, mas comparar uma solução simbólica com modelos que aprendem a partir de dados, verificando quando o ganho numérico parece confiável e quando ele aparece por causa de atalhos do corpus. A aplicação final usa essa comparação para escolher um modelo leve e estável para classificar frases livres e alimentar a recomendação musical.
 
 \section{Tópico do trabalho prático}
 
@@ -288,7 +288,7 @@ Catálogo musical & Dez músicas escolhidas e anotadas manualmente pelo grupo & 
 
 \section{Corpus, treino, teste e métricas}
 
-O conjunto de treino tem 100.000 tweets e o conjunto de teste tem 4.999 tweets. A Tabela~\ref{tab:dataset} resume os tamanhos e a distribuição das classes. A distribuição praticamente balanceada ajuda a comparar acurácia e F1 macro sem que uma classe domine numericamente o resultado. O corpus é composto por textos curtos de rede social, o que traz abreviações, emoticons, URLs, menções, hashtags e frases muito dependentes de contexto. Essa característica é útil para testar métodos em linguagem informal, mas também criou a principal dificuldade do trabalho, pois alguns desses sinais aparecem fortemente associados aos rótulos.
+O conjunto de treino tem 100.000 tweets e o conjunto de teste tem 4.999 tweets. A Tabela~\ref{tab:dataset} resume os tamanhos e a distribuição das classes. A distribuição praticamente balanceada ajuda a comparar \emph{accuracy} e \emph{macro F1} sem que uma classe domine numericamente o resultado. O corpus é composto por textos curtos de rede social, o que traz abreviações, emoticons, URLs, menções, hashtags e frases muito dependentes de contexto. Essa característica é útil para testar métodos em linguagem informal, mas também criou a principal dificuldade do trabalho, pois alguns desses sinais aparecem fortemente associados aos rótulos.
 
 \begin{table}[h]
 \small
@@ -332,7 +332,7 @@ Condição sem emoticons e URLs & Diagnóstico feito nos dados & A remoção tes
 \label{tab:decisoes}
 \end{table}
 
-As métricas principais são acurácia, precisão macro, revocação macro e F1 macro. A acurácia mede a proporção total de acertos. A precisão mede, entre tudo que o modelo chamou de uma classe, quanto estava correto. A revocação mede, entre tudo que realmente era daquela classe, quanto o modelo encontrou. O F1 combina precisão e revocação em uma medida única. Na versão macro, precisão, revocação e F1 são calculados separadamente para positivo, negativo e neutro, e depois resumidos por uma média simples. Essa leitura é importante porque o objetivo não é apenas acertar uma classe fácil, mas manter desempenho equilibrado entre polaridades. As métricas seguem a mesma convenção do relatório de classificação usado pelo scikit-learn \citep{pedregosa2011scikit}.
+As métricas principais são \emph{accuracy}, \emph{macro precision}, \emph{macro recall} e \emph{macro F1}. A \emph{accuracy} mede a proporção total de acertos. A \emph{precision} mede, entre tudo que o modelo chamou de uma classe, quanto estava correto. O \emph{recall} mede, entre tudo que realmente era daquela classe, quanto o modelo encontrou. O F1 combina \emph{precision} e \emph{recall} em uma medida única. Na versão macro, \emph{precision}, \emph{recall} e F1 são calculados separadamente para positivo, negativo e neutro, e depois resumidos por uma média simples. Essa leitura é importante porque o objetivo não é apenas acertar uma classe fácil, mas manter desempenho equilibrado entre polaridades. As métricas seguem a mesma convenção do relatório de classificação usado pelo scikit-learn \citep{pedregosa2011scikit}.
 
 \begin{table}[h]
 \small
@@ -409,14 +409,14 @@ Leitura neural & O modelo contextual tende a juntar a avaliação positiva do at
 
 \section{Resultados atuais}
 
-A Figura~\ref{fig:macro-f1} resume os resultados consolidados nas execuções atuais. A leitura principal é que o melhor número não é necessariamente o melhor resultado científico. No texto bruto, os transformers chegam a F1 macro quase perfeito, mas uma baseline deliberadamente simples usando apenas três pistas superficiais, emoticon positivo, emoticon negativo e URL, também chega a 0,9970. Esse valor é o resultado da baseline de pistas, também chamada de \emph{cue-only baseline}. Ela recebe esse nome porque ignora o conteúdo linguístico do tweet e toma decisão apenas a partir de sinais externos muito próximos do rótulo. Portanto, o valor 0,9970 não significa que um sistema simples compreendeu sentimento em português. Ele significa que, no teste bruto, quase todo o rótulo pode ser recuperado por atalhos de coleta, o que segue a lógica de baselines de artefato usadas para revelar vieses em conjuntos de dados \citep{gururangan2018artifacts,poliak2018hypothesis}. Isso é um sinal ruim do ponto de vista metodológico. Se um classificador que não lê palavras de sentimento resolve o teste quase inteiro, então a avaliação bruta está medindo principalmente atalhos do corpus, não a capacidade real de compreender polaridade.
+A Figura~\ref{fig:macro-f1} resume os resultados consolidados nas execuções atuais. A leitura principal é que o melhor número não é necessariamente o melhor resultado científico. No texto bruto, os transformers chegam a \emph{macro F1} quase perfeito, mas uma baseline deliberadamente simples usando apenas três pistas superficiais, emoticon positivo, emoticon negativo e URL, também chega a 0,9970. Esse valor é o resultado da baseline de pistas, também chamada de \emph{cue-only baseline}. Ela recebe esse nome porque ignora o conteúdo linguístico do tweet e toma decisão apenas a partir de sinais externos muito próximos do rótulo. Portanto, o valor 0,9970 não significa que um sistema simples compreendeu sentimento em português. Ele significa que, no teste bruto, quase todo o rótulo pode ser recuperado por atalhos de coleta, o que segue a lógica de baselines de artefato usadas para revelar vieses em conjuntos de dados \citep{gururangan2018artifacts,poliak2018hypothesis}. Isso é um sinal ruim do ponto de vista metodológico. Se um classificador que não lê palavras de sentimento resolve o teste quase inteiro, então a avaliação bruta está medindo principalmente atalhos do corpus, não a capacidade real de compreender polaridade.
 
-Por isso, uma acurácia bruta de 99\% não deve ser interpretada como ``o modelo aprendeu sentimentos em português''. A interpretação mais cuidadosa é que o modelo aprendeu muito bem o protocolo de rotulagem do corpus. A comparação mais informativa é a condição em que as pistas usadas na supervisão distante são removidas. Quando emoticons e URLs são apagados, os transformers caem para a faixa de 0,7385 a 0,7808 de F1 macro. O sistema simbólico também cai de 0,5960 para 0,3668 de F1 macro, porque o OpLexicon contém entradas polarizadas para emoticons. Essa queda é justamente o resultado mais importante do diagnóstico. Os modelos continuam úteis, mas a versão bruta estava inflada por vazamento de rótulo.
+Por isso, um valor bruto de \emph{accuracy} de 99\% não deve ser interpretado como ``o modelo aprendeu sentimentos em português''. A interpretação mais cuidadosa é que o modelo aprendeu muito bem o protocolo de rotulagem do corpus. A comparação mais informativa é a condição em que as pistas usadas na supervisão distante são removidas. Quando emoticons e URLs são apagados, os transformers caem para a faixa de 0,7385 a 0,7808 de \emph{macro F1}. O sistema simbólico também cai de 0,5960 para 0,3668 de \emph{macro F1}, porque o OpLexicon contém entradas polarizadas para emoticons. Essa queda é justamente o resultado mais importante do diagnóstico. Os modelos continuam úteis, mas a versão bruta estava inflada por vazamento de rótulo.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=\linewidth]{figures/macro_f1_tracks.pdf}
-\caption{F1 macro por sistema e por condição de texto. As barras cinzas hachuradas correspondem ao \emph{split} Kaggle bruto, que tem alta acurácia mas é metodologicamente fraco por conter pistas de rótulo. As barras sem emoticons/URLs e sem pistas sociais/fontes são mais úteis para discutir robustez. Valores ausentes indicam combinações não executadas ou não aplicáveis.}
+\caption{\emph{Macro F1} por sistema e por condição de texto. As barras cinzas hachuradas correspondem ao \emph{split} Kaggle bruto, que tem valor alto de \emph{accuracy} mas é metodologicamente fraco por conter pistas de rótulo. As barras sem emoticons/URLs e sem pistas sociais/fontes são mais úteis para discutir robustez. Valores ausentes indicam combinações não executadas ou não aplicáveis.}
 \label{fig:macro-f1}
 \end{figure}
 \FloatBarrier
@@ -428,7 +428,7 @@ Por isso, uma acurácia bruta de 99\% não deve ser interpretada como ``o modelo
 \altrowcolors
 \begin{tabular}{@{}lrrrrr@{}}
 \toprule
-\textbf{Sistema} & \textbf{Treino} & \textbf{Teste} & \textbf{Tratamento} & \textbf{Acurácia} & \textbf{F1 macro} \\
+\textbf{Sistema} & \textbf{Treino} & \textbf{Teste} & \textbf{Tratamento} & \textbf{Accuracy} & \textbf{Macro F1} \\
 \midrule
 OpLexicon com regras & 0 & 4.999 & bruto com pistas & 0,5979 & 0,5960 \\
 \textbf{OpLexicon com regras} & \textbf{0} & \textbf{4.999} & \textbf{sem emoticons/URLs} & \textbf{0,3697} & \textbf{0,3668} \\
@@ -448,7 +448,7 @@ Albertina 100M pt-BR & 3.000 & 4.999 & bruto com pistas & 0,9972 & 0,9972 \\
 \end{tabular}%
 }
 \clearrowcolors
-\caption{Resultados atuais usados como base para a escrita da Etapa 2. As linhas em negrito indicam a condição principal de comparação para cada sistema, sem emoticons e URLs. As linhas ``bruto com pistas'' têm maior acurácia, mas são problemáticas porque a baseline de pistas mostra que o rótulo pode ser inferido quase diretamente por artefatos do corpus. Os resultados neurais são execuções de desenvolvimento com 1.000 exemplos por classe no treino.}
+\caption{Resultados atuais usados como base para a escrita da Etapa 2. As linhas em negrito indicam a condição principal de comparação para cada sistema, sem emoticons e URLs. As linhas ``bruto com pistas'' têm valor maior de \emph{accuracy}, mas são problemáticas porque a baseline de pistas mostra que o rótulo pode ser inferido quase diretamente por artefatos do corpus. Os resultados neurais são execuções de desenvolvimento com 1.000 exemplos por classe no treino.}
 \label{tab:resultados}
 \end{table}
 \FloatBarrier
@@ -461,7 +461,7 @@ A Tabela~\ref{tab:metricas-limpa} e a Figura~\ref{fig:confusao-limpa} detalham a
 \altrowcolors
 \begin{tabular}{@{}lrrrr@{}}
 \toprule
-\textbf{Sistema} & \textbf{Acurácia} & \textbf{Precisão macro} & \textbf{Revocação macro} & \textbf{F1 macro} \\
+\textbf{Sistema} & \textbf{Accuracy} & \textbf{Macro precision} & \textbf{Macro recall} & \textbf{Macro F1} \\
 \midrule
 OpLexicon com regras & 0,3697 & 0,3821 & 0,3697 & 0,3668 \\
 TF-IDF + Reg. Logística & \textbf{0,8086} & \textbf{0,8109} & \textbf{0,8086} & \textbf{0,8094} \\
@@ -483,7 +483,7 @@ Albertina 100M pt-BR & 0,7822 & 0,7798 & 0,7822 & 0,7808 \\
 \label{fig:confusao-limpa}
 \end{figure}
 
-O padrão principal é que os modelos estatísticos e neurais reconhecem muito bem a classe neutra, mas ainda confundem bastante positivo e negativo. Esse comportamento combina com a natureza dos tweets depois da limpeza. Muitos textos ficam curtos, irônicos ou dependentes de contexto, e uma parte deles perde justamente o emoticon que sustentava o rótulo original. O OpLexicon sofre mais nesse cenário porque depende de palavras encontradas no léxico e tende a deslocar muitos casos para neutro. Entre os métodos treinados, a Regressão Logística com TF-IDF fica com o melhor conjunto de métricas na condição limpa, liderando acurácia, precisão macro, revocação macro e F1 macro. Albertina fica como o melhor resultado neural, mas ainda abaixo do TF-IDF nessa execução de desenvolvimento.
+O padrão principal é que os modelos estatísticos e neurais reconhecem muito bem a classe neutra, mas ainda confundem bastante positivo e negativo. Esse comportamento combina com a natureza dos tweets depois da limpeza. Muitos textos ficam curtos, irônicos ou dependentes de contexto, e uma parte deles perde justamente o emoticon que sustentava o rótulo original. O OpLexicon sofre mais nesse cenário porque depende de palavras encontradas no léxico e tende a deslocar muitos casos para neutro. Entre os métodos treinados, a Regressão Logística com TF-IDF fica com o melhor conjunto de métricas na condição limpa, liderando \emph{accuracy}, \emph{macro precision}, \emph{macro recall} e \emph{macro F1}. Albertina fica como o melhor resultado neural, mas ainda abaixo do TF-IDF nessa execução de desenvolvimento.
 \FloatBarrier
 
 \section{Diagnóstico de artefatos e dificuldades encontradas}
@@ -495,7 +495,7 @@ Chamamos isso de vazamento de rótulo. O termo descreve a situação em que uma 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.82\linewidth]{figures/cue_prevalence_heatmap.pdf}
-\caption{Prevalência de pistas superficiais no teste. A concentração quase determinística dessas pistas por classe explica por que uma baseline de pistas alcança desempenho quase perfeito no \emph{split} bruto; portanto, acurácia bruta muito alta deve ser interpretada como alerta, não como vitória automática do modelo.}
+\caption{Prevalência de pistas superficiais no teste. A concentração quase determinística dessas pistas por classe explica por que uma baseline de pistas alcança desempenho quase perfeito no \emph{split} bruto; portanto, um valor bruto de \emph{accuracy} muito alto deve ser interpretado como alerta, não como vitória automática do modelo.}
 \label{fig:pistas}
 \end{figure}
 
@@ -504,7 +504,7 @@ Esse achado mudou a interpretação dos resultados. Antes do diagnóstico, os va
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.72\linewidth]{figures/transformer_drop.pdf}
-\caption{Queda de F1 macro dos transformers ao remover emoticons e URLs. O ponto à esquerda é maior, mas não é melhor como evidência metodológica, pois está contaminado por pistas de rótulo. O ponto à direita é menor, porém mais informativo sobre robustez.}
+\caption{Queda de \emph{macro F1} dos transformers ao remover emoticons e URLs. O ponto à esquerda é maior, mas não é melhor como evidência metodológica, pois está contaminado por pistas de rótulo. O ponto à direita é menor, porém mais informativo sobre robustez.}
 \label{fig:queda-transformers}
 \end{figure}
 
@@ -542,15 +542,15 @@ Modelo bruto parece melhor por vazamento & \texttt{Overdose deixou Demi Lovato �
 
 \section{Comparação com a Etapa 1}
 
-O sistema simbólico da Etapa 1 obteve 0,5979 de acurácia e 0,5960 de F1 macro no teste bruto. Após remover emoticons e URLs, o mesmo sistema caiu para 0,3697 de acurácia e 0,3668 de F1 macro. Na versão mais estrita, sem pistas sociais e fontes, ficou em 0,3695 de acurácia e 0,3665 de F1 macro. Portanto, o baseline simbólico bruto também deve ser lido com cuidado. Ele é útil como reprodução da Etapa 1 no corpus original, mas a comparação científica principal com os modelos da Etapa 2 é a condição tratada. Os baselines TF-IDF superam esse valor com margem clara, chegando a 0,8094 de F1 macro sem emoticons e URLs. Esse ganho é esperado, pois os modelos estatísticos aprendem pesos diretamente do corpus e conseguem explorar combinações de palavras que não aparecem como entradas polarizadas no OpLexicon. Além disso, o TF-IDF com Regressão Logística foi escolhido como modelo padrão do Streamlit porque mantém bom desempenho tratado, é leve para deploy e torna a demonstração mais estável.
+O sistema simbólico da Etapa 1 obteve 0,5979 de \emph{accuracy} e 0,5960 de \emph{macro F1} no teste bruto. Após remover emoticons e URLs, o mesmo sistema caiu para 0,3697 de \emph{accuracy} e 0,3668 de \emph{macro F1}. Na versão mais estrita, sem pistas sociais e fontes, ficou em 0,3695 de \emph{accuracy} e 0,3665 de \emph{macro F1}. Portanto, o baseline simbólico bruto também deve ser lido com cuidado. Ele é útil como reprodução da Etapa 1 no corpus original, mas a comparação científica principal com os modelos da Etapa 2 é a condição tratada. Os baselines TF-IDF superam esse valor com margem clara, chegando a 0,8094 de \emph{macro F1} sem emoticons e URLs. Esse ganho é esperado, pois os modelos estatísticos aprendem pesos diretamente do corpus e conseguem explorar combinações de palavras que não aparecem como entradas polarizadas no OpLexicon. Além disso, o TF-IDF com Regressão Logística foi escolhido como modelo padrão do Streamlit porque mantém bom desempenho tratado, é leve para deploy e torna a demonstração mais estável.
 
-A comparação com transformers exige duas leituras. No teste bruto, DistilBERT, XLM-R e Albertina ficam próximos de 0,997 de F1 macro, mas esse valor está no mesmo nível da baseline de pistas. Na condição sem emoticons e URLs, Albertina chega a 0,7808 de F1 macro, XLM-R a 0,7494 e DistilBERT a 0,7385. Esses valores continuam acima do sistema simbólico tratado, mas ficam abaixo do TF-IDF tratado. Assim, a conclusão da etapa não é que o transformer bruto ``venceu'' com 99\%, e sim que os transformers são benchmarks úteis para discutir custo computacional, pré-treinamento e robustez, enquanto a comparação principal deve usar a condição limpa.
+A comparação com transformers exige duas leituras. No teste bruto, DistilBERT, XLM-R e Albertina ficam próximos de 0,997 de \emph{macro F1}, mas esse valor está no mesmo nível da baseline de pistas. Na condição sem emoticons e URLs, Albertina chega a 0,7808 de \emph{macro F1}, XLM-R a 0,7494 e DistilBERT a 0,7385. Esses valores continuam acima do sistema simbólico tratado, mas ficam abaixo do TF-IDF tratado. Assim, a conclusão da etapa não é que o transformer bruto ``venceu'' com 99\%, e sim que os transformers são benchmarks úteis para discutir custo computacional, pré-treinamento e robustez, enquanto a comparação principal deve usar a condição limpa.
 
 \section{Limitações e possibilidades de melhoria}
 
 Os modelos neurais foram treinados em amostras estratificadas de 3.000 exemplos por limitação de tempo e máquina local. Essa decisão deve ser apresentada como limitação experimental, não como falha do fluxo experimental. Os artefatos de desenvolvimento já mostram a queda esperada quando as pistas superficiais são removidas, mas uma execução final maior poderia alterar a ordem relativa entre Albertina, XLM-R e DistilBERT. Outra limitação é que os exemplos qualitativos revelam inconsistências de rotulagem depois da limpeza. Em alguns tweets, o rótulo parece depender mais do emoticon removido do que do texto restante.
 
-Também há uma limitação do corpus. O tratamento sem emoticons/URLs melhora a honestidade da avaliação, mas não remove todos os vieses de coleta. A condição mais estrita, que também remove pistas sociais e marcadores de fontes, mostra que os TF-IDF ainda mantêm F1 macro próximo de 0,80, o que pode indicar tanto aprendizado lexical real quanto novos vieses de tópico. Por isso, essa condição é tratada como diagnóstico adicional, não como uma solução definitiva para o problema de validade externa.
+Também há uma limitação do corpus. O tratamento sem emoticons/URLs melhora a honestidade da avaliação, mas não remove todos os vieses de coleta. A condição mais estrita, que também remove pistas sociais e marcadores de fontes, mostra que os TF-IDF ainda mantêm \emph{macro F1} próximo de 0,80, o que pode indicar tanto aprendizado lexical real quanto novos vieses de tópico. Por isso, essa condição é tratada como diagnóstico adicional, não como uma solução definitiva para o problema de validade externa.
 
 \section{Instruções para execução}
 
