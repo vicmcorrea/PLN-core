@@ -34,6 +34,12 @@ pista de rotulo. A aplicacao Streamlit usa TF-IDF + Regressao Logistica tratado
 como modo padrao; os transformers permanecem como modelos de benchmark e
 discussao no relatorio.
 
+A secao de aplicacao agora descreve o uso final do sistema em feira. O usuario
+digita uma frase, o modelo padrao classifica o sentimento e o modulo musical
+ordena um catalogo manual de 10 musicas pela proximidade entre escore do texto
+e valencia atribuida pelo grupo. A tabela de exemplos da aplicacao foi gerada
+com o modelo TF-IDF + Regressao Logistica versionado para o Streamlit.
+
 Arquivos principais:
 
 - `main.tex`: estrutura geral do relatorio em portugues.

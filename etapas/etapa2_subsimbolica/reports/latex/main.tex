@@ -59,7 +59,7 @@
 
 \section{Nome do projeto}
 
-\textbf{PLN Core, análise de sentimentos em português brasileiro com comparação entre métodos simbólicos, estatísticos e neurais}
+\textbf{PLN Core, análise de sentimentos em português brasileiro com comparação entre métodos simbólicos, estatísticos e neurais e recomendação musical por valência}
 
 \section{Equipe}
 
@@ -75,7 +75,7 @@
 
 \subsection{Autoria do grupo e recursos externos}
 
-Uma preocupação trazida da revisão da Etapa 1 foi deixar explícito o que foi feito pela equipe e o que veio de recursos externos. Nesta etapa, a equipe definiu o protocolo de comparação, preparou as versões tratadas do texto, treinou e avaliou os classificadores estatísticos, fez ajuste fino supervisionado dos transformers, investigou o vazamento de rótulo por sinais superficiais e produziu as tabelas e figuras do relatório. Os recursos externos foram usados como base de dados, léxico, bibliotecas de aprendizado de máquina e modelos pré-treinados. A Tabela~\ref{tab:autoria} separa esses papéis de forma resumida.
+Uma preocupação trazida da revisão da Etapa 1 foi deixar explícito o que foi feito pela equipe e o que veio de recursos externos. Nesta etapa, a equipe definiu o protocolo de comparação, preparou as versões tratadas do texto, treinou e avaliou os classificadores estatísticos, fez ajuste fino supervisionado dos transformers, investigou o vazamento de rótulo por sinais superficiais, adaptou a aplicação interativa para o modelo treinado e manteve o módulo de recomendação musical. Os recursos externos foram usados como base de dados, léxico, bibliotecas de aprendizado de máquina, modelos pré-treinados e links de reprodução. A Tabela~\ref{tab:autoria} separa esses papéis de forma resumida.
 
 \begin{table}[h]
 \small
@@ -94,6 +94,8 @@ Modelos estatísticos & TF-IDF com Regressão Logística e SVM linear & scikit-l
 \addlinespace[0.25em]
 Transformers ajustados & Ajuste fino supervisionado de DistilBERT, XLM-R e Albertina, seguido de avaliação nas mesmas condições de texto & Modelos pré-treinados \citep{sanh2019distilbert,conneau2020xlmr,rodrigues2023albertina} \\
 \addlinespace[0.25em]
+Aplicação e recomendação musical & Classificação de texto livre digitado pelo usuário e ordenação de músicas por rótulo e valência & Catálogo musical curado pela equipe e links públicos do YouTube \\
+\addlinespace[0.25em]
 Diagnóstico e visualização & Teste de vazamento, análise de erros e figuras do relatório & Hugging Face Transformers \citep{wolf2020transformers} e Hydra \citep{yadan2019hydra} \\
 \bottomrule
 \end{tabularx}
@@ -106,13 +108,15 @@ Diagnóstico e visualização & Teste de vazamento, análise de erros e figuras 
 
 A tarefa deste projeto é classificar textos curtos em português brasileiro como positivos, negativos ou neutros. A entrada é uma frase ou publicação curta, tipicamente próxima do estilo de redes sociais, e a saída é um rótulo de polaridade. Por exemplo, o texto ``amei o atendimento, foi rápido e cuidadoso'' deve ser classificado como positivo; ``o aplicativo travou de novo e perdi tudo'' deve ser classificado como negativo; e ``o pacote chegou às 14h'' tende a ser neutro, pois descreve um fato sem opinião explícita.
 
+Além da avaliação quantitativa, o projeto tem uma aplicação demonstrável. O usuário digita uma frase, o sistema estima o sentimento dessa frase e, quando a opção de recomendação musical é acionada, sugere uma música cujo clima combina com a saída do classificador. Assim, a classificação não termina apenas em uma etiqueta técnica. Ela vira uma resposta concreta para uma pessoa testando a aplicação na feira.
+
 Essa tarefa é relevante porque opiniões em português brasileiro aparecem continuamente em comentários, avaliações de produtos, publicações políticas, mensagens de atendimento e discussões em redes sociais. Sistemas de análise de sentimentos permitem resumir grandes volumes de texto e apoiar decisões, mas a tarefa continua difícil porque a polaridade de uma frase depende de contexto, domínio e recursos linguísticos informais. A palavra ``bomba'', por exemplo, pode ser negativa em ``o filme é uma bomba'', mas não tem a mesma função em uma notícia factual. A expressão ``adorei esperar duas horas'' tem palavras positivas, mas pode carregar ironia negativa. Em tweets, emoticons, URLs, menções, hashtags, risadas e alongamentos gráficos também alteram fortemente a interpretação.
 
-Na Etapa 1, a equipe desenvolveu uma solução simbólica baseada em OpLexicon e regras explícitas. Essa solução é interpretável e permite ver quais termos contribuíram para a decisão, mas sofre quando o léxico não cobre gírias, quando a classe neutra contém termos aparentemente polarizados ou quando o significado depende de contexto amplo. A Etapa 2 parte exatamente desse ponto. O objetivo não é apenas obter uma acurácia maior, mas comparar uma solução simbólica com modelos que aprendem a partir de dados, verificando quando o ganho numérico parece confiável e quando ele aparece por causa de atalhos do corpus.
+Na Etapa 1, a equipe desenvolveu uma solução simbólica baseada em OpLexicon e regras explícitas. Essa solução é interpretável e permite ver quais termos contribuíram para a decisão, mas sofre quando o léxico não cobre gírias, quando a classe neutra contém termos aparentemente polarizados ou quando o significado depende de contexto amplo. A Etapa 2 parte exatamente desse ponto. O objetivo não é apenas obter uma acurácia maior, mas comparar uma solução simbólica com modelos que aprendem a partir de dados, verificando quando o ganho numérico parece confiável e quando ele aparece por causa de atalhos do corpus. A aplicação final usa essa comparação para escolher um modelo leve e estável para classificar frases livres e alimentar a recomendação musical.
 
 \section{Tópico do trabalho prático}
 
-O tópico do trabalho prático é análise de sentimentos em português brasileiro. A comparação central desta etapa é entre três paradigmas. O primeiro é o baseline simbólico da Etapa 1, representado pelo sistema baseado em OpLexicon e regras. O segundo é estatístico clássico, com TF-IDF combinado a Regressão Logística e SVM linear. O terceiro é neural, com modelos transformer multilíngues ou focados em português, ajustados para a tarefa de três classes.
+O tópico do trabalho prático é análise de sentimentos em português brasileiro. A comparação central desta etapa é entre três paradigmas. O primeiro é o baseline simbólico da Etapa 1, representado pelo sistema baseado em OpLexicon e regras. O segundo é estatístico clássico, com TF-IDF combinado a Regressão Logística e SVM linear. O terceiro é neural, com modelos transformer multilíngues ou focados em português, ajustados para a tarefa de três classes. O uso público desses modelos aparece na aplicação interativa, em que uma frase digitada pelo usuário recebe um rótulo de sentimento e pode gerar uma recomendação musical.
 
 A comparação é feita no mesmo corpus e no mesmo \emph{split}, evitando a situação em que dois sistemas parecem diferentes apenas porque foram avaliados em bases incompatíveis. Essa decisão não foi tomada depois de observar os resultados. Ela vem do desenho experimental de benchmark, em que os sistemas devem ser comparados sob o mesmo teste sempre que a pergunta é qual método funciona melhor para o mesmo problema. Em análise de sentimentos, essa cautela é importante porque mudanças de domínio, pré-processamento, anotação e distribuição das classes alteram bastante os resultados \citep{ribeiro2016sentibench}. Em avaliação de PLN, também é comum tratar a comparação de sistemas no mesmo conjunto de exemplos como uma comparação pareada, pois cada item do teste oferece a mesma dificuldade para todos os métodos \citep{dror2017replicability}.
 
@@ -120,7 +124,7 @@ A comparação é feita no mesmo corpus e no mesmo \emph{split}, evitando a situ
 
 \subsection{Arquitetura geral}
 
-A Figura~\ref{fig:pipeline-etapa2} mostra a arquitetura planejada para a Etapa 2. Todos os modelos recebem o mesmo treino e o mesmo teste. O texto pode ser usado em sua forma bruta, preservando o \emph{split} original do corpus, ou em versões tratadas para diagnóstico, removendo pistas que podem revelar o rótulo sem exigir compreensão semântica.
+A Figura~\ref{fig:pipeline-etapa2} mostra a arquitetura planejada para a Etapa 2. Todos os modelos recebem o mesmo treino e o mesmo teste. O texto pode ser usado em sua forma bruta, preservando o \emph{split} original do corpus, ou em versões tratadas para diagnóstico, removendo pistas que podem revelar o rótulo sem exigir compreensão semântica. Depois da avaliação, o modelo leve escolhido para a demonstração é usado na aplicação Streamlit, que conecta a saída de sentimento a uma recomendação musical.
 
 \begin{figure}[h]
 \centering
@@ -134,6 +138,8 @@ A Figura~\ref{fig:pipeline-etapa2} mostra a arquitetura planejada para a Etapa 2
 
   \node[flowbox, below=0.55cm of prep] (diagnostic) {diagnóstico\\de vazamento};
   \node[flowbox, below=0.55cm of models] (figures) {tabelas e\\figuras};
+  \node[flowbox, below=0.55cm of eval] (app) {aplicação\\Streamlit};
+  \node[flowbox, below=0.55cm of compare] (songs) {recomendação\\musical};
 
   \draw[flowarrow] (dataset) -- (prep);
   \draw[flowarrow] (prep) -- (models);
@@ -142,9 +148,11 @@ A Figura~\ref{fig:pipeline-etapa2} mostra a arquitetura planejada para a Etapa 2
   \draw[flowarrow] (prep) -- (diagnostic);
   \draw[flowarrow] (diagnostic) -- (figures);
   \draw[flowarrow] (eval) -- (figures);
+  \draw[flowarrow] (models) -- (app);
+  \draw[flowarrow] (app) -- (songs);
 \end{tikzpicture}
 }
-\caption{Arquitetura da Etapa 2. O corpus comum alimenta baselines estatísticos, modelos neurais e diagnósticos de artefatos.}
+\caption{Arquitetura da Etapa 2. O corpus comum alimenta baselines estatísticos, modelos neurais, diagnósticos de artefatos e a aplicação que recomenda músicas a partir da saída de sentimento.}
 \label{fig:pipeline-etapa2}
 \end{figure}
 
@@ -157,6 +165,8 @@ O segundo processo é o tratamento textual. O modo bruto preserva o corpus origi
 O terceiro processo é o treinamento. Nos modelos clássicos, os textos são convertidos em vetores TF-IDF de unigramas e bigramas. Em seguida, treina-se uma Regressão Logística ou um classificador SVM linear. Nos modelos neurais, o texto é dividido em subpalavras pelo tokenizador do modelo pré-treinado e o classificador final é ajustado para decidir entre positivo, negativo e neutro. A diferença de quantidade de treino entre os modelos clássicos e neurais não é uma conclusão empírica a favor de um método. Os modelos TF-IDF foram treinados com o treino completo porque são leves. Os modelos neurais foram treinados em uma amostra estratificada de desenvolvimento por limite de tempo e memória, e por isso seus números são discutidos como benchmark parcial e não como ranking final absoluto.
 
 O quarto processo é a avaliação. Cada rodada produz métricas agregadas, F1 por classe, matriz de confusão, predições e casos de erro. As rodadas recebem identificadores próprios, o que evita misturar resultados de sistemas diferentes e facilita conferir de onde saiu cada número apresentado no relatório.
+
+O quinto processo é a demonstração interativa. Nessa etapa, o usuário não fornece rótulo nem escolhe um exemplo do corpus. Ele escreve uma frase própria, o modelo selecionado devolve sentimento e escore, e esse resultado é usado para buscar músicas compatíveis em um catálogo pequeno definido pela equipe.
 
 \subsection{Sistemas comparados}
 
@@ -188,7 +198,42 @@ Os baselines clássicos usam vetorização TF-IDF com unigramas e bigramas de pa
 
 Os modelos neurais avaliados são DistilBERT multilíngue, XLM-R base e Albertina-100M pt-BR. Um transformer é um modelo neural pré-treinado em grande volume de texto, capaz de produzir representações contextuais para palavras e subpalavras. Ajuste supervisionado, neste trabalho, significa continuar o treinamento desse modelo usando os tweets rotulados do corpus e substituir a saída original por uma camada de classificação em três classes. O DistilBERT foi usado porque é uma versão destilada e mais leve da família BERT \citep{sanh2019distilbert}. XLM-R foi usado porque é um modelo multilíngue forte, adequado quando se quer comparar português com uma arquitetura treinada em muitos idiomas \citep{conneau2020xlmr}. Albertina foi usada porque é uma alternativa voltada ao português e, portanto, testa se pré-treinamento mais próximo da língua-alvo ajuda no cenário limpo \citep{rodrigues2023albertina}.
 
-Para a demonstração no Streamlit, o modelo padrão escolhido foi o TF-IDF com Regressão Logística na condição sem emoticons e URLs. Essa escolha é deliberadamente conservadora. O modelo é pequeno, carrega rápido, foi treinado no mesmo corpus comum e evita transformar a apresentação pública em uma demonstração dependente de um modelo neural pesado. Os transformers ficam, nesta etapa, como modelos de benchmark e discussão metodológica no relatório.
+Para a demonstração no Streamlit, o modelo padrão escolhido foi o TF-IDF com Regressão Logística na condição sem emoticons e URLs. Essa escolha é deliberadamente conservadora. O modelo é pequeno, carrega rápido, foi treinado no mesmo corpus comum e evita transformar a apresentação pública em uma demonstração dependente de um modelo neural pesado. Os transformers ficam, nesta etapa, como modelos de benchmark e discussão metodológica no relatório. O mesmo modelo padrão alimenta a recomendação musical da aplicação.
+
+\subsection{Aplicação e recomendação musical}
+
+A aplicação é a parte voltada ao usuário final. Ela recebe uma frase curta em português, aplica o tratamento textual escolhido, executa o classificador selecionado e mostra uma resposta em linguagem simples. Na versão de demonstração, o modo padrão usa TF-IDF com Regressão Logística, pois esse modelo apresentou bom desempenho na condição sem emoticons e URLs e é leve o suficiente para carregar rapidamente em ambiente público. A interface também permite comparar respostas com o leitor simbólico, mas a experiência principal é escrever uma frase, apertar o botão de classificação e ver uma interpretação de sentimento.
+
+A recomendação musical usa o rótulo e o escore produzidos pelo classificador. O rótulo restringe o conjunto de músicas candidatas. Se a frase foi classificada como positiva, apenas músicas positivas entram na comparação. Se foi negativa, entram músicas negativas. Se foi neutra, entram músicas neutras. Depois disso, o sistema ordena as candidatas pela distância entre o escore da frase e a valência atribuída à música. A valência é uma medida afetiva no eixo desagradável--agradável, inspirada pela tradição do modelo circumplexo do afeto \citep{russell1980circumplex}. No nosso catálogo, ela foi simplificada para o intervalo de $-1$ a $+1$. Valores próximos de $+1$ indicam músicas percebidas como alegres ou luminosas, valores próximos de $-1$ indicam músicas percebidas como tristes, tensas ou críticas, e valores perto de zero indicam clima mais contemplativo.
+
+O catálogo musical não foi aprendido automaticamente. Ele foi definido empiricamente pelos participantes do grupo, que escolheram dez faixas e atribuíram manualmente o rótulo de sentimento e a valência de cada uma. Essa escolha considerou letra, clima geral da gravação e impressão afetiva dos integrantes. O catálogo tem quatro músicas positivas, três negativas e três neutras. Por exemplo, ``País Tropical'', de Jorge Ben Jor, recebeu valência $0{,}90$ e rótulo positivo. ``Tempo Perdido'', de Legião Urbana, recebeu valência $-0{,}55$ e rótulo negativo. ``Sampa'', de Caetano Veloso, recebeu valência $0{,}00$ e rótulo neutro. O YouTube é usado apenas como link de reprodução. Nenhuma API externa decide a recomendação.
+
+A regra de ordenação é determinística. Para cada música candidata $s$, calculamos a distância
+\[
+d(s) = |\,\text{valência}(s) - \text{escore}_{\text{texto}}\,|.
+\]
+A música com menor distância aparece primeiro. Se o texto recebe rótulo positivo e escore próximo de $0{,}97$, uma música positiva de valência $0{,}90$ fica mais próxima do que uma música positiva de valência $0{,}60$. Se o texto recebe rótulo negativo e escore $-0{,}67$, uma música negativa de valência $-0{,}55$ fica mais próxima do que outra de valência $-0{,}90$. Essa regra torna a recomendação explicável, mas também mostra uma limitação. As valências são julgamentos manuais do grupo, não medidas musicais obtidas por anotação ampla ou por análise acústica.
+
+\begin{table}[h]
+\small
+\centering
+\renewcommand{\arraystretch}{1.16}
+\altrowcolors
+\begin{tabularx}{\linewidth}{@{}Y L{2.4cm} L{3.1cm} L{2.2cm}@{}}
+\toprule
+\textbf{Frase digitada} & \textbf{Saída do modelo} & \textbf{Música recomendada} & \textbf{Valência} \\
+\midrule
+\texttt{Hoje foi um dia maravilhoso, estou muito feliz} & positivo, $0{,}968$ & ``País Tropical'', Jorge Ben Jor & $0{,}90$ \\
+\addlinespace[0.3em]
+\texttt{Estou cansado e frustrado com tudo isso} & negativo, $-0{,}673$ & ``Tempo Perdido'', Legião Urbana & $-0{,}55$ \\
+\addlinespace[0.3em]
+\texttt{A notícia foi publicada no site oficial} & neutro, $0{,}000$ & ``Sampa'', Caetano Veloso & $0{,}00$ \\
+\bottomrule
+\end{tabularx}
+\clearrowcolors
+\caption{Exemplos reais da aplicação usando o modelo padrão TF-IDF com Regressão Logística e a regra de recomendação por valência.}
+\label{tab:app-recomendacao}
+\end{table}
 
 \subsection{Recursos e ferramentas}
 
@@ -212,6 +257,8 @@ scikit-learn & Biblioteca de aprendizado de máquina clássico & Vetorização T
 Hugging Face Transformers & Biblioteca para tokenização e ajuste de transformers & Execução de DistilBERT, XLM-R e Albertina como modelos neurais de benchmark \\
 \addlinespace[0.3em]
 Hydra e Streamlit & Configuração de experimentos e interface interativa & Organização das rodadas e demonstração pública com modelo leve \\
+\addlinespace[0.3em]
+Catálogo musical & Dez músicas escolhidas e anotadas manualmente pelo grupo & Recomendação por rótulo de sentimento e proximidade de valência \\
 \bottomrule
 \end{tabularx}
 \clearrowcolors
