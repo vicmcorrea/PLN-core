@@ -114,7 +114,7 @@ Na Etapa 1, a equipe desenvolveu uma solução simbólica baseada em OpLexicon e
 
 O tópico do trabalho prático é análise de sentimentos em português brasileiro. A comparação central desta etapa é entre três paradigmas. O primeiro é o baseline simbólico da Etapa 1, representado pelo sistema baseado em OpLexicon e regras. O segundo é estatístico clássico, com TF-IDF combinado a Regressão Logística e SVM linear. O terceiro é neural, com modelos transformer multilíngues ou focados em português, ajustados para a tarefa de três classes.
 
-A comparação é feita no mesmo corpus e no mesmo \emph{split}, evitando a situação em que dois sistemas parecem diferentes apenas porque foram avaliados em bases incompatíveis. Essa decisão é importante porque resultados de análise de sentimentos variam muito com domínio, pré-processamento, método de anotação e distribuição das classes \citep{ribeiro2016sentibench}.
+A comparação é feita no mesmo corpus e no mesmo \emph{split}, evitando a situação em que dois sistemas parecem diferentes apenas porque foram avaliados em bases incompatíveis. Essa decisão não foi tomada depois de observar os resultados. Ela vem do desenho experimental de benchmark, em que os sistemas devem ser comparados sob o mesmo teste sempre que a pergunta é qual método funciona melhor para o mesmo problema. Em análise de sentimentos, essa cautela é importante porque mudanças de domínio, pré-processamento, anotação e distribuição das classes alteram bastante os resultados \citep{ribeiro2016sentibench}. Em avaliação de PLN, também é comum tratar a comparação de sistemas no mesmo conjunto de exemplos como uma comparação pareada, pois cada item do teste oferece a mesma dificuldade para todos os métodos \citep{dror2017replicability}.
 
 \section{Proposta da solução da Etapa 2}
 
@@ -154,7 +154,7 @@ O primeiro processo é o carregamento do corpus. O projeto usa uma camada comum 
 
 O segundo processo é o tratamento textual. O modo bruto preserva o corpus original. Para diagnóstico, foram implementadas duas versões tratadas. A primeira remove emoticons e URLs, que são os símbolos mais diretamente associados à supervisão distante. A segunda também remove menções, hashtags e marcadores de fontes neutras recorrentes. A função desses tratamentos não é ``corrigir'' definitivamente o corpus, mas medir quanto do desempenho depende de atalhos superficiais.
 
-O terceiro processo é o treinamento. Nos modelos clássicos, os textos são convertidos em vetores TF-IDF de unigramas e bigramas. Em seguida, treina-se uma Regressão Logística ou um classificador SVM linear. Nos modelos neurais, o texto é dividido em subpalavras pelo tokenizador do modelo pré-treinado e o classificador final é ajustado para decidir entre positivo, negativo e neutro.
+O terceiro processo é o treinamento. Nos modelos clássicos, os textos são convertidos em vetores TF-IDF de unigramas e bigramas. Em seguida, treina-se uma Regressão Logística ou um classificador SVM linear. Nos modelos neurais, o texto é dividido em subpalavras pelo tokenizador do modelo pré-treinado e o classificador final é ajustado para decidir entre positivo, negativo e neutro. A diferença de quantidade de treino entre os modelos clássicos e neurais não é uma conclusão empírica a favor de um método. Os modelos TF-IDF foram treinados com o treino completo porque são leves. Os modelos neurais foram treinados em uma amostra estratificada de desenvolvimento por limite de tempo e memória, e por isso seus números são discutidos como benchmark parcial e não como ranking final absoluto.
 
 O quarto processo é a avaliação. Cada rodada produz métricas agregadas, F1 por classe, matriz de confusão, predições e casos de erro. As rodadas recebem identificadores próprios, o que evita misturar resultados de sistemas diferentes e facilita conferir de onde saiu cada número apresentado no relatório.
 
@@ -184,9 +184,9 @@ Contraste & ``bom, mas caro'' & A parte depois de ``mas'' recebe mais peso, pois
 \label{tab:simbolico}
 \end{table}
 
-Os baselines clássicos usam vetorização TF-IDF com unigramas e bigramas de palavras. TF-IDF representa um texto dando peso maior a termos que aparecem naquele texto, mas não aparecem em todos os textos do corpus. Assim, uma palavra frequente em um tweet e relativamente específica no conjunto ganha mais importância do que uma palavra muito comum. A Regressão Logística funciona como baseline simples e interpretável, pois aprende pesos por classe. O SVM linear funciona como baseline clássico forte para texto esparso, porque aprende uma fronteira de decisão com margem entre as classes.
+Os baselines clássicos usam vetorização TF-IDF com unigramas e bigramas de palavras. TF-IDF representa um texto dando peso maior a termos que aparecem naquele texto, mas não aparecem em todos os textos do corpus, seguindo a tradição de ponderação termo-documento em recuperação de informação \citep{salton1988termweighting}. Assim, uma palavra frequente em um tweet e relativamente específica no conjunto ganha mais importância do que uma palavra muito comum. A escolha de TF-IDF com modelos lineares não veio apenas de conveniência de implementação. Métodos de aprendizado de máquina com representações esparsas, incluindo SVM, foram usados desde trabalhos clássicos de análise de sentimentos \citep{pang2002thumbs}, e SVMs lineares são uma referência forte para categorização de texto com muitas variáveis relevantes \citep{joachims1998text}. A Regressão Logística foi incluída como baseline simples e interpretável, pois aprende pesos por classe e gera probabilidades úteis para a demonstração. O SVM linear foi incluído como baseline clássico forte, pois aprende uma fronteira de decisão com margem entre as classes.
 
-Os modelos neurais avaliados são DistilBERT multilíngue, XLM-R base e Albertina-100M pt-BR. Um transformer é um modelo neural pré-treinado em grande volume de texto, capaz de produzir representações contextuais para palavras e subpalavras. Ajuste supervisionado, neste trabalho, significa continuar o treinamento desse modelo usando os tweets rotulados do corpus e substituir a saída original por uma camada de classificação em três classes. O DistilBERT foi usado como opção leve, XLM-R como modelo multilíngue mais forte e Albertina como alternativa voltada ao português do Brasil.
+Os modelos neurais avaliados são DistilBERT multilíngue, XLM-R base e Albertina-100M pt-BR. Um transformer é um modelo neural pré-treinado em grande volume de texto, capaz de produzir representações contextuais para palavras e subpalavras. Ajuste supervisionado, neste trabalho, significa continuar o treinamento desse modelo usando os tweets rotulados do corpus e substituir a saída original por uma camada de classificação em três classes. O DistilBERT foi usado porque é uma versão destilada e mais leve da família BERT \citep{sanh2019distilbert}. XLM-R foi usado porque é um modelo multilíngue forte, adequado quando se quer comparar português com uma arquitetura treinada em muitos idiomas \citep{conneau2020xlmr}. Albertina foi usada porque é uma alternativa voltada ao português e, portanto, testa se pré-treinamento mais próximo da língua-alvo ajuda no cenário limpo \citep{rodrigues2023albertina}.
 
 Para a demonstração no Streamlit, o modelo padrão escolhido foi o TF-IDF com Regressão Logística na condição sem emoticons e URLs. Essa escolha é deliberadamente conservadora. O modelo é pequeno, carrega rápido, foi treinado no mesmo corpus comum e evita transformar a apresentação pública em uma demonstração dependente de um modelo neural pesado. Os transformers ficam, nesta etapa, como modelos de benchmark e discussão metodológica no relatório.
 
@@ -207,6 +207,33 @@ Teste & 4.999 & 1.667 & 1.666 & 1.666 \\
 \end{tabular}
 \caption{Distribuição de classes no corpus comum usado pelas duas etapas.}
 \label{tab:dataset}
+\end{table}
+
+O \emph{split} de treino e teste usado no relatório é o \emph{split} disponibilizado junto ao corpus. A equipe preferiu preservar essa divisão porque ela fixa uma base comum de comparação e evita que uma nova separação aleatória crie um teste diferente do que seria usado por outras reproduções do mesmo corpus. O teste ficou intocado para todos os sistemas. O treino foi usado de maneiras diferentes porque os métodos têm naturezas diferentes. O sistema simbólico não estima parâmetros supervisionados, então aparece com treino zero nas tabelas. Os modelos TF-IDF usam todo o treino, pois o custo computacional é baixo. Os transformers usam uma amostra estratificada de desenvolvimento nesta versão, o que mantém as três classes balanceadas, mas deve ser lido como limitação experimental. A Tabela~\ref{tab:decisoes} resume a origem dessas escolhas.
+
+\begin{table}[h]
+\small
+\centering
+\renewcommand{\arraystretch}{1.16}
+\altrowcolors
+\begin{tabularx}{\linewidth}{@{}L{3.1cm}L{3.2cm}Y@{}}
+\toprule
+\textbf{Escolha} & \textbf{Origem da decisão} & \textbf{Justificativa no relatório} \\
+\midrule
+\emph{Split} fixo do corpus & Divisão já disponibilizada no corpus & Mantém o mesmo teste para todos os sistemas e permite comparação pareada \citep{ribeiro2016sentibench,dror2017replicability} \\
+\addlinespace[0.3em]
+Sistema simbólico sem treino & Propriedade do método & O sistema aplica léxico e regras, sem aprender pesos supervisionados a partir do treino \\
+\addlinespace[0.3em]
+TF-IDF com treino completo & Decisão experimental viável & Baselines lineares são baratos e tradicionais em categorização de texto e sentimento \citep{salton1988termweighting,pang2002thumbs,joachims1998text} \\
+\addlinespace[0.3em]
+Transformers com amostra estratificada & Limitação prática desta versão & A amostra permite comparar sensibilidade ao tratamento textual, mas não deve ser usada como ranking final de modelos neurais \\
+\addlinespace[0.3em]
+Condição sem emoticons e URLs & Diagnóstico feito nos dados & A remoção testa se o desempenho permanece quando as pistas mais próximas da supervisão distante são apagadas \citep{go2009distant,gururangan2018artifacts,poliak2018hypothesis} \\
+\bottomrule
+\end{tabularx}
+\clearrowcolors
+\caption{Origem das principais escolhas experimentais usadas na comparação.}
+\label{tab:decisoes}
 \end{table}
 
 As métricas principais são acurácia e F1 macro. A acurácia mede a proporção total de acertos. O F1 combina precisão e revocação de uma classe. A precisão mede, entre tudo que o modelo chamou de uma classe, quanto estava correto. A revocação mede, entre tudo que realmente era daquela classe, quanto o modelo encontrou. O F1 macro calcula esse valor separadamente para positivo, negativo e neutro e depois tira a média simples. Essa métrica é importante porque o objetivo não é apenas acertar uma classe fácil, mas manter desempenho equilibrado entre polaridades.
@@ -245,7 +272,7 @@ TF-IDF com Regressão Logística & 100.000 tweets & Modelo estatístico principa
 \addlinespace[0.3em]
 TF-IDF com SVM linear & 100.000 tweets & Baseline clássico forte para texto esparso. Testado nas três condições de texto \\
 \addlinespace[0.3em]
-Albertina 100M pt-BR & 3.000 tweets & Exemplo neural em português. Rodada de desenvolvimento no texto bruto e sem emoticons e URLs \\
+Albertina 100M pt-BR & 3.000 tweets estratificados & Exemplo neural em português. Rodada de desenvolvimento no texto bruto e sem emoticons e URLs \\
 \addlinespace[0.3em]
 Baseline de pistas & 100.000 tweets & Diagnóstico de vazamento. Usa só emoticon positivo, emoticon negativo e URL \\
 \bottomrule

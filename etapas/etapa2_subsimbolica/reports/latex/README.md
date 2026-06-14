@@ -14,6 +14,12 @@ execucao. A parte metodologica agora explica, em linguagem de relatorio, o papel
 da solucao simbolica, do TF-IDF, da Regressao Logistica, do SVM linear, dos
 transformers e do diagnostico de vazamento.
 
+A versao atual tambem explicita a origem das escolhas experimentais. O relatorio
+separa decisoes vindas do corpus, como o split fixo de treino e teste, decisoes
+baseadas na literatura, como o uso de TF-IDF com modelos lineares, e limitacoes
+praticas, como as rodadas neurais em amostra estratificada de desenvolvimento.
+As novas citacoes foram verificadas antes de entrar no `references.bib`.
+
 A tabela de exemplos qualitativos foi preenchida com casos reais extraidos das
 predicoes salvas. Ela cobre falhas do simbolico corrigidas pelo TF-IDF, falhas
 do TF-IDF em textos ambiguos ou ironicos, um exemplo com Albertina 100M pt-BR,
