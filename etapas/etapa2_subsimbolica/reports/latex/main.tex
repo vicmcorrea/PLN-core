@@ -492,7 +492,7 @@ O sistema simbólico da Etapa 1 obteve 0,5979 de acurácia e 0,5960 de F1 macro 
 
 A comparação com transformers exige duas leituras. No teste bruto, DistilBERT, XLM-R e Albertina ficam próximos de 0,997 de F1 macro, mas esse valor está no mesmo nível da baseline de pistas. Na condição sem emoticons e URLs, Albertina chega a 0,7808 de F1 macro, XLM-R a 0,7494 e DistilBERT a 0,7385. Esses valores continuam acima do sistema simbólico tratado, mas ficam abaixo do TF-IDF tratado. Assim, a conclusão da etapa não é que o transformer bruto ``venceu'' com 99\%, e sim que os transformers são benchmarks úteis para discutir custo computacional, pré-treinamento e robustez, enquanto a comparação principal deve usar a condição limpa.
 
-\section{Limitações e próximos passos}
+\section{Limitações e possibilidades de melhoria}
 
 Os modelos neurais foram treinados em amostras estratificadas de 3.000 exemplos por limitação de tempo e máquina local. Essa decisão deve ser apresentada como limitação experimental, não como falha do fluxo experimental. Os artefatos de desenvolvimento já mostram a queda esperada quando as pistas superficiais são removidas, mas uma execução final maior poderia alterar a ordem relativa entre Albertina, XLM-R e DistilBERT. Outra limitação é que os exemplos qualitativos revelam inconsistências de rotulagem depois da limpeza. Em alguns tweets, o rótulo parece depender mais do emoticon removido do que do texto restante.
 
