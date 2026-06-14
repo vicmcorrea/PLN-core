@@ -1,14 +1,20 @@
 # LaTeX da etapa 2
 
-Esta pasta contem o rascunho estrutural do relatorio da segunda etapa. O texto
-segue o formato do relatorio revisado da Etapa 1, mas ainda nao deve ser tratado
-como versao final: faltam selecionar exemplos reais de sucesso/insucesso,
-decidir o modelo que entrara na interface Streamlit e revisar as referencias
-bibliograficas finais.
+Esta pasta contem o relatorio em LaTeX da segunda etapa. O texto segue o
+formato do relatorio revisado da Etapa 1 e ja incorpora a comparacao entre
+Etapa 1 simbolica, baselines TF-IDF, diagnosticos de vazamento e execucoes
+transformer de desenvolvimento.
 
 As figuras e tabelas atuais ja incorporam a execucao simbolica
 `20260612_152415_135433`, incluindo os resultados `raw`,
 `strip_emoticons_urls` e `strip_social_source_cues`.
+
+A tabela de exemplos qualitativos foi preenchida com casos reais extraidos das
+predicoes salvas. Ela cobre: falhas do simbolico corrigidas pelo TF-IDF, falhas
+do TF-IDF em textos ambiguos ou ironicos, e um exemplo em que o modelo bruto
+parece melhor apenas porque a URL atua como pista de rotulo. A aplicacao
+Streamlit usa TF-IDF + Regressao Logistica tratado como modo padrao; os
+transformers permanecem como modelos de benchmark e discussao no relatorio.
 
 Arquivos principais:
 

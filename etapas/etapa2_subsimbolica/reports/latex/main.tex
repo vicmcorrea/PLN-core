@@ -31,7 +31,6 @@
 
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
-\newcommand{\draftnote}[1]{\textbf{[A completar: #1]}}
 
 \tikzset{
   flowbox/.style={
@@ -153,7 +152,7 @@ O corpus operacional é o Kaggle \emph{Portuguese Tweets for Sentiment Analysis}
 
 Os baselines clássicos usam \texttt{TfidfVectorizer} com n-gramas de palavra de tamanho 1 e 2, \texttt{min\_df=2}, \texttt{max\_df=0.95} e \texttt{sublinear\_tf=true}. A Regressão Logística funciona como baseline simples e interpretável; o Linear SVM funciona como baseline clássico forte para texto esparso, frequentemente competitivo em tarefas de classificação textual.
 
-Os modelos neurais avaliados até este rascunho são \texttt{distilbert-base-multilingual-cased}, \texttt{FacebookAI/xlm-roberta-base} e \texttt{PORTULAN/albertina-100m-portuguese-ptbr-encoder}. O DistilBERT foi usado como opção leve de validação do pipeline, XLM-R como modelo principal multilingue, e Albertina como alternativa focada em português do Brasil. \draftnote{Completar com a justificativa final do modelo escolhido para a demonstração no Streamlit.}
+Os modelos neurais avaliados são DistilBERT multilingue, XLM-R base e Albertina-100M pt-BR, com os checkpoints exatos registrados nos arquivos de configuração da etapa. O DistilBERT foi usado como opção leve de validação do pipeline, XLM-R como modelo principal multilingue, e Albertina como alternativa focada em português do Brasil. Para a demonstração no Streamlit, porém, o modelo padrão escolhido foi o TF-IDF com Regressão Logística na condição sem emoticons/URLs. Essa escolha é deliberadamente conservadora: o modelo é pequeno, carrega rápido, foi treinado no mesmo corpus comum e evita transformar a aplicação de feira em uma demonstração dependente de um artefato neural pesado. Os transformers ficam, nesta etapa, como modelos de benchmark e discussão metodológica no relatório.
 
 \section{Corpus, treino, teste e métricas}
 
@@ -178,14 +177,14 @@ As métricas principais são acurácia e F1 macro. A acurácia mede a proporçã
 
 \section{Resultados atuais}
 
-A Figura~\ref{fig:macro-f1} resume os resultados consolidados até este rascunho. A leitura principal é que o melhor resultado numérico não é necessariamente o melhor resultado científico. No \emph{split} bruto, os transformers chegam a F1 macro quase perfeito, mas uma baseline degenerada usando apenas três pistas superficiais --- emoticon positivo, emoticon negativo e URL --- também chega a 0,9970. Isso é um sinal ruim do ponto de vista metodológico: se um classificador que não lê palavras de sentimento resolve o teste quase inteiro, então a avaliação bruta está medindo principalmente a presença de atalhos do corpus, não a capacidade real de compreender polaridade.
+A Figura~\ref{fig:macro-f1} resume os resultados consolidados nas execuções atuais. A leitura principal é que o melhor resultado numérico não é necessariamente o melhor resultado científico. No \emph{split} bruto, os transformers chegam a F1 macro quase perfeito, mas uma baseline degenerada usando apenas três pistas superficiais --- emoticon positivo, emoticon negativo e URL --- também chega a 0,9970. Isso é um sinal ruim do ponto de vista metodológico: se um classificador que não lê palavras de sentimento resolve o teste quase inteiro, então a avaliação bruta está medindo principalmente a presença de atalhos do corpus, não a capacidade real de compreender polaridade. Por isso, uma acurácia bruta de 99\% não deve ser interpretada como ``o modelo aprendeu sentimentos em português'', mas como ``o modelo aprendeu muito bem o protocolo de rotulagem do corpus''.
 
 Por esse motivo, os resultados brutos devem ser apresentados no relatório final como resultados \emph{in-distribution} do Kaggle, mas não como evidência forte de generalização semântica. A comparação mais informativa é a condição em que as pistas usadas na supervisão distante são removidas. Quando emoticons e URLs são apagados, os transformers caem para a faixa de 0,7385 a 0,7808 de F1 macro. O sistema simbólico também cai de 0,5960 para 0,3668 de F1 macro, porque o OpLexicon inclui entradas para emoticons como \texttt{:)} e \texttt{:(}. Essa queda é justamente o resultado mais importante do diagnóstico: os modelos continuam úteis, mas a versão bruta estava inflada por vazamento de rótulo.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=\linewidth]{figures/macro_f1_tracks.pdf}
-\caption{F1 macro por sistema e por condição de texto. As barras cinzas hachuradas correspondem ao \emph{split} Kaggle bruto, que tem alta acurácia mas é metodologicamente fraco por conter pistas de rótulo. As barras sem emoticons/URLs e sem pistas sociais/fontes são mais úteis para discutir robustez. Valores ausentes indicam combinações ainda não executadas ou não aplicáveis neste rascunho.}
+\caption{F1 macro por sistema e por condição de texto. As barras cinzas hachuradas correspondem ao \emph{split} Kaggle bruto, que tem alta acurácia mas é metodologicamente fraco por conter pistas de rótulo. As barras sem emoticons/URLs e sem pistas sociais/fontes são mais úteis para discutir robustez. Valores ausentes indicam combinações não executadas ou não aplicáveis.}
 \label{fig:macro-f1}
 \end{figure}
 
@@ -236,40 +235,43 @@ Esse achado mudou a interpretação dos resultados. Antes do diagnóstico, os va
 \label{fig:queda-transformers}
 \end{figure}
 
-Além da dificuldade metodológica, houve dificuldades práticas de implementação. O treino local em MPS no macOS falhou por memória compartilhada em execuções maiores, então as rodadas de desenvolvimento foram feitas em CPU com 1.000 exemplos por classe. Também foi necessário reorganizar o projeto para separar completamente a Etapa 1 e a Etapa 2, pois experimentos, relatórios e artefatos antigos poderiam se misturar e tornar a comparação menos reprodutível. Por fim, a integração com Streamlit ainda precisa ser atualizada: a interface final deve permitir escolher entre o sistema simbólico e pelo menos um modelo TF-IDF ou neural, removendo controles específicos demais da versão puramente simbólica.
+Além da dificuldade metodológica, houve dificuldades práticas de implementação. O treino local em MPS no macOS falhou por memória compartilhada em execuções maiores, então as rodadas de desenvolvimento foram feitas em CPU com 1.000 exemplos por classe. Também foi necessário reorganizar o projeto para separar completamente a Etapa 1 e a Etapa 2, pois experimentos, relatórios e artefatos antigos poderiam se misturar e tornar a comparação menos reprodutível. Na aplicação Streamlit, a equipe optou por carregar os artefatos TF-IDF tratados como opção padrão e manter os transformers no relatório, porque eles exigem mais memória, mais tempo de carregamento e maior cuidado de empacotamento para uma demonstração pública.
 
-\section{Exemplo de execução}
+\section{Exemplos qualitativos de execução}
 
-O relatório final deve mostrar exemplos concretos de execução, como pedido na especificação. A Tabela~\ref{tab:exemplos} reserva a estrutura que será preenchida com casos reais extraídos das predições salvas. A ideia é mostrar pelo menos um caso de sucesso em cada classe e um caso de insucesso que ilustre uma limitação: confusão entre positivo e negativo sem emoticon, notícia neutra com termo polarizado, ou tweet cujo rótulo vem quase todo de URL/emoticon.
+Os exemplos qualitativos da Tabela~\ref{tab:exemplos} foram extraídos diretamente dos arquivos de predição salvos. Eles não têm a função de substituir as métricas agregadas, mas ajudam a explicar por que a comparação precisa separar o texto bruto do texto tratado. Em alguns casos, o TF-IDF acerta onde o simbólico falha porque aprende padrões recorrentes do corpus que não aparecem como entradas explícitas do léxico. Em outros, o TF-IDF erra justamente porque o texto limpo fica ambíguo, irônico ou contraditório. O último caso mostra o problema mais importante: o modelo bruto e a baseline cue-only acertam a classe neutra porque a URL funciona como pista quase direta de rótulo, enquanto o conteúdo textual restante parece negativo.
 
 \begin{table}[h]
 \small
 \centering
-\begin{tabularx}{\linewidth}{@{}Y L{2cm} L{2cm} Y@{}}
+\resizebox{\linewidth}{!}{%
+\begin{tabularx}{\linewidth}{@{}L{1.1cm}L{2.45cm}Y L{1.9cm} L{2.4cm} Y@{}}
 \toprule
-\textbf{Texto ou exemplo anonimizado} & \textbf{Esperado} & \textbf{Predito} & \textbf{Comentário} \\
+\textbf{Índice} & \textbf{Caso} & \textbf{Texto tratado} & \textbf{Esperado} & \textbf{Predições} & \textbf{Leitura} \\
 \midrule
-\texttt{amei o atendimento, foi rapido :)} & positivo & positivo & Exemplo didático em que léxico e emoticon apontam para a mesma polaridade. \\
-\texttt{nao gostei, travou de novo :(} & negativo & negativo & Exemplo didático em que o modelo bruto tem pista explícita de rótulo. \\
-\texttt{portal informa nova atualizacao no sistema http://...} & neutro & neutro & Exemplo didático do padrão neutro associado a URL/notícia. \\
-\draftnote{Selecionar exemplo real de erro do XLM-R ou Albertina sem emoticons/URLs} & --- & --- & Deve ilustrar confusão entre positivo e negativo quando o atalho é removido. \\
+2442 & Simbólico falha, TF-IDF acerta & \texttt{poxa ((} & negativo & simbólico: neutro; TF-IDF LR: negativo; TF-IDF SVM: negativo & O léxico não encontra uma pista polarizada forte depois da remoção do emoticon, enquanto os baselines estatísticos aprendem o padrão recorrente de lamento. \\
+1300 & Simbólico falha, TF-IDF acerta & \texttt{É hoje!} & positivo & simbólico: neutro; TF-IDF LR: positivo; TF-IDF SVM: positivo & O exemplo ilustra uma frase curta sem palavra positiva explícita no OpLexicon, mas frequente em contextos positivos do corpus. \\
+2990 & TF-IDF falha em ambiguidade & \texttt{to feliz e com medo ao mesmo tempo} & negativo & TF-IDF LR: positivo; Albertina: negativo; cue-only bruto: negativo & A frase mistura \texttt{feliz} e \texttt{medo}. Sem o emoticon negativo original, a Regressão Logística pesa mais a pista positiva e erra. \\
+295 & TF-IDF falha em ironia/contradição & \texttt{Tô de boa sim po Encolhida Chorando Nada de demais} & positivo & TF-IDF LR: negativo; Albertina: negativo; cue-only bruto: positivo & A frase parece irônica e contém \texttt{Chorando}, mas o rótulo positivo vinha do emoticon original. O caso mostra que a remoção de pistas também revela inconsistências do próprio corpus. \\
+3798 & Modelo bruto parece melhor por vazamento & \texttt{Overdose deixou Demi Lovato à beira da morte} & neutro & bruto TF-IDF: neutro; cue-only: neutro; TF-IDF tratado: negativo & No texto original havia uma URL. Como URLs quase sempre marcam a classe neutra no corpus, o acerto bruto não depende de compreender a manchete. \\
 \bottomrule
-\end{tabularx}
-\caption{Estrutura de exemplos para a versão final do relatório. Os exemplos reais devem ser extraídos dos arquivos de predições e anonimizados quando necessário.}
+\end{tabularx}%
+}
+\caption{Casos qualitativos reais extraídos das predições salvas. LR indica Regressão Logística. O termo cue-only se refere à baseline que usa apenas presença de emoticon positivo, emoticon negativo e URL.}
 \label{tab:exemplos}
 \end{table}
 
 \section{Comparação com a Etapa 1}
 
-O sistema simbólico da Etapa 1 obteve 0,5979 de acurácia e 0,5960 de F1 macro no teste Kaggle bruto. Após remover emoticons e URLs, o mesmo \texttt{oplexicon\_regex} caiu para 0,3697 de acurácia e 0,3668 de F1 macro; na versão mais estrita, sem pistas sociais/fontes, ficou em 0,3695 de acurácia e 0,3665 de F1 macro. Portanto, o baseline simbólico bruto também deve ser lido com cuidado: ele é útil como reprodução da Etapa 1 no corpus original, mas a comparação mais honesta com os modelos da Etapa 2 é a condição tratada. Os baselines TF-IDF superam esse valor com margem clara, chegando a aproximadamente 0,8094 de F1 macro sem emoticons/URLs. Esse ganho é esperado, pois os modelos estatísticos aprendem pesos diretamente do corpus e conseguem explorar combinações de palavras que não aparecem como entradas polarizadas no OpLexicon.
+O sistema simbólico da Etapa 1 obteve 0,5979 de acurácia e 0,5960 de F1 macro no teste Kaggle bruto. Após remover emoticons e URLs, o mesmo \texttt{oplexicon\_regex} caiu para 0,3697 de acurácia e 0,3668 de F1 macro; na versão mais estrita, sem pistas sociais/fontes, ficou em 0,3695 de acurácia e 0,3665 de F1 macro. Portanto, o baseline simbólico bruto também deve ser lido com cuidado: ele é útil como reprodução da Etapa 1 no corpus original, mas a comparação científica principal com os modelos da Etapa 2 é a condição tratada. Os baselines TF-IDF superam esse valor com margem clara, chegando a 0,8094 de F1 macro sem emoticons/URLs. Esse ganho é esperado, pois os modelos estatísticos aprendem pesos diretamente do corpus e conseguem explorar combinações de palavras que não aparecem como entradas polarizadas no OpLexicon. Além disso, o TF-IDF com Regressão Logística foi escolhido como modelo padrão do Streamlit porque mantém bom desempenho tratado, é leve para deploy e torna a demonstração mais estável.
 
-A comparação com transformers exige duas leituras. No teste bruto, DistilBERT, XLM-R e Albertina ficam próximos de 0,997 de F1 macro, mas esse valor está no mesmo nível da baseline cue-only. Na condição sem emoticons/URLs, a vantagem neural continua existindo em relação ao sistema simbólico tratado, mas os resultados ficam mais realistas: Albertina chega a 0,7808 de F1 macro, XLM-R a 0,7494 e DistilBERT a 0,7385. Assim, a conclusão provisória é que modelos neurais melhoram a classificação, mas o relatório final deve evitar vender o resultado bruto como se fosse generalização semântica.
+A comparação com transformers exige duas leituras. No teste bruto, DistilBERT, XLM-R e Albertina ficam próximos de 0,997 de F1 macro, mas esse valor está no mesmo nível da baseline cue-only. Na condição sem emoticons/URLs, a leitura muda: Albertina chega a 0,7808 de F1 macro, XLM-R a 0,7494 e DistilBERT a 0,7385. Esses valores continuam acima do sistema simbólico tratado, mas ficam abaixo do TF-IDF tratado. Assim, a conclusão da etapa não é que o transformer bruto ``venceu'' com 99\%, e sim que os transformers são benchmarks úteis para discutir custo computacional, pré-treinamento e robustez, enquanto a comparação principal deve usar a condição limpa.
 
 \section{Limitações e próximos passos}
 
-Este rascunho ainda não fecha a entrega final. Primeiro, os modelos neurais foram treinados em amostras estratificadas de 3.000 exemplos por limitação de tempo e máquina local. A versão final deve decidir se manterá esse protocolo de desenvolvimento, se rodará uma execução maior, ou se apresentará explicitamente a limitação de custo computacional. Segundo, os exemplos qualitativos ainda precisam ser selecionados a partir dos arquivos de predição. Terceiro, a aplicação Streamlit ainda precisa incorporar a escolha do modelo, permitindo comparar a saída simbólica com TF-IDF e, se viável, com um modelo neural salvo.
+Os modelos neurais foram treinados em amostras estratificadas de 3.000 exemplos por limitação de tempo e máquina local. Essa decisão deve ser apresentada como limitação experimental, não como falha do pipeline: os artefatos de desenvolvimento já mostram a queda esperada quando as pistas superficiais são removidas, mas uma execução final maior poderia alterar a ordem relativa entre Albertina, XLM-R e DistilBERT. Outra limitação é que os exemplos qualitativos revelam inconsistências de rotulagem depois da limpeza; em alguns tweets, o rótulo parece depender mais do emoticon removido do que do texto restante.
 
-Também há uma limitação do corpus. O tratamento sem emoticons/URLs melhora a honestidade da avaliação, mas não remove todos os vieses de coleta. A condição \texttt{strip\_social\_source\_cues} mostra que os TF-IDF ainda mantêm F1 macro próximo de 0,80, o que pode indicar tanto aprendizado lexical real quanto novos vieses de tópico. O relatório final deve apresentar essa condição como diagnóstico adicional, não como uma solução definitiva.
+Também há uma limitação do corpus. O tratamento sem emoticons/URLs melhora a honestidade da avaliação, mas não remove todos os vieses de coleta. A condição \texttt{strip\_social\_source\_cues} mostra que os TF-IDF ainda mantêm F1 macro próximo de 0,80, o que pode indicar tanto aprendizado lexical real quanto novos vieses de tópico. Por isso, essa condição é tratada como diagnóstico adicional, não como uma solução definitiva para o problema de validade externa.
 
 \section{Instruções para execução}
 
@@ -321,7 +323,7 @@ Para abrir a aplicação Streamlit:
 uv run streamlit run streamlit_app.py
 \end{verbatim}
 
-\draftnote{Atualizar esta seção depois de integrar o seletor de modelos na interface Streamlit.}
+A aplicação Streamlit carrega primeiro os artefatos versionados em \path|data/app_models/etapa2_subsymbolic/|. Quando o TF-IDF com Regressão Logística tratado está disponível, ele é selecionado como modo padrão. A interface também permite alternar para o leitor simbólico e comparar modelos lado a lado, mas a cópia pública da aplicação evita expor caminhos de artefatos, métricas de benchmark e detalhes do corpus, pois a demonstração final será voltada para uso em feira.
 
 \bibliographystyle{plainnat}
 \bibliography{references}
