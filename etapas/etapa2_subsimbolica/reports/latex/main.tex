@@ -190,9 +190,38 @@ Os modelos neurais avaliados são DistilBERT multilíngue, XLM-R base e Albertin
 
 Para a demonstração no Streamlit, o modelo padrão escolhido foi o TF-IDF com Regressão Logística na condição sem emoticons e URLs. Essa escolha é deliberadamente conservadora. O modelo é pequeno, carrega rápido, foi treinado no mesmo corpus comum e evita transformar a apresentação pública em uma demonstração dependente de um modelo neural pesado. Os transformers ficam, nesta etapa, como modelos de benchmark e discussão metodológica no relatório.
 
+\subsection{Recursos e ferramentas}
+
+Os recursos usados nesta etapa têm papéis diferentes. O corpus define a tarefa e os exemplos de avaliação. O OpLexicon dá a base lexical do sistema simbólico. As bibliotecas de aprendizado de máquina permitem treinar os modelos estatísticos e neurais sem reimplementar algoritmos já consolidados. A Tabela~\ref{tab:recursos-detalhados} resume tamanho, característica e função de cada recurso principal. Essa separação também ajuda a deixar claro o que foi herdado de recursos externos e o que foi decidido pela equipe durante a comparação.
+
+\begin{table}[h]
+\small
+\centering
+\renewcommand{\arraystretch}{1.16}
+\altrowcolors
+\begin{tabularx}{\linewidth}{@{}L{3.15cm}L{3.5cm}Y@{}}
+\toprule
+\textbf{Recurso} & \textbf{Tamanho ou característica} & \textbf{Uso no trabalho} \\
+\midrule
+Corpus de tweets em português & 100.000 textos de treino e 4.999 textos de teste, com classes quase balanceadas & Base comum para comparar Etapa 1 e Etapa 2 nas mesmas condições \\
+\addlinespace[0.3em]
+OpLexicon v3.0 & Léxico de polaridade para português & Fonte das polaridades usadas pelo sistema simbólico com regras \\
+\addlinespace[0.3em]
+scikit-learn & Biblioteca de aprendizado de máquina clássico & Vetorização TF-IDF, Regressão Logística, SVM linear e métricas agregadas \\
+\addlinespace[0.3em]
+Hugging Face Transformers & Biblioteca para tokenização e ajuste de transformers & Execução de DistilBERT, XLM-R e Albertina como modelos neurais de benchmark \\
+\addlinespace[0.3em]
+Hydra e Streamlit & Configuração de experimentos e interface interativa & Organização das rodadas e demonstração pública com modelo leve \\
+\bottomrule
+\end{tabularx}
+\clearrowcolors
+\caption{Recursos e ferramentas principais usados na Etapa 2.}
+\label{tab:recursos-detalhados}
+\end{table}
+
 \section{Corpus, treino, teste e métricas}
 
-O conjunto de treino tem 100.000 tweets e o conjunto de teste tem 4.999 tweets. A Tabela~\ref{tab:dataset} resume os tamanhos e a distribuição das classes. A distribuição praticamente balanceada ajuda a comparar acurácia e F1 macro sem que uma classe domine numericamente o resultado.
+O conjunto de treino tem 100.000 tweets e o conjunto de teste tem 4.999 tweets. A Tabela~\ref{tab:dataset} resume os tamanhos e a distribuição das classes. A distribuição praticamente balanceada ajuda a comparar acurácia e F1 macro sem que uma classe domine numericamente o resultado. O corpus é composto por textos curtos de rede social, o que traz abreviações, emoticons, URLs, menções, hashtags e frases muito dependentes de contexto. Essa característica é útil para testar métodos em linguagem informal, mas também criou a principal dificuldade do trabalho, pois alguns desses sinais aparecem fortemente associados aos rótulos.
 
 \begin{table}[h]
 \small
@@ -282,6 +311,35 @@ Baseline de pistas & 100.000 tweets & Diagnóstico de vazamento. Usa só emotico
 \label{tab:treinos}
 \end{table}
 
+\section{Ilustração da execução}
+
+Para tornar o processo mais concreto, a Tabela~\ref{tab:execucao-exemplo} mostra como um texto curto passa pelas etapas do sistema. A ideia é que a entrada seja primeiro padronizada, depois analisada por cada família de método e finalmente comparada com o rótulo esperado quando o exemplo pertence ao teste. No sistema simbólico, a decisão depende de palavras encontradas no léxico e das regras de contexto. No TF-IDF, a decisão depende dos pesos aprendidos para padrões frequentes no treino. No transformer, a decisão depende da representação contextual produzida pelo modelo pré-treinado depois do ajuste supervisionado.
+
+\begin{table}[h]
+\small
+\centering
+\renewcommand{\arraystretch}{1.16}
+\altrowcolors
+\begin{tabularx}{\linewidth}{@{}L{2.6cm}Y Y@{}}
+\toprule
+\textbf{Etapa do processo} & \textbf{Exemplo positivo} & \textbf{Exemplo ambíguo} \\
+\midrule
+Texto recebido & \texttt{amei o atendimento, foi rápido e cuidadoso} & \texttt{to feliz e com medo ao mesmo tempo} \\
+\addlinespace[0.3em]
+Tratamento sem emoticons e URLs & O texto permanece praticamente igual & O texto permanece sem pista externa de emoticon \\
+\addlinespace[0.3em]
+Leitura simbólica & O léxico encontra \texttt{amei}, \texttt{rápido} e \texttt{cuidadoso}, puxando o escore para positivo & O léxico encontra sinais opostos, como \texttt{feliz} e \texttt{medo}, e pode ficar instável \\
+\addlinespace[0.3em]
+Leitura TF-IDF & Termos positivos recorrentes no treino favorecem a classe positiva & A palavra \texttt{feliz} pode pesar demais e levar a erro positivo \\
+\addlinespace[0.3em]
+Leitura neural & O modelo contextual tende a juntar a avaliação positiva do atendimento & Albertina acertou negativo no caso salvo, pois capturou melhor a tensão entre alegria e medo \\
+\bottomrule
+\end{tabularx}
+\clearrowcolors
+\caption{Ilustração simplificada de como o processo é executado em exemplos curtos.}
+\label{tab:execucao-exemplo}
+\end{table}
+
 \section{Resultados atuais}
 
 A Figura~\ref{fig:macro-f1} resume os resultados consolidados nas execuções atuais. A leitura principal é que o melhor número não é necessariamente o melhor resultado científico. No texto bruto, os transformers chegam a F1 macro quase perfeito, mas uma baseline deliberadamente simples usando apenas três pistas superficiais, emoticon positivo, emoticon negativo e URL, também chega a 0,9970. Isso é um sinal ruim do ponto de vista metodológico. Se um classificador que não lê palavras de sentimento resolve o teste quase inteiro, então a avaliação bruta está medindo principalmente atalhos do corpus, não a capacidade real de compreender polaridade.
@@ -340,7 +398,7 @@ Chamamos isso de vazamento de rótulo. O termo descreve a situação em que uma 
 \label{fig:pistas}
 \end{figure}
 
-Esse achado mudou a interpretação dos resultados. Antes do diagnóstico, os valores quase perfeitos dos transformers pareciam indicar que os modelos tinham aprendido a tarefa. Depois do diagnóstico, a interpretação ficou mais severa. O desempenho bruto quase perfeito é fraco como evidência científica exatamente porque é fácil demais de reproduzir com uma baseline que usa apenas pistas de rótulo. A metodologia adotada segue a lógica de baselines de artefato, em que um classificador propositalmente limitado é usado para medir quanto do dataset pode ser resolvido por pistas indesejadas \citep{gururangan2018artifacts,poliak2018hypothesis}.
+Esse achado mudou a interpretação dos resultados. Antes do diagnóstico, os valores quase perfeitos dos transformers pareciam indicar que os modelos tinham aprendido a tarefa. Depois do diagnóstico, a interpretação ficou mais severa. O desempenho bruto quase perfeito é fraco como evidência científica exatamente porque é fácil demais de reproduzir com uma baseline que usa apenas pistas de rótulo. A metodologia adotada segue a lógica de baselines de artefato, em que um classificador propositalmente limitado é usado para medir quanto do corpus pode ser resolvido por pistas indesejadas \citep{gururangan2018artifacts,poliak2018hypothesis}.
 
 \begin{figure}[h]
 \centering

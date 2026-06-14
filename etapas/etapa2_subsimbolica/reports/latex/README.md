@@ -20,6 +20,11 @@ baseadas na literatura, como o uso de TF-IDF com modelos lineares, e limitacoes
 praticas, como as rodadas neurais em amostra estratificada de desenvolvimento.
 As novas citacoes foram verificadas antes de entrar no `references.bib`.
 
+A revisao mais recente reforca os itens pedidos na especificacao da Etapa 2. O
+texto agora traz uma tabela de recursos e ferramentas com tamanho e papel de
+cada recurso, alem de uma ilustracao de execucao ponta a ponta para exemplos
+curtos antes da secao de resultados.
+
 A tabela de exemplos qualitativos foi preenchida com casos reais extraidos das
 predicoes salvas. Ela cobre falhas do simbolico corrigidas pelo TF-IDF, falhas
 do TF-IDF em textos ambiguos ou ironicos, um exemplo com Albertina 100M pt-BR,
