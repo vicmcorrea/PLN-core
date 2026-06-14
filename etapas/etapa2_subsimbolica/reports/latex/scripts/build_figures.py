@@ -194,7 +194,7 @@ def plot_transformer_drop() -> None:
         )
 
     ax.set_xlim(-0.2, 1.65)
-    ax.set_ylim(0.48, 1.03)
+    ax.set_ylim(0.48, 1.07)
     ax.set_xticks([0, 1], ["bruto\n(com pistas)", "sem emoticons/URLs"])
     ax.set_ylabel("Macro F1")
     ax.set_title("O efeito da limpeza muda conforme o tipo de modelo neural")
@@ -202,12 +202,18 @@ def plot_transformer_drop() -> None:
     ax.annotate(
         "bruto quase perfeito,\nmas contaminado",
         xy=(0, 0.9968),
-        xytext=(0.18, 0.982),
+        xytext=(0.26, 1.025),
         ha="left",
-        va="top",
+        va="center",
         fontsize=8,
         color=OKABE_ITO["red"],
-        arrowprops={"arrowstyle": "->", "color": OKABE_ITO["red"], "lw": 1.0},
+        bbox={"boxstyle": "round,pad=0.18", "fc": "white", "ec": "none", "alpha": 0.9},
+        arrowprops={
+            "arrowstyle": "->",
+            "color": OKABE_ITO["red"],
+            "lw": 1.0,
+            "connectionstyle": "arc3,rad=0.18",
+        },
     )
     ax.annotate(
         "modelo pronto melhora um pouco\nquando retiramos pistas",
