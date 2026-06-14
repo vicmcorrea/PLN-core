@@ -19,12 +19,9 @@ from pln_core.app_models import (  # noqa: E402
     default_comparison_model_ids,
     discover_app_models,
     load_app_model,
-    model_label,
     predict_sentiment,
-    text_treatment_label,
 )
 from pln_core.lexicon import LexiconDownloadError  # noqa: E402
-from pln_core.pipeline import AnalysisResult  # noqa: E402
 from pln_core.recommender import Song, recommend_ranked  # noqa: E402
 from pln_core.samples import SAMPLE_TEXTS  # noqa: E402
 
@@ -57,16 +54,12 @@ SAMPLE_LABELS: dict[str, str] = {
     "neutral": "Exemplo neutro",
 }
 
-RULE_TRANSLATIONS: dict[str, str] = {
-    "negation": "negação",
-    "intensifier": "intensificador",
-    "diminisher": "atenuador",
-    "pre-contrast": "pré-contraste",
-    "post-contrast": "pós-contraste",
-    "exclamation": "exclamação",
+SCORE_TRANSLATIONS: dict[str, str] = {
+    "confianca": "Confiança",
+    "margem": "Força",
+    "escore simbolico": "Força",
+    "saida": "Resposta",
 }
-
-LABEL_ORDER = ("positive", "negative", "neutral")
 
 st.set_page_config(
     page_title="PLN Core",
@@ -151,8 +144,8 @@ def analyze_current_text(model: AppModelInfo) -> None:
     except LexiconDownloadError:
         st.error("Não foi possível carregar o OpLexicon. Verifique a conexão e tente novamente.")
         st.session_state.last_prediction = None
-    except FileNotFoundError as exc:
-        st.error(f"Artefato do modelo não encontrado: {exc}")
+    except FileNotFoundError:
+        st.error("Esse modo de análise não está disponível agora. Tente outro.")
         st.session_state.last_prediction = None
 
 
@@ -172,32 +165,20 @@ def compare_current_text(models: tuple[AppModelInfo, ...]) -> None:
             resource = get_model_resource(model.id, model_resource_key(model))
             predictions.append(predict_sentiment(model, resource, text))
         except LexiconDownloadError:
-            failed.append(f"{model.display_name}: OpLexicon indisponível")
+            failed.append(f"{model.display_name}: indisponível agora")
         except FileNotFoundError:
-            failed.append(f"{model.display_name}: artefato não encontrado")
+            failed.append(f"{model.display_name}: indisponível agora")
 
     st.session_state.last_comparison_predictions = tuple(predictions)
     st.session_state.last_prediction = None
     st.session_state.recommendation_index = 0
 
     if failed:
-        st.warning("Alguns modelos não foram executados: " + "; ".join(failed))
+        st.warning("Alguns modos não responderam agora: " + "; ".join(failed))
 
 
 def translate_label(label: str) -> str:
     return LABEL_TRANSLATIONS.get(label, label)
-
-
-def translate_rules(rules: tuple[str, ...]) -> str:
-    if not rules:
-        return "base"
-    return ", ".join(RULE_TRANSLATIONS.get(rule, rule) for rule in rules)
-
-
-def format_metric(value: float | None) -> str:
-    if value is None:
-        return "-"
-    return f"{value:.4f}"
 
 
 def format_prediction_score(prediction: AppPrediction) -> str:
@@ -206,10 +187,14 @@ def format_prediction_score(prediction: AppPrediction) -> str:
     return f"{prediction.score:.3f}"
 
 
+def translate_score_name(score_name: str) -> str:
+    return SCORE_TRANSLATIONS.get(score_name, score_name)
+
+
 def render_mode_selector() -> str:
     return str(
         st.segmented_control(
-            "Modo",
+            "Ação",
             options=[MODE_SINGLE, MODE_COMPARE],
             key="app_mode",
             on_change=on_mode_change,
@@ -227,7 +212,7 @@ def render_model_selector(models: tuple[AppModelInfo, ...]) -> AppModelInfo:
 
     if len(options) <= 5:
         st.segmented_control(
-            "Modelo",
+            "Como analisar",
             options=options,
             format_func=_label,
             key="model_choice",
@@ -236,7 +221,7 @@ def render_model_selector(models: tuple[AppModelInfo, ...]) -> AppModelInfo:
         )
     else:
         st.selectbox(
-            "Modelo",
+            "Como analisar",
             options=options,
             format_func=_label,
             key="model_choice",
@@ -257,7 +242,7 @@ def render_comparison_selector(models: tuple[AppModelInfo, ...]) -> tuple[AppMod
         st.session_state.comparison_model_choices = default_comparison_model_ids(models)
 
     st.pills(
-        "Modelos",
+        "Como comparar",
         options=options,
         format_func=lambda model_id: model_by_id[model_id].display_name,
         key="comparison_model_choices",
@@ -271,28 +256,9 @@ def render_comparison_selector(models: tuple[AppModelInfo, ...]) -> tuple[AppMod
 
 def render_model_card(model: AppModelInfo) -> None:
     with st.container(border=True):
-        st.caption("Modelo selecionado")
-        st.markdown(f"### {model_label(model.model_name)}")
+        st.caption("Modo escolhido")
+        st.markdown(f"### {model.display_name}")
         st.write(model.description)
-        st.caption(f"Tratamento textual: `{model.text_treatment}`")
-
-        if model.metrics:
-            cols = st.columns(2)
-            cols[0].metric("Acurácia no teste", format_metric(model.metrics.get("accuracy")))
-            cols[1].metric("Macro-F1 no teste", format_metric(model.metrics.get("macro_f1")))
-        elif model.is_classical:
-            st.caption("Sem métricas locais encontradas para este artefato.")
-
-        if model.artifact_path is not None:
-            st.caption(f"Artefato: `{model.artifact_path.relative_to(PROJECT_ROOT)}`")
-        if model.run_id:
-            st.caption(f"Run: `{model.run_id}`")
-        if model.text_treatment == "raw":
-            st.warning(
-                "Este modelo usa o texto bruto. No corpus Kaggle, emoticons e URLs vazam "
-                "pistas fortes do rótulo; use estes resultados só como diagnóstico.",
-                icon=":material/warning:",
-            )
 
 
 def render_comparison_model_card(models: tuple[AppModelInfo, ...]) -> None:
@@ -304,10 +270,8 @@ def render_comparison_model_card(models: tuple[AppModelInfo, ...]) -> None:
 
         rows = [
             {
-                "modelo": model_label(model.model_name),
-                "tratamento": text_treatment_label(model.text_treatment),
-                "acurácia": model.metrics.get("accuracy"),
-                "macro-F1": model.metrics.get("macro_f1"),
+                "modo": model.display_name,
+                "ideia": model.description,
             }
             for model in models
         ]
@@ -316,10 +280,8 @@ def render_comparison_model_card(models: tuple[AppModelInfo, ...]) -> None:
             hide_index=True,
             width="stretch",
             column_config={
-                "modelo": st.column_config.TextColumn("modelo", pinned=True),
-                "tratamento": st.column_config.TextColumn("tratamento"),
-                "acurácia": st.column_config.NumberColumn("acurácia", format="%.4f"),
-                "macro-F1": st.column_config.NumberColumn("macro-F1", format="%.4f"),
+                "modo": st.column_config.TextColumn("modo", pinned=True),
+                "ideia": st.column_config.TextColumn("ideia"),
             },
         )
 
@@ -329,93 +291,22 @@ def render_label_card(prediction: AppPrediction) -> None:
     cols = st.columns(3)
 
     with cols[0].container(border=True):
-        st.caption("Rótulo")
+        st.caption("Sentimento")
         st.markdown(f"### :{color}[{translate_label(prediction.label)}]")
 
     with cols[1].container(border=True):
-        st.caption(prediction.score_name)
+        st.caption(translate_score_name(prediction.score_name))
         st.markdown(f"### `{format_prediction_score(prediction)}`")
 
     with cols[2].container(border=True):
-        st.caption("Tratamento")
-        st.markdown(f"### {text_treatment_label(prediction.model.text_treatment)}")
+        st.caption("Modo")
+        st.markdown(f"### {prediction.model.display_name}")
 
 
 def render_text_card(prediction: AppPrediction) -> None:
     with st.container(border=True):
-        st.caption("Texto original")
+        st.caption("Sua frase")
         st.write(prediction.raw_text or "(vazio)")
-
-        if prediction.processed_text != prediction.raw_text:
-            st.caption("Texto entregue ao modelo")
-            st.write(prediction.processed_text or "(vazio após limpeza)")
-
-
-def render_class_scores(prediction: AppPrediction) -> None:
-    if not prediction.class_scores:
-        return
-
-    rows = [
-        {
-            "rótulo": translate_label(label),
-            "valor": prediction.class_scores[label],
-        }
-        for label in LABEL_ORDER
-        if label in prediction.class_scores
-    ]
-    with st.container(border=True):
-        st.caption("Saídas por classe")
-        st.dataframe(
-            rows,
-            hide_index=True,
-            width="stretch",
-            column_config={
-                "rótulo": st.column_config.TextColumn("rótulo", pinned=True),
-                "valor": st.column_config.NumberColumn("valor", format="%.4f"),
-            },
-        )
-
-
-def render_symbolic_text_card(result: AnalysisResult) -> None:
-    with st.container(border=True):
-        st.caption("Texto normalizado")
-        st.write(result.normalized_text or "(vazio)")
-
-        st.caption("Lemas usados na busca")
-        if result.tokens:
-            st.markdown(" ".join(f"`{token}`" for token in result.tokens))
-        else:
-            st.write("(nenhum)")
-
-
-def render_symbolic_matches(result: AnalysisResult) -> None:
-    if not result.matched_terms:
-        st.info("Nenhum lema encontrado no léxico, o escore é zero.")
-        return
-
-    rows = [
-        {
-            "lema": match.token,
-            "posição": match.position,
-            "escore base": match.base_score,
-            "escore ajustado": match.adjusted_score,
-            "regras": translate_rules(match.applied_rules),
-        }
-        for match in result.matched_terms
-    ]
-
-    st.dataframe(
-        rows,
-        hide_index=True,
-        width="stretch",
-        column_config={
-            "lema": st.column_config.TextColumn("lema", pinned=True),
-            "posição": st.column_config.NumberColumn("posição", format="%d"),
-            "escore base": st.column_config.NumberColumn("escore base", format="%.3f"),
-            "escore ajustado": st.column_config.NumberColumn("escore ajustado", format="%.3f"),
-            "regras": st.column_config.TextColumn("regras"),
-        },
-    )
 
 
 def _recommendation_prev() -> None:
@@ -444,7 +335,8 @@ def render_recommendations(prediction: AppPrediction) -> None:
         song = songs[idx]
         st.caption(
             f"{translate_label(prediction.label)} · "
-            f"{prediction.score_name} {format_prediction_score(prediction)}"
+            f"{translate_score_name(prediction.score_name).lower()} "
+            f"{format_prediction_score(prediction)}"
         )
         if len(songs) > 1:
             st.caption(f"opção {idx + 1} de {len(songs)}")
@@ -476,14 +368,6 @@ def render_prediction(prediction: AppPrediction) -> None:
     render_label_card(prediction)
     st.space("medium")
     render_text_card(prediction)
-    st.space("medium")
-    render_class_scores(prediction)
-
-    if prediction.symbolic_result is not None:
-        st.space("medium")
-        render_symbolic_text_card(prediction.symbolic_result)
-        st.space("medium")
-        render_symbolic_matches(prediction.symbolic_result)
 
     if st.toggle("Mostrar recomendação musical", value=False):
         st.space("medium")
@@ -498,21 +382,15 @@ def render_comparison(predictions: tuple[AppPrediction, ...]) -> None:
     for col, prediction in zip(cols, predictions, strict=True):
         color = LABEL_COLORS.get(prediction.label, "gray")
         with col.container(border=True):
-            st.caption(model_label(prediction.model.model_name))
+            st.caption(prediction.model.display_name)
             st.markdown(f"### :{color}[{translate_label(prediction.label)}]")
-            st.caption(text_treatment_label(prediction.model.text_treatment))
             st.write(f"`{format_prediction_score(prediction)}`")
 
     rows = [
         {
-            "modelo": model_label(prediction.model.model_name),
-            "família": prediction.model.family,
-            "tratamento": text_treatment_label(prediction.model.text_treatment),
-            "rótulo": translate_label(prediction.label),
-            "saída": format_prediction_score(prediction),
-            "acurácia teste": prediction.model.metrics.get("accuracy"),
-            "macro-F1 teste": prediction.model.metrics.get("macro_f1"),
-            "texto entregue": prediction.processed_text,
+            "modo": prediction.model.display_name,
+            "sentimento": translate_label(prediction.label),
+            "resposta": format_prediction_score(prediction),
         }
         for prediction in predictions
     ]
@@ -523,14 +401,9 @@ def render_comparison(predictions: tuple[AppPrediction, ...]) -> None:
         hide_index=True,
         width="stretch",
         column_config={
-            "modelo": st.column_config.TextColumn("modelo", pinned=True),
-            "família": st.column_config.TextColumn("família"),
-            "tratamento": st.column_config.TextColumn("tratamento"),
-            "rótulo": st.column_config.TextColumn("rótulo"),
-            "saída": st.column_config.TextColumn("saída"),
-            "acurácia teste": st.column_config.NumberColumn("acurácia teste", format="%.4f"),
-            "macro-F1 teste": st.column_config.NumberColumn("macro-F1 teste", format="%.4f"),
-            "texto entregue": st.column_config.TextColumn("texto entregue"),
+            "modo": st.column_config.TextColumn("modo", pinned=True),
+            "sentimento": st.column_config.TextColumn("sentimento"),
+            "resposta": st.column_config.TextColumn("resposta"),
         },
     )
 
@@ -544,7 +417,7 @@ def main() -> None:
     with page:
         st.title("PLN Core", text_alignment="center")
         st.caption(
-            "Classificação de sentimentos em português brasileiro com modelos simbólicos e TF-IDF.",
+            "Digite uma frase e veja se ela parece positiva, negativa ou neutra.",
             text_alignment="center",
         )
 
@@ -559,8 +432,7 @@ def main() -> None:
 
         if not any(model.is_classical for model in models):
             st.info(
-                "Nenhum artefato TF-IDF foi encontrado em `data/app_models/` "
-                "ou `data/models/`.",
+                "Alguns modos de análise não estão disponíveis nesta versão do app.",
                 icon=":material/info:",
             )
 

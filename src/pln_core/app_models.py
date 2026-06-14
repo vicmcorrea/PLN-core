@@ -12,7 +12,6 @@ import joblib
 
 from pln_core.eval.text_treatments import apply_text_treatment
 from pln_core.factory import (
-    PRODUCTION_ANALYZER_LABEL,
     PRODUCTION_ANALYZER_NAME,
     build_production_analyzer,
 )
@@ -28,9 +27,9 @@ CLASSICAL_MODEL_SEARCH_DIRS = (
 )
 
 MODEL_DISPLAY_NAMES = {
-    "oplexicon_regex": "OpLexicon regex",
-    "tfidf_logreg": "TF-IDF + Regressao Logistica",
-    "tfidf_linear_svm": "TF-IDF + Linear SVM",
+    "oplexicon_regex": "Leitor de palavras",
+    "tfidf_logreg": "Modelo leve",
+    "tfidf_linear_svm": "Modelo alternativo",
 }
 
 TEXT_TREATMENT_DISPLAY_NAMES = {
@@ -139,29 +138,35 @@ def model_label(model_name: str) -> str:
     return MODEL_DISPLAY_NAMES.get(model_name, model_name)
 
 
+def _display_name_for_model(model_name: str, text_treatment: str) -> str:
+    base_name = model_label(model_name)
+    if text_treatment in {DEFAULT_APP_TEXT_TREATMENT, "strip_social_source_cues"}:
+        return base_name
+    if text_treatment == "raw":
+        return f"{base_name} direto"
+    return base_name
+
+
 def _symbolic_models() -> tuple[AppModelInfo, ...]:
     return (
         AppModelInfo(
             id=f"symbolic:{DEFAULT_APP_TEXT_TREATMENT}",
-            display_name=(
-                f"{MODEL_DISPLAY_NAMES[PRODUCTION_ANALYZER_NAME]} "
-                f"({text_treatment_label(DEFAULT_APP_TEXT_TREATMENT)})"
-            ),
+            display_name=MODEL_DISPLAY_NAMES[PRODUCTION_ANALYZER_NAME],
             family="symbolic",
             model_name=PRODUCTION_ANALYZER_NAME,
             text_treatment=DEFAULT_APP_TEXT_TREATMENT,
             description=(
-                f"{PRODUCTION_ANALYZER_LABEL}; aplica o mesmo tratamento textual "
-                "preferido para comparacao justa com a Etapa 2."
+                "Procura palavras positivas e negativas e combina regras simples "
+                "para decidir o sentimento."
             ),
         ),
         AppModelInfo(
             id="symbolic:raw",
-            display_name=f"{MODEL_DISPLAY_NAMES[PRODUCTION_ANALYZER_NAME]} (texto bruto)",
+            display_name=f"{MODEL_DISPLAY_NAMES[PRODUCTION_ANALYZER_NAME]} direto",
             family="symbolic",
             model_name=PRODUCTION_ANALYZER_NAME,
             text_treatment="raw",
-            description=f"{PRODUCTION_ANALYZER_LABEL}; versao simbolica no texto original.",
+            description="Le a frase de forma mais direta para comparar respostas.",
         ),
     )
 
@@ -199,13 +204,10 @@ def _classical_info_from_artifact(project_root: Path, artifact_path: Path) -> Ap
         payload = _report_payload_for_artifact(project_root, run_id, model_name)
 
     text_treatment = str(payload.get("text_treatment") or "raw")
-    display_name = (
-        f"{model_label(model_name)} ({text_treatment_label(text_treatment)}, run {run_id})"
-    )
+    display_name = _display_name_for_model(model_name, text_treatment)
     report_path = _project_path(project_root, payload.get("report_path"))
     description = (
-        "Modelo classico treinado no split Kaggle comum. "
-        f"Tratamento de texto: {text_treatment_label(text_treatment)}."
+        "Aprende padroes de palavras em frases curtas e responde rapidamente."
     )
 
     return AppModelInfo(
