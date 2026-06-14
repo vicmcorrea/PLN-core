@@ -196,7 +196,7 @@ Contraste & ``bom, mas caro'' & A parte depois de ``mas'' recebe mais peso, pois
 
 Os baselines clássicos usam vetorização TF-IDF com unigramas e bigramas de palavras. TF-IDF representa um texto dando peso maior a termos que aparecem naquele texto, mas não aparecem em todos os textos do corpus, seguindo a tradição de ponderação termo-documento em recuperação de informação \citep{salton1988termweighting}. Assim, uma palavra frequente em um tweet e relativamente específica no conjunto ganha mais importância do que uma palavra muito comum. A escolha de TF-IDF com modelos lineares não veio apenas de conveniência de implementação. Métodos de aprendizado de máquina com representações esparsas, incluindo SVM, foram usados desde trabalhos clássicos de análise de sentimentos \citep{pang2002thumbs}, e SVMs lineares são uma referência forte para categorização de texto com muitas variáveis relevantes \citep{joachims1998text}. A Regressão Logística foi incluída como baseline simples e interpretável, pois aprende pesos por classe e gera probabilidades úteis para a demonstração. O SVM linear foi incluído como baseline clássico forte, pois aprende uma fronteira de decisão com margem entre as classes.
 
-Os modelos neurais avaliados são DistilBERT multilíngue, XLM-R base e Albertina-100M pt-BR. Um transformer é um modelo neural pré-treinado em grande volume de texto, capaz de produzir representações contextuais para palavras e subpalavras. Ajuste supervisionado, neste trabalho, significa continuar o treinamento desse modelo usando os tweets rotulados do corpus e substituir a saída original por uma camada de classificação em três classes. O DistilBERT foi usado porque é uma versão destilada e mais leve da família BERT \citep{sanh2019distilbert}. XLM-R foi usado porque é um modelo multilíngue forte, adequado quando se quer comparar português com uma arquitetura treinada em muitos idiomas \citep{conneau2020xlmr}. Albertina foi usada porque é uma alternativa voltada ao português e, portanto, testa se pré-treinamento mais próximo da língua-alvo ajuda no cenário limpo \citep{rodrigues2023albertina}.
+Os modelos neurais avaliados são DistilBERT multilíngue, XLM-R base e Albertina-100M pt-BR. Um transformer é um modelo neural pré-treinado em grande volume de texto, capaz de produzir representações contextuais para palavras e subpalavras. Fine-tuning supervisionado, neste trabalho, significa continuar o treinamento desse modelo usando os tweets rotulados do corpus e substituir a saída original por uma camada de classificação em três classes. O DistilBERT foi usado porque é uma versão destilada e mais leve da família BERT \citep{sanh2019distilbert}. XLM-R foi usado porque é um modelo multilíngue forte, adequado quando se quer comparar português com uma arquitetura treinada em muitos idiomas \citep{conneau2020xlmr}. Albertina foi usada porque é uma alternativa voltada ao português e, portanto, testa se pré-treinamento mais próximo da língua-alvo ajuda no cenário limpo \citep{rodrigues2023albertina}.
 
 Para a demonstração no Streamlit, o modelo padrão escolhido foi o TF-IDF com Regressão Logística na condição sem emoticons e URLs. Essa escolha é deliberadamente conservadora. O modelo é pequeno, carrega rápido, foi treinado no mesmo corpus comum e evita transformar a apresentação pública em uma demonstração dependente de um modelo neural pesado. Os transformers ficam, nesta etapa, como modelos de benchmark e discussão metodológica no relatório. O mesmo modelo padrão alimenta a recomendação musical da aplicação.
 
@@ -250,11 +250,11 @@ Os recursos usados nesta etapa têm papéis diferentes. O corpus define a tarefa
 \midrule
 Corpus de tweets em português & 100.000 textos de treino e 4.999 textos de teste, com classes quase balanceadas & Base comum para comparar Etapa 1 e Etapa 2 nas mesmas condições \\
 \addlinespace[0.3em]
-OpLexicon v3.0 & Léxico de polaridade para português & Fonte das polaridades usadas pelo sistema simbólico com regras \\
+OpLexicon v3.0 & 31\,944 termos distintos após agregar duplicatas; polaridades discretas em $\{-1,0,+1\}$ & Fonte das polaridades usadas pelo sistema simbólico com regras \\
 \addlinespace[0.3em]
 scikit-learn & Biblioteca de aprendizado de máquina clássico & Vetorização TF-IDF, Regressão Logística, SVM linear e métricas agregadas \\
 \addlinespace[0.3em]
-Hugging Face Transformers & Biblioteca para tokenização e ajuste de transformers & Execução de DistilBERT, XLM-R e Albertina como modelos neurais de benchmark \\
+Hugging Face Transformers & Biblioteca para tokenização e fine-tuning de transformers & Execução de DistilBERT, XLM-R e Albertina como modelos neurais de benchmark \\
 \addlinespace[0.3em]
 Hydra e Streamlit & Configuração de experimentos e interface interativa & Organização das rodadas e demonstração pública com modelo leve \\
 \addlinespace[0.3em]
@@ -360,7 +360,7 @@ Baseline de pistas & 100.000 tweets & Diagnóstico de vazamento. Usa só emotico
 
 \section{Ilustração da execução}
 
-Para tornar o processo mais concreto, a Tabela~\ref{tab:execucao-exemplo} mostra como um texto curto passa pelas etapas do sistema. A ideia é que a entrada seja primeiro padronizada, depois analisada por cada família de método e finalmente comparada com o rótulo esperado quando o exemplo pertence ao teste. No sistema simbólico, a decisão depende de palavras encontradas no léxico e das regras de contexto. No TF-IDF, a decisão depende dos pesos aprendidos para padrões frequentes no treino. No transformer, a decisão depende da representação contextual produzida pelo modelo pré-treinado depois do ajuste supervisionado.
+Para tornar o processo mais concreto, a Tabela~\ref{tab:execucao-exemplo} mostra como um texto curto passa pelas etapas do sistema. A ideia é que a entrada seja primeiro padronizada, depois analisada por cada família de método e finalmente comparada com o rótulo esperado quando o exemplo pertence ao teste. No sistema simbólico, a decisão depende de palavras encontradas no léxico e das regras de contexto. No TF-IDF, a decisão depende dos pesos aprendidos para padrões frequentes no treino. No transformer, a decisão depende da representação contextual produzida pelo modelo pré-treinado depois do fine-tuning supervisionado.
 
 \begin{table}[h]
 \small

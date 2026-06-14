@@ -164,7 +164,7 @@ def plot_transformer_drop() -> None:
     stripped = np.array([0.7385, 0.7494, 0.7808])
     colors = [OKABE_ITO["sky"], OKABE_ITO["red"], OKABE_ITO["purple"]]
 
-    fig, ax = plt.subplots(figsize=(4.8, 3.2))
+    fig, ax = plt.subplots(figsize=(5.2, 3.2))
     for index, system in enumerate(systems):
         ax.plot([0, 1], [raw[index], stripped[index]], marker="o", color=colors[index])
         ax.text(
@@ -182,23 +182,15 @@ def plot_transformer_drop() -> None:
     ax.set_ylabel("F1 macro")
     ax.set_title("O melhor resultado bruto desaparece quando removemos atalhos")
     ax.grid(axis="y", alpha=0.25)
-    ax.text(
-        0.02,
-        1.015,
-        "alto, mas suspeito",
+    ax.annotate(
+        "bruto quase perfeito,\nmas contaminado",
+        xy=(0, 0.9968),
+        xytext=(0.18, 0.982),
         ha="left",
-        va="bottom",
+        va="top",
         fontsize=8,
         color=OKABE_ITO["red"],
-    )
-    ax.text(
-        -0.03,
-        0.9965,
-        "todos ~= 0,996\nmas por pistas",
-        ha="right",
-        va="center",
-        fontsize=8,
-        color=OKABE_ITO["red"],
+        arrowprops={"arrowstyle": "->", "color": OKABE_ITO["red"], "lw": 1.0},
     )
     ax.text(
         1.0,
