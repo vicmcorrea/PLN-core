@@ -31,7 +31,7 @@
 }
 
 \setlength{\parindent}{0pt}
-\setlength{\parskip}{0.4em}
+\setlength{\parskip}{0.35em}
 \setlist[itemize]{leftmargin=1.8em}
 
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
@@ -128,7 +128,7 @@ Diagnóstico e visualização & Teste de vazamento, análise de erros e figuras 
 
 A tarefa deste projeto é classificar textos curtos em português brasileiro como positivos, negativos ou neutros. A entrada é uma frase ou publicação curta, tipicamente próxima do estilo de redes sociais, e a saída é um rótulo de polaridade. Por exemplo, o texto ``amei o atendimento, foi rápido e cuidadoso'' deve ser classificado como positivo; ``o aplicativo travou de novo e perdi tudo'' deve ser classificado como negativo; e ``o pacote chegou às 14h'' tende a ser neutro, pois descreve um fato sem opinião explícita.
 
-Além da avaliação quantitativa, o projeto tem uma aplicação demonstrável. O usuário digita uma frase, o sistema estima o sentimento dessa frase e, quando a opção de recomendação musical é acionada, sugere uma música cujo clima combina com a saída do classificador. Assim, a classificação não termina apenas em uma etiqueta técnica. Ela vira uma resposta concreta para uma pessoa testando a aplicação na feira.
+Além da avaliação quantitativa, o projeto tem uma aplicação demonstrável. O usuário digita uma frase, o sistema estima o sentimento dessa frase e já sugere uma música cujo clima combina com a saída do classificador. Assim, a classificação não termina apenas em uma etiqueta técnica. Ela vira uma resposta concreta para uma pessoa testando a aplicação na feira.
 
 Essa tarefa é relevante porque opiniões em português brasileiro aparecem continuamente em comentários, avaliações de produtos, publicações políticas, mensagens de atendimento e discussões em redes sociais. Sistemas de análise de sentimentos permitem resumir grandes volumes de texto e apoiar decisões, mas a tarefa continua difícil porque a polaridade de uma frase depende de contexto, domínio e recursos linguísticos informais. A palavra ``bomba'', por exemplo, pode ser negativa em ``o filme é uma bomba'', mas não tem a mesma função em uma notícia factual. A expressão ``adorei esperar duas horas'' tem palavras positivas, mas pode carregar ironia negativa. Em tweets, emoticons, URLs, menções, hashtags, risadas e alongamentos gráficos também alteram fortemente a interpretação.
 
@@ -231,6 +231,8 @@ Para cada música candidata $s$, calculamos a distância
 d(s) = |\,\text{valência}(s) - \text{escore}_{\text{texto}}\,|.
 \]
 A música com menor distância aparece primeiro. A regra é explicável e previsível para a demonstração, mas limitada porque as valências são julgamentos manuais do grupo, não medidas musicais obtidas por anotação ampla ou análise acústica.
+
+Para aproximar esse cenário da feira, a amostra manual usou frases comuns e curtas, como ``O app ficou maravilhoso, simples e divertido'', ``A tela está bagunçada e difícil de usar'' e ``O arquivo tem quatro páginas e duas tabelas''. Como esses exemplos não vieram do corpus de tweets e não tinham emoticons, URLs ou hashtags, a Tabela~\ref{tab:amostra-aplicacao} deve ser lida como teste de uso em texto livre, não como nova prova estatística geral.
 
 \begin{table}[h]
 \small

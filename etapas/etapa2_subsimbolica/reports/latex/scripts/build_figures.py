@@ -209,14 +209,16 @@ def plot_transformer_drop() -> None:
         color=OKABE_ITO["red"],
         arrowprops={"arrowstyle": "->", "color": OKABE_ITO["red"], "lw": 1.0},
     )
-    ax.text(
-        1.0,
-        0.505,
+    ax.annotate(
         "modelo pronto melhora um pouco\nquando retiramos pistas",
+        xy=(1, stripped[2]),
+        xytext=(0.55, 0.61),
         ha="center",
-        va="bottom",
+        va="center",
         fontsize=8,
         color=OKABE_ITO["green"],
+        bbox={"boxstyle": "round,pad=0.18", "fc": "white", "ec": "none", "alpha": 0.9},
+        arrowprops={"arrowstyle": "->", "color": OKABE_ITO["green"], "lw": 1.0},
     )
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)

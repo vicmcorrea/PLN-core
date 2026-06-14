@@ -287,7 +287,17 @@ def render_comparison_selector(models: tuple[AppModelInfo, ...]) -> tuple[AppMod
     return tuple(model_by_id[model_id] for model_id in selected_ids if model_id in model_by_id)
 
 
-def render_model_card(model: AppModelInfo) -> None:
+def _prediction_matches_model(
+    prediction: AppPrediction | None,
+    model: AppModelInfo,
+) -> bool:
+    return prediction is not None and prediction.model.id == model.id
+
+
+def render_model_card(
+    model: AppModelInfo,
+    prediction: AppPrediction | None = None,
+) -> None:
     with st.container(border=True):
         st.caption("Modo escolhido")
         st.markdown(f"### {model.display_name}")
@@ -308,6 +318,10 @@ def render_model_card(model: AppModelInfo) -> None:
                 "classifica frases nesta versão leve da demonstração.",
                 icon=":material/info:",
             )
+        st.divider()
+        render_recommendation_panel(
+            prediction if _prediction_matches_model(prediction, model) else None
+        )
 
 
 def render_comparison_model_card(models: tuple[AppModelInfo, ...]) -> None:
@@ -369,48 +383,51 @@ def _recommendation_next(max_idx: int) -> None:
     )
 
 
-def render_recommendations(prediction: AppPrediction) -> None:
-    songs: tuple[Song, ...] = recommend_ranked(prediction.label, prediction.score)
-    with st.container(border=True):
-        st.subheader("música recomendada")
-        if not songs:
-            st.caption("nenhuma música disponível para esse rótulo.")
-            return
+def render_recommendation_panel(prediction: AppPrediction | None) -> None:
+    st.markdown("#### música recomendada")
+    if prediction is None:
+        st.caption("Classifique uma frase para ver uma sugestão musical.")
+        return
 
-        idx = int(st.session_state.recommendation_index)
-        if idx >= len(songs):
-            idx = 0
-            st.session_state.recommendation_index = 0
-        song = songs[idx]
-        st.caption(
-            f"{translate_label(prediction.label)} · "
-            f"{translate_score_name(prediction.score_name).lower()} "
-            f"{format_prediction_score(prediction)}"
-        )
-        if len(songs) > 1:
-            st.caption(f"opção {idx + 1} de {len(songs)}")
-        st.markdown(f"### {song.title}")
-        st.caption(song.artist)
-        if len(songs) >= 2:
-            last = len(songs) - 1
-            with st.container(horizontal=True, horizontal_alignment="distribute"):
-                st.button(
-                    "voltar",
-                    on_click=_recommendation_prev,
-                    disabled=idx == 0,
-                    key=f"rec_prev_{prediction.model.id}_{idx}",
-                    use_container_width=True,
-                )
-                st.button(
-                    "outra sugestão",
-                    on_click=_recommendation_next,
-                    kwargs={"max_idx": last},
-                    disabled=idx >= last,
-                    key=f"rec_next_{prediction.model.id}_{idx}",
-                    use_container_width=True,
-                )
-        st.video(song.youtube_url)
-        st.link_button("abrir no youtube", song.search_url, width="stretch")
+    songs: tuple[Song, ...] = recommend_ranked(prediction.label, prediction.score)
+    if not songs:
+        st.caption("Nenhuma música disponível para esse sentimento.")
+        return
+
+    idx = int(st.session_state.recommendation_index)
+    if idx >= len(songs):
+        idx = 0
+        st.session_state.recommendation_index = 0
+    song = songs[idx]
+    st.caption(
+        f"{translate_label(prediction.label)} · "
+        f"{translate_score_name(prediction.score_name).lower()} "
+        f"{format_prediction_score(prediction)}"
+    )
+    if len(songs) > 1:
+        st.caption(f"opção {idx + 1} de {len(songs)}")
+    st.markdown(f"### {song.title}")
+    st.caption(song.artist)
+    if len(songs) >= 2:
+        last = len(songs) - 1
+        with st.container(horizontal=True, horizontal_alignment="distribute"):
+            st.button(
+                "voltar",
+                on_click=_recommendation_prev,
+                disabled=idx == 0,
+                key=f"rec_prev_{prediction.model.id}_{idx}",
+                use_container_width=True,
+            )
+            st.button(
+                "outra sugestão",
+                on_click=_recommendation_next,
+                kwargs={"max_idx": last},
+                disabled=idx >= last,
+                key=f"rec_next_{prediction.model.id}_{idx}",
+                use_container_width=True,
+            )
+    st.video(song.youtube_url)
+    st.link_button("abrir no youtube", song.search_url, width="stretch")
 
 
 def render_prediction(prediction: AppPrediction) -> None:
@@ -418,9 +435,14 @@ def render_prediction(prediction: AppPrediction) -> None:
     st.space("medium")
     render_text_card(prediction)
 
-    if st.toggle("Mostrar recomendação musical", value=False):
-        st.space("medium")
-        render_recommendations(prediction)
+
+def current_single_prediction_for(model: AppModelInfo | None) -> AppPrediction | None:
+    prediction = st.session_state.get("last_prediction")
+    if model is None or not isinstance(prediction, AppPrediction):
+        return None
+    if prediction.model.id != model.id:
+        return None
+    return prediction
 
 
 def render_comparison(predictions: tuple[AppPrediction, ...]) -> None:
@@ -483,12 +505,6 @@ def main() -> None:
 
         control_col, result_col = st.columns([1, 2], gap="large", vertical_alignment="top")
 
-        with control_col:
-            if selected_model is not None:
-                render_model_card(selected_model)
-            else:
-                render_comparison_model_card(selected_models)
-
         with result_col:
             st.pills(
                 "Exemplos",
@@ -529,6 +545,15 @@ def main() -> None:
                 compare_current_text(selected_models)
             elif selected_model is not None:
                 analyze_current_text(selected_model)
+
+        with control_col:
+            if selected_model is not None:
+                render_model_card(
+                    selected_model,
+                    current_single_prediction_for(selected_model),
+                )
+            else:
+                render_comparison_model_card(selected_models)
 
         with result_col:
             if app_mode == MODE_COMPARE:
