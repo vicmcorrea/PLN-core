@@ -75,7 +75,7 @@
 
 \subsection{Autoria do grupo e recursos externos}
 
-Uma preocupação trazida da revisão da Etapa 1 foi deixar explícito o que foi feito pela equipe e o que veio de recursos externos. Nesta etapa, a equipe definiu o protocolo de comparação, preparou as versões tratadas do texto, treinou e avaliou os classificadores estatísticos, fez ajuste fino supervisionado dos transformers, investigou o vazamento de rótulo por sinais superficiais, adaptou a aplicação interativa para o modelo treinado e manteve o módulo de recomendação musical. Os recursos externos foram usados como base de dados, léxico, bibliotecas de aprendizado de máquina, modelos pré-treinados e links de reprodução. A Tabela~\ref{tab:autoria} separa esses papéis de forma resumida.
+Uma preocupação trazida da revisão da Etapa 1 foi deixar explícito o que foi feito pela equipe e o que veio de recursos externos. Nesta etapa, a equipe definiu o protocolo de comparação, preparou as versões tratadas do texto, treinou e avaliou os classificadores estatísticos, treinou versões fine-tuned dos transformers, investigou o vazamento de rótulo por sinais superficiais, adaptou a aplicação interativa para o modelo treinado e manteve o módulo de recomendação musical. Os recursos externos foram usados como base de dados, léxico, bibliotecas de aprendizado de máquina, modelos pré-treinados e links de reprodução. A Tabela~\ref{tab:autoria} separa esses papéis de forma resumida.
 
 \begin{table}[h]
 \small
@@ -92,7 +92,7 @@ Solução simbólica revisada & Classificação por léxico, regras explícitas 
 \addlinespace[0.25em]
 Modelos estatísticos & TF-IDF com Regressão Logística e SVM linear & scikit-learn \citep{pedregosa2011scikit} \\
 \addlinespace[0.25em]
-Transformers ajustados & Ajuste fino supervisionado de DistilBERT, XLM-R e Albertina, seguido de avaliação nas mesmas condições de texto & Modelos pré-treinados \citep{sanh2019distilbert,conneau2020xlmr,rodrigues2023albertina} \\
+Transformers fine-tuned & Versões fine-tuned de DistilBERT, XLM-R e Albertina, seguidas de avaliação nas mesmas condições de texto & Modelos pré-treinados \citep{sanh2019distilbert,conneau2020xlmr,rodrigues2023albertina} \\
 \addlinespace[0.25em]
 Aplicação e recomendação musical & Classificação de texto livre digitado pelo usuário e ordenação de músicas por rótulo e valência & Catálogo musical curado pela equipe e links públicos do YouTube \\
 \addlinespace[0.25em]
@@ -116,7 +116,7 @@ Na Etapa 1, a equipe desenvolveu uma solução simbólica baseada em OpLexicon e
 
 \section{Tópico do trabalho prático}
 
-O tópico do trabalho prático é análise de sentimentos em português brasileiro. A comparação central desta etapa é entre três paradigmas. O primeiro é o baseline simbólico da Etapa 1, representado pelo sistema baseado em OpLexicon e regras. O segundo é estatístico clássico, com TF-IDF combinado a Regressão Logística e SVM linear. O terceiro é neural, com modelos transformer multilíngues ou focados em português, ajustados para a tarefa de três classes. O uso público desses modelos aparece na aplicação interativa, em que uma frase digitada pelo usuário recebe um rótulo de sentimento e pode gerar uma recomendação musical.
+O tópico do trabalho prático é análise de sentimentos em português brasileiro. A comparação central desta etapa é entre três paradigmas. O primeiro é o baseline simbólico da Etapa 1, representado pelo sistema baseado em OpLexicon e regras. O segundo é estatístico clássico, com TF-IDF combinado a Regressão Logística e SVM linear. O terceiro é neural, com modelos transformer multilíngues ou focados em português, em versões fine-tuned para a tarefa de três classes. O uso público desses modelos aparece na aplicação interativa, em que uma frase digitada pelo usuário recebe um rótulo de sentimento e pode gerar uma recomendação musical.
 
 A comparação é feita no mesmo corpus e no mesmo \emph{split}, evitando a situação em que dois sistemas parecem diferentes apenas porque foram avaliados em bases incompatíveis. Essa decisão não foi tomada depois de observar os resultados. Ela vem do desenho experimental de benchmark, em que os sistemas devem ser comparados sob o mesmo teste sempre que a pergunta é qual método funciona melhor para o mesmo problema. Em análise de sentimentos, essa cautela é importante porque mudanças de domínio, pré-processamento, anotação e distribuição das classes alteram bastante os resultados \citep{ribeiro2016sentibench}. Em avaliação de PLN, também é comum tratar a comparação de sistemas no mesmo conjunto de exemplos como uma comparação pareada, pois cada item do teste oferece a mesma dificuldade para todos os métodos \citep{dror2017replicability}.
 
@@ -162,7 +162,7 @@ O primeiro processo é o carregamento do corpus. O projeto usa uma camada comum 
 
 O segundo processo é o tratamento textual. O modo bruto preserva o corpus original. Para diagnóstico, foram implementadas duas versões tratadas. A primeira remove emoticons e URLs, que são os símbolos mais diretamente associados à supervisão distante. A segunda também remove menções, hashtags e marcadores de fontes neutras recorrentes. A função desses tratamentos não é ``corrigir'' definitivamente o corpus, mas medir quanto do desempenho depende de atalhos superficiais.
 
-O terceiro processo é o treinamento. Nos modelos clássicos, os textos são convertidos em vetores TF-IDF de unigramas e bigramas. Em seguida, treina-se uma Regressão Logística ou um classificador SVM linear. Nos modelos neurais, o texto é dividido em subpalavras pelo tokenizador do modelo pré-treinado e o classificador final é ajustado para decidir entre positivo, negativo e neutro. A diferença de quantidade de treino entre os modelos clássicos e neurais não é uma conclusão empírica a favor de um método. Os modelos TF-IDF foram treinados com o treino completo porque são leves. Os modelos neurais foram treinados em uma amostra estratificada de desenvolvimento por limite de tempo e memória, e por isso seus números são discutidos como benchmark parcial e não como ranking final absoluto.
+O terceiro processo é o treinamento. Nos modelos clássicos, os textos são convertidos em vetores TF-IDF de unigramas e bigramas. Em seguida, treina-se uma Regressão Logística ou um classificador SVM linear. Nos modelos neurais, o texto é dividido em subpalavras pelo tokenizador do modelo pré-treinado e a versão final fine-tuned decide entre positivo, negativo e neutro. A diferença de quantidade de treino entre os modelos clássicos e neurais não é uma conclusão empírica a favor de um método. Os modelos TF-IDF foram treinados com o treino completo porque são leves. Os modelos neurais foram treinados em uma amostra estratificada de desenvolvimento por limite de tempo e memória, e por isso seus números são discutidos como benchmark parcial e não como ranking final absoluto.
 
 O quarto processo é a avaliação. Cada rodada produz métricas agregadas, F1 por classe, matriz de confusão, predições e casos de erro. As rodadas recebem identificadores próprios, o que evita misturar resultados de sistemas diferentes e facilita conferir de onde saiu cada número apresentado no relatório.
 
@@ -348,7 +348,7 @@ TF-IDF com Regressão Logística & 100.000 tweets & Modelo estatístico principa
 \addlinespace[0.3em]
 TF-IDF com SVM linear & 100.000 tweets & Baseline clássico forte para texto esparso. Testado nas três condições de texto \\
 \addlinespace[0.3em]
-Albertina 100M pt-BR & 3.000 tweets estratificados & Exemplo neural em português. Ajuste fino de desenvolvimento no texto bruto e sem emoticons e URLs \\
+Albertina 100M pt-BR & 3.000 tweets estratificados & Exemplo neural em português. Versão fine-tuned de desenvolvimento no texto bruto e sem emoticons e URLs \\
 \addlinespace[0.3em]
 Baseline de pistas & 100.000 tweets & Diagnóstico de vazamento. Usa só emoticon positivo, emoticon negativo e URL \\
 \bottomrule

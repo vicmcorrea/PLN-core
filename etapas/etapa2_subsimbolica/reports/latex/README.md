@@ -17,7 +17,7 @@ transformers e do diagnostico de vazamento.
 A versao atual tambem explicita a origem das escolhas experimentais. O relatorio
 separa decisoes vindas do corpus, como o split fixo de treino e teste, decisoes
 baseadas na literatura, como o uso de TF-IDF com modelos lineares, e limitacoes
-praticas, como os ajustes finos de transformers em amostra estratificada de
+praticas, como as versoes fine-tuned de transformers em amostra estratificada de
 desenvolvimento.
 As novas citacoes foram verificadas antes de entrar no `references.bib`.
 
