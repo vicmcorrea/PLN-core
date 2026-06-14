@@ -12,6 +12,7 @@
 \usepackage{array}
 \usepackage{tabularx}
 \usepackage{graphicx}
+\usepackage[table]{xcolor}
 \usepackage[labelsep=period]{caption}
 \usepackage{amsmath}
 \usepackage{tikz}
@@ -33,6 +34,8 @@
 
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcommand{\altrowcolors}{\rowcolors{2}{black!4}{white}}
+\newcommand{\clearrowcolors}{\rowcolors{2}{}{}}
 
 \tikzset{
   flowbox/.style={
@@ -77,17 +80,24 @@ Uma preocupação trazida da revisão da Etapa 1 foi deixar explícito o que foi
 \begin{table}[h]
 \small
 \centering
-\begin{tabularx}{\linewidth}{@{}L{5.8cm}Y@{}}
+\renewcommand{\arraystretch}{1.18}
+\altrowcolors
+\begin{tabularx}{\linewidth}{@{}L{4.2cm}Y Y@{}}
 \toprule
-\textbf{Feito pelo grupo} & \textbf{Recurso externo usado} \\
+\textbf{Feito pelo grupo} & \textbf{Detalhe da contribuição} & \textbf{Recurso externo usado} \\
 \midrule
-Definição de um protocolo comum de comparação, com mesmas classes, mesmo treino, mesmo teste e mesmas métricas para todos os sistemas & Corpus \emph{Portuguese Tweets for Sentiment Analysis} no Kaggle \citep{augustopKaggleTweets} \\
-Revisão da solução simbólica da Etapa 1, mantendo a classificação por léxico, regras explícitas e escore interpretável & OpLexicon v3.0 como léxico de polaridade para português \citep{souza2011construction} \\
-Treinamento dos classificadores estatísticos com representação TF-IDF, Regressão Logística e SVM linear & scikit-learn como biblioteca de modelagem clássica \citep{pedregosa2011scikit} \\
-Execução dos modelos neurais em rodadas de desenvolvimento, usando os mesmos rótulos e as mesmas condições de limpeza avaliadas nos demais sistemas & DistilBERT, XLM-R e Albertina como modelos pré-treinados \citep{sanh2019distilbert,conneau2020xlmr,rodrigues2023albertina} \\
-Diagnóstico de vazamento de rótulo, análise qualitativa de erros e escolha de um modelo leve para a demonstração pública & Hugging Face Transformers \citep{wolf2020transformers} e Hydra \citep{yadan2019hydra} \\
+Protocolo comum de comparação & Mesmas classes, treino, teste e métricas para todos os sistemas & Corpus \emph{Portuguese Tweets for Sentiment Analysis} \citep{augustopKaggleTweets} \\
+\addlinespace[0.25em]
+Solução simbólica revisada & Classificação por léxico, regras explícitas e escore interpretável & OpLexicon v3.0 \citep{souza2011construction} \\
+\addlinespace[0.25em]
+Modelos estatísticos & TF-IDF com Regressão Logística e SVM linear & scikit-learn \citep{pedregosa2011scikit} \\
+\addlinespace[0.25em]
+Rodadas neurais & DistilBERT, XLM-R e Albertina avaliados nas mesmas condições de texto & Modelos pré-treinados \citep{sanh2019distilbert,conneau2020xlmr,rodrigues2023albertina} \\
+\addlinespace[0.25em]
+Diagnóstico e visualização & Teste de vazamento, análise de erros e figuras do relatório & Hugging Face Transformers \citep{wolf2020transformers} e Hydra \citep{yadan2019hydra} \\
 \bottomrule
 \end{tabularx}
+\clearrowcolors
 \caption{Separação entre contribuições da equipe e recursos externos usados na Etapa 2.}
 \label{tab:autoria}
 \end{table}
@@ -157,6 +167,7 @@ A solução simbólica não treina um classificador. Ela consulta o OpLexicon, s
 \begin{table}[h]
 \small
 \centering
+\altrowcolors
 \begin{tabularx}{\linewidth}{@{}L{2.4cm}L{3.4cm}Y@{}}
 \toprule
 \textbf{Fenômeno} & \textbf{Exemplo} & \textbf{Efeito na solução simbólica} \\
@@ -168,6 +179,7 @@ Contraste & ``bom, mas caro'' & A parte depois de ``mas'' recebe mais peso, pois
 Ênfase & ``péssimo!'' & A exclamação aumenta um pouco a intensidade do escore final \\
 \bottomrule
 \end{tabularx}
+\clearrowcolors
 \caption{Exemplos dos ajustes simbólicos herdados da Etapa 1 e usados como comparação na Etapa 2.}
 \label{tab:simbolico}
 \end{table}
@@ -202,6 +214,7 @@ As métricas principais são acurácia e F1 macro. A acurácia mede a proporçã
 \begin{table}[h]
 \small
 \centering
+\altrowcolors
 \begin{tabularx}{\linewidth}{@{}L{3.1cm}Y Y@{}}
 \toprule
 \textbf{Condição avaliada} & \textbf{O que muda no texto} & \textbf{Como o resultado deve ser lido} \\
@@ -212,6 +225,7 @@ Sem pistas sociais e fontes & Remove também menções, hashtags e marcadores re
 Baseline de pistas & Usa apenas presença de emoticon positivo, emoticon negativo e URL & Mede o quanto o teste bruto pode ser resolvido sem ler o conteúdo linguístico do tweet \\
 \bottomrule
 \end{tabularx}
+\clearrowcolors
 \caption{Condições experimentais usadas para separar desempenho real e atalhos do corpus.}
 \label{tab:condicoes}
 \end{table}
@@ -219,18 +233,25 @@ Baseline de pistas & Usa apenas presença de emoticon positivo, emoticon negativ
 \begin{table}[h]
 \small
 \centering
-\begin{tabularx}{\linewidth}{@{}L{3.1cm}L{2.3cm}Y@{}}
+\renewcommand{\arraystretch}{1.16}
+\altrowcolors
+\begin{tabularx}{\linewidth}{@{}L{3.25cm}L{2.2cm}Y@{}}
 \toprule
 \textbf{Sistema} & \textbf{Treino usado} & \textbf{Resumo da avaliação} \\
 \midrule
-OpLexicon com regras & Não há treino supervisionado & O sistema soma polaridades do léxico e aplica regras. O mesmo teste de 4.999 tweets foi usado nas três condições de texto \\
-TF-IDF com Regressão Logística & 100.000 tweets & Modelo estatístico principal da demonstração. Foi avaliado no texto bruto, no texto sem emoticons e URLs e na condição mais estrita \\
-TF-IDF com SVM linear & 100.000 tweets & Baseline clássico forte para texto esparso. Foi usado para conferir se o resultado do TF-IDF dependia do classificador escolhido \\
-Transformers & 3.000 tweets nas rodadas atuais & Rodadas de desenvolvimento com 1.000 exemplos por classe. Elas comparam pré-treinamento multilíngue e pré-treinamento voltado a português \\
-Baseline de pistas & 100.000 tweets & Classificador propositalmente limitado. Ele existe para medir vazamento de rótulo e não para ser usado como solução final \\
+OpLexicon com regras & Sem treino & Sistema simbólico. Testado no texto bruto, no texto sem emoticons e URLs e na condição mais estrita \\
+\addlinespace[0.3em]
+TF-IDF com Regressão Logística & 100.000 tweets & Modelo estatístico principal da demonstração. Testado nas três condições de texto \\
+\addlinespace[0.3em]
+TF-IDF com SVM linear & 100.000 tweets & Baseline clássico forte para texto esparso. Testado nas três condições de texto \\
+\addlinespace[0.3em]
+Albertina 100M pt-BR & 3.000 tweets & Exemplo neural em português. Rodada de desenvolvimento no texto bruto e sem emoticons e URLs \\
+\addlinespace[0.3em]
+Baseline de pistas & 100.000 tweets & Diagnóstico de vazamento. Usa só emoticon positivo, emoticon negativo e URL \\
 \bottomrule
 \end{tabularx}
-\caption{Resumo dos tipos de treino e teste executados até esta versão do relatório.}
+\clearrowcolors
+\caption{Resumo dos principais tipos de treino e teste executados até esta versão do relatório.}
 \label{tab:treinos}
 \end{table}
 
@@ -251,6 +272,7 @@ Por isso, uma acurácia bruta de 99\% não deve ser interpretada como ``o modelo
 \small
 \centering
 \resizebox{\linewidth}{!}{%
+\altrowcolors
 \begin{tabular}{@{}lrrrrr@{}}
 \toprule
 \textbf{Sistema} & \textbf{Treino} & \textbf{Teste} & \textbf{Tratamento} & \textbf{Acurácia} & \textbf{F1 macro} \\
@@ -272,6 +294,7 @@ Albertina 100M pt-BR & 3.000 & 4.999 & bruto com pistas & 0,9972 & 0,9972 \\
 \bottomrule
 \end{tabular}%
 }
+\clearrowcolors
 \caption{Resultados atuais usados como base para a escrita da Etapa 2. As linhas em negrito indicam a condição principal de comparação para cada sistema, sem emoticons e URLs. As linhas ``bruto com pistas'' têm maior acurácia, mas são problemáticas porque a baseline de pistas mostra que o rótulo pode ser inferido quase diretamente por artefatos do corpus. Os resultados neurais são execuções de desenvolvimento com 1.000 exemplos por classe no treino.}
 \label{tab:resultados}
 \end{table}
@@ -305,23 +328,28 @@ Além da dificuldade metodológica, houve dificuldades práticas. O treino local
 
 Os exemplos qualitativos da Tabela~\ref{tab:exemplos} foram extraídos diretamente das predições salvas. Eles não têm a função de substituir as métricas agregadas, mas ajudam a explicar por que a comparação precisa separar o texto bruto do texto tratado. Em alguns casos, o TF-IDF acerta onde o simbólico falha porque aprende padrões recorrentes do corpus que não aparecem como entradas explícitas do léxico. Em outros, o TF-IDF erra justamente porque o texto limpo fica ambíguo, irônico ou contraditório. O último caso mostra o problema mais importante. O modelo bruto e a baseline de pistas acertam a classe neutra porque a URL funciona como pista quase direta de rótulo, enquanto o conteúdo textual restante parece negativo.
 
-\begin{table}[h]
-\small
+\begin{table}[p]
+\footnotesize
 \centering
-\resizebox{\linewidth}{!}{%
-\begin{tabularx}{\linewidth}{@{}L{1.1cm}L{2.45cm}Y L{1.9cm} L{2.4cm} Y@{}}
+\renewcommand{\arraystretch}{1.18}
+\altrowcolors
+\begin{tabularx}{\linewidth}{@{}L{2.9cm}Y L{1.7cm}Y@{}}
 \toprule
-\textbf{Índice} & \textbf{Caso} & \textbf{Texto tratado} & \textbf{Esperado} & \textbf{Predições} & \textbf{Leitura} \\
+\textbf{Caso observado} & \textbf{Texto tratado} & \textbf{Rótulo esperado} & \textbf{Leitura dos sistemas} \\
 \midrule
-2442 & Simbólico falha, TF-IDF acerta & \texttt{poxa ((} & negativo & simbólico indicou neutro; Regressão Logística indicou negativo; SVM linear indicou negativo & O léxico não encontra uma pista polarizada forte depois da remoção do emoticon, enquanto os baselines estatísticos aprendem o padrão recorrente de lamento. \\
-1300 & Simbólico falha, TF-IDF acerta & \texttt{É hoje!} & positivo & simbólico indicou neutro; Regressão Logística indicou positivo; SVM linear indicou positivo & O exemplo ilustra uma frase curta sem palavra positiva explícita no OpLexicon, mas frequente em contextos positivos do corpus. \\
-2990 & TF-IDF falha em ambiguidade & \texttt{to feliz e com medo ao mesmo tempo} & negativo & Regressão Logística indicou positivo; Albertina indicou negativo; baseline de pistas indicou negativo & A frase mistura \texttt{feliz} e \texttt{medo}. Sem o emoticon negativo original, a Regressão Logística pesa mais a pista positiva e erra. \\
-295 & TF-IDF falha em ironia/contradição & \texttt{Tô de boa sim po Encolhida Chorando Nada de demais} & positivo & Regressão Logística indicou negativo; Albertina indicou negativo; baseline de pistas indicou positivo & A frase parece irônica e contém \texttt{Chorando}, mas o rótulo positivo vinha do emoticon original. O caso mostra que a remoção de pistas também revela inconsistências do próprio corpus. \\
-3798 & Modelo bruto parece melhor por vazamento & \texttt{Overdose deixou Demi Lovato à beira da morte} & neutro & TF-IDF bruto indicou neutro; baseline de pistas indicou neutro; TF-IDF tratado indicou negativo & No texto original havia uma URL. Como URLs quase sempre marcam a classe neutra no corpus, o acerto bruto não depende de compreender a manchete. \\
+Simbólico falha e TF-IDF acerta & \texttt{poxa ((} & negativo & OpLexicon indicou neutro. TF-IDF com Regressão Logística indicou negativo. O caso tem tom de lamento, mas quase não há palavra forte para o léxico. \\
+\addlinespace[0.35em]
+Simbólico falha e TF-IDF acerta & \texttt{É hoje!} & positivo & OpLexicon indicou neutro. TF-IDF com Regressão Logística indicou positivo. A frase é curta e depende de padrão recorrente no corpus. \\
+\addlinespace[0.35em]
+TF-IDF falha e Albertina acerta & \texttt{to feliz e com medo ao mesmo tempo} & negativo & TF-IDF com Regressão Logística indicou positivo. Albertina 100M pt-BR indicou negativo. A frase mistura alegria e medo, e o modelo neural capturou melhor a tensão do enunciado. \\
+\addlinespace[0.35em]
+Texto limpo fica contraditório & \texttt{Tô de boa sim po Encolhida Chorando Nada de demais} & positivo & TF-IDF e Albertina indicaram negativo. O rótulo positivo vinha do emoticon original, então a limpeza revela uma inconsistência do próprio corpus. \\
+\addlinespace[0.35em]
+Modelo bruto parece melhor por vazamento & \texttt{Overdose deixou Demi Lovato à beira da morte} & neutro & TF-IDF bruto e baseline de pistas indicaram neutro. TF-IDF tratado indicou negativo. A URL original funcionava como pista quase direta da classe neutra. \\
 \bottomrule
-\end{tabularx}%
-}
-\caption{Casos qualitativos reais extraídos das predições salvas. A baseline de pistas usa apenas a presença de emoticon positivo, emoticon negativo e URL.}
+\end{tabularx}
+\clearrowcolors
+\caption{Casos qualitativos reais extraídos das predições salvas. A tabela inclui um exemplo neural com Albertina 100M pt-BR e um caso em que o texto bruto parece melhor apenas por vazamento.}
 \label{tab:exemplos}
 \end{table}
 \FloatBarrier

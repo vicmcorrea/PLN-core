@@ -16,10 +16,11 @@ transformers e do diagnostico de vazamento.
 
 A tabela de exemplos qualitativos foi preenchida com casos reais extraidos das
 predicoes salvas. Ela cobre falhas do simbolico corrigidas pelo TF-IDF, falhas
-do TF-IDF em textos ambiguos ou ironicos, e um exemplo em que o modelo bruto
-parece melhor apenas porque a URL atua como pista de rotulo. A aplicacao
-Streamlit usa TF-IDF + Regressao Logistica tratado como modo padrao; os
-transformers permanecem como modelos de benchmark e discussao no relatorio.
+do TF-IDF em textos ambiguos ou ironicos, um exemplo com Albertina 100M pt-BR,
+e um exemplo em que o modelo bruto parece melhor apenas porque a URL atua como
+pista de rotulo. A aplicacao Streamlit usa TF-IDF + Regressao Logistica tratado
+como modo padrao; os transformers permanecem como modelos de benchmark e
+discussao no relatorio.
 
 Arquivos principais:
 
