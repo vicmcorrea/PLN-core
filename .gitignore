@@ -8,6 +8,7 @@ data/processed/
 data/models/
 docs/
 _local_notes/
+_local_notes/readmes_archive/
 outputs/
 multirun/
 __pycache__/
