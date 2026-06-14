@@ -3,6 +3,9 @@
 .ruff_cache/
 .pytest_cache/
 data/external/
+data/raw/
+data/processed/
+data/models/
 docs/
 outputs/
 multirun/
@@ -13,6 +16,8 @@ __pycache__/
 build/
 dist/
 *.egg-info/
+*.joblib
+*.pkl
 *.aux
 *.bbl
 *.bcf

@@ -1,0 +1,41 @@
+# Etapa 1 symbolic benchmark on the shared Kaggle corpus.
+seed: 42
+
+output_dir: outputs/etapa1_symbolic/benchmark_suite
+run_id: ${now:%Y%m%d_%H%M%S_%f}
+overwrite: false
+save_predictions: true
+fail_fast: false
+make_figures: true
+text_treatment: raw
+text_treatments:
+  - ${text_treatment}
+
+dataset:
+  name: kaggle_tweets
+  kaggle_slug: augustop/portuguese-tweets-for-sentiment-analysis
+  download_if_missing: true
+  source_url: https://www.kaggle.com/datasets/augustop/portuguese-tweets-for-sentiment-analysis
+  license: CC-BY-NC-SA-4.0
+  source_dir: data/raw/portuguese-tweets-for-sentiment-analysis
+  train_file: TrainingDatasets/Train3Classes.csv
+  test_file: TestDatasets/Test3classes.csv
+  eval_split: test
+  kwargs:
+    split: ${dataset.eval_split}
+    source_dir: ${dataset.source_dir}
+    max_examples: null
+    per_class: null
+    balanced: false
+    seed: ${seed}
+    text_treatment: raw
+
+analyzers:
+  - name: oplexicon_regex
+    kwargs: {}
+
+hydra:
+  run:
+    dir: ${output_dir}/_hydra/${run_id}
+  job:
+    chdir: false

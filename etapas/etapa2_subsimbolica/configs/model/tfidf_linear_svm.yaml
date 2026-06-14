@@ -1,0 +1,12 @@
+name: tfidf_linear_svm
+kind: classical
+vectorizer:
+  analyzer: word
+  ngram_range: [1, 2]
+  min_df: 2
+  max_df: 0.95
+  sublinear_tf: true
+classifier:
+  class_path: sklearn.svm.LinearSVC
+  class_weight: balanced
+  random_state: 42

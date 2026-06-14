@@ -1,0 +1,19 @@
+# Etapa 2 dataset artifact analysis on the shared Kaggle corpus.
+defaults:
+  - dataset: kaggle_portuguese_tweets
+  - _self_
+
+seed: 42
+output_dir: outputs/etapa2_subsymbolic/data_artifacts
+run_id: ${now:%Y%m%d_%H%M%S_%f}
+overwrite: false
+make_figures: true
+
+top_terms_per_label: 30
+min_term_count: 20
+
+hydra:
+  run:
+    dir: ${output_dir}/_hydra/${run_id}
+  job:
+    chdir: false

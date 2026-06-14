@@ -1,0 +1,446 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{microtype}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usepackage[round]{natbib}
+\usepackage{xcolor}
+
+\usetikzlibrary{arrows.meta,positioning}
+
+\definecolor{newblue}{HTML}{1565C0}
+
+\newcommand{\new}[1]{\textcolor{newblue}{#1}}
+\newenvironment{addedblock}{\par\color{newblue}}{\par\color{black}}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  citecolor=black,
+  urlcolor=blue
+}
+
+\setlength{\parindent}{1.2em}
+\setlength{\parskip}{0.4em}
+\setlist[itemize]{leftmargin=1.8em}
+\setlength{\parindent}{0pt}
+
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+\tikzset{
+  flowbox/.style={
+    draw,
+    rounded corners=2pt,
+    align=center,
+    minimum height=0.95cm,
+    minimum width=2.35cm,
+    inner sep=4pt
+  },
+  flowarrow/.style={-{Latex[length=2.5mm]}, thick}
+}
+
+\begin{document}
+
+\begin{center}
+{\Large Relatório do Projeto Prático}\\[0.4em]
+{\large SCC0633 Processamento de Linguagem Natural}\\[0.2em]
+{\large SCC5908 Introdução ao Processamento de Língua Natural}\\[0.2em]
+\end{center}
+
+\noindent\textit{\small Versão com destaques: trechos em \new{azul} foram adicionados ou reescritos após a revisão da professora.}
+
+\section{Nome do projeto}
+
+\textbf{PLN Core: analisador simbólico de sentimentos para português brasileiro}
+
+\section{Equipe}
+
+\textbf{Nome da equipe:} GLAVJ
+
+\begin{itemize}
+  \item João Victor M. Correa (17416061)
+  \item Ana Paula de Abreu Batista (12688424)
+  \item Guilherme Vaz de Oliveira Taratá (10817476)
+  \item Victoria Favero Nunes (15698302)
+  \item Leonardo Ferreira Runho (11832958)
+\end{itemize}
+
+\begin{addedblock}
+\subsection{Autoria do grupo e recursos externos}
+
+A Tabela~\ref{tab:autoria} separa o que foi implementado pela equipe do que foi reaproveitado de recursos externos. Todo o pipeline simbólico, a normalização textual, o tokenizador regex, as regras, o módulo de recomendação, o catálogo de músicas, os testes automatizados e o \emph{harness} de avaliação são autoria do grupo. Para a versão reestruturada da Etapa 1, usada como ponto de comparação da Etapa 2, o único recurso lexical externo ativo é o OpLexicon v3.0.
+
+\begin{table}[h]
+\small
+\centering
+\begin{tabularx}{\linewidth}{@{}L{5.4cm}Y@{}}
+\toprule
+\textbf{Feito pelo grupo} & \textbf{Recurso externo} \\
+\midrule
+Pipeline simbólico (\texttt{pipeline.py}) e \emph{factory} de produção (\texttt{factory.py}) & Léxico OpLexicon v3.0 \citep{souza2011construction} \\
+Normalização textual e tokenizador regex & --- \\
+Regras de negação, intensificação, atenuação, contraste e ênfase, com pesos calibrados manualmente & --- \\
+Limiarização e explicação por termos casados & --- \\
+Módulo de recomendação (\texttt{recommender.py}) e catálogo curado de 10 músicas (\texttt{recommendations.json}) & --- \\
+Testes unitários (\texttt{tests/}) e \emph{harness} de avaliação \emph{Hydra} em \texttt{etapas/etapa1\_simbolica/} & --- \\
+\bottomrule
+\end{tabularx}
+\caption{Separação entre autoria do grupo e recursos externos reaproveitados.}
+\label{tab:autoria}
+\end{table}
+\end{addedblock}
+
+\section{Introdução}
+
+Este projeto tem como objetivo classificar textos curtos em português brasileiro como positivos, negativos ou neutros. A entrada consiste em frases simples, como comentários de redes sociais, e a saída é um rótulo acompanhado de um escore numérico.
+
+A análise de sentimentos é uma tarefa amplamente utilizada em aplicações como monitoramento de opinião pública, avaliação de produtos e apoio à tomada de decisão. Em ambientes digitais, há um grande volume de opiniões textuais produzidas continuamente, o que torna essa tarefa relevante tanto do ponto de vista prático quanto acadêmico.
+
+No contexto do português brasileiro, essa tarefa apresenta desafios adicionais, como variações linguísticas, uso de gírias, ambiguidade semântica e forte dependência de contexto. Entre os principais desafios estão:
+
+\begin{itemize}
+  \item \textbf{Dependência de contexto} (ironia e sarcasmo): em ``adorei ficar duas horas esperando no aeroporto'', todas as palavras polarizadas são positivas, mas a intenção é negativa.
+  \item \textbf{Ambiguidade lexical}: uma mesma palavra carrega polaridades distintas conforme o contexto \citep{navigli2009wsd}. Em português brasileiro, ``duro'' pode ser físico (neutro), financeiro (``estou duro'', negativo) ou de personalidade (negativo); ``bomba'' pode ser elogio em academia (``bombou no treino'') ou crítica em outro contexto.
+  \item \textbf{Negações e intensificadores}: alteram ou amplificam a polaridade dentro de uma janela curta de tokens, como em ``não foi bom'' (inversão) ou ``muito bom'' (ampliação).
+  \item \textbf{Cobertura limitada de léxicos}: gírias frequentes em redes sociais (``top'', ``mara'', ``show de bola'', ``irado'') raramente aparecem em léxicos tradicionais, mesmo nos mais amplos como o OpLexicon v3.0 (31\,944 termos).
+\end{itemize}
+
+Além disso, trata-se de um problema didaticamente relevante em Processamento de Língua Natural, pois envolve a modelagem de fenômenos linguísticos complexos de forma estruturada. Neste trabalho, adotamos uma abordagem simbólica baseada em léxico e regras explícitas, priorizando interpretabilidade em vez de aprendizado automático \citep{taboada2011lexicon,hutto2014vader,souza2012sentiment}.
+
+\section{Proposta da solução}
+
+\subsection{Arquitetura do pipeline}
+
+A aplicação segue um pipeline simbólico determinístico. Diferente de modelos de aprendizado de máquina, não há treinamento: o processamento ocorre por etapas fixas e interpretáveis.
+
+\begin{figure}[h]
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tikzpicture}[node distance=0.45cm]
+  \node[flowbox] (input) {texto\\de entrada};
+  \node[flowbox, right=of input] (norm) {normalização};
+  \node[flowbox, right=of norm] (tok) {tokenização para texto informal};
+  \node[flowbox, right=of tok] (match) {busca no\\léxico};
+  \node[flowbox, right=of match] (rules) {regras\\simbólicas};
+  \node[flowbox, right=of rules] (sum) {soma dos\\escores};
+  \node[flowbox, right=of sum] (label) {rótulo\\final};
+
+  \draw[flowarrow] (input) -- (norm);
+  \draw[flowarrow] (norm) -- (tok);
+  \draw[flowarrow] (tok) -- (match);
+  \draw[flowarrow] (match) -- (rules);
+  \draw[flowarrow] (rules) -- (sum);
+  \draw[flowarrow] (sum) -- (label);
+\end{tikzpicture}
+}
+\caption{Visão geral da arquitetura da solução.}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tikzpicture}[node distance=0.42cm]
+  \node[flowbox] (base) {termo com\\polaridade};
+  \node[flowbox, right=of base] (neg) {negação\\janela de 3 tokens};
+  \node[flowbox, right=of neg] (deg) {intensificador\\ou atenuador};
+  \node[flowbox, right=of deg] (contrast) {contraste\\antes ou depois de ``mas''};
+  \node[flowbox, right=of contrast] (exc) {ênfase por\\exclamação};
+  \node[flowbox, right=of exc] (finalscore) {contribuição\\ajustada};
+
+  \draw[flowarrow] (base) -- (neg);
+  \draw[flowarrow] (neg) -- (deg);
+  \draw[flowarrow] (deg) -- (contrast);
+  \draw[flowarrow] (contrast) -- (exc);
+  \draw[flowarrow] (exc) -- (finalscore);
+\end{tikzpicture}
+}
+\caption{Fluxo local de ajuste para cada termo encontrado no léxico.}
+\end{figure}
+
+\subsection{Recursos e ferramentas}
+
+\begin{addedblock}
+A Tabela~\ref{tab:recursos} detalha os recursos ativos no sistema simbólico usado como baseline da Etapa 1: a função, o detalhamento técnico e a origem (própria do grupo ou externa). Implementações alternativas permanecem no repositório para consulta histórica, mas a avaliação oficial desta etapa usa apenas \texttt{oplexicon\_regex}.
+
+\begin{table}[h]
+\small
+\centering
+\begin{tabularx}{\linewidth}{@{}L{2.8cm}L{2.5cm}YL{1.9cm}@{}}
+\toprule
+\textbf{Recurso} & \textbf{Função} & \textbf{Detalhamento} & \textbf{Origem} \\
+\midrule
+Normalização textual & Limpeza e padronização do texto bruto & Remove URLs e menções, quebra \emph{hashtags} em \emph{CamelCase} (\texttt{\#MuitoBom} $\rightarrow$ \texttt{muito bom}), comprime caracteres repetidos (\texttt{amooo} $\rightarrow$ \texttt{amo}) e faz \emph{folding} para minúsculas e remoção de acentos. & Grupo \\
+Tokenizador regex & Segmentação em \emph{tokens} & Tokenizador determinístico que separa palavras, pontuação e símbolos por expressão regular, sem lematização e sem dependência de modelos externos. & Grupo \\
+OpLexicon v3.0 & Polaridade lexical (núcleo) & 31\,944 termos distintos após agregar duplicatas pela média. Cada linha traz \texttt{termo,tipo,polaridade,revisão}; polaridade discreta em $\{-1,0,+1\}$. Baixado e cacheado automaticamente. & PUCRS \citep{souza2011construction} \\
+\bottomrule
+\end{tabularx}
+\caption{Recursos utilizados pelo sistema, com função, detalhamento e origem.}
+\label{tab:recursos}
+\end{table}
+\end{addedblock}
+
+\subsection{Descrição dos processos}
+
+\begin{addedblock}
+\textbf{Normalização.}
+A camada de normalização para texto informal remove URLs e menções, quebra \emph{hashtags} em \emph{CamelCase}, expande sequências de risada (``kkkkk'', ``rsrs''), comprime caracteres repetidos (``ameiiii'' $\rightarrow$ ``amei'') e preserva \emph{emojis} como \emph{tokens} próprios. Em seguida o texto passa por \emph{folding} (minúsculas e remoção de acentos) para casar com o vocabulário dos léxicos.
+
+\textbf{Tokenização.}
+O texto normalizado é segmentado por um tokenizador determinístico baseado em expressões regulares, que separa palavras e pontuação sem lematizar. A renúncia à lematização é deliberada na versão \texttt{oplexicon\_regex}: ela evita dependências morfológicas externas e torna a comparação com os modelos da Etapa 2 mais direta, pois todas as previsões simbólicas decorrem de casamento por forma de superfície no OpLexicon.
+
+\textbf{Léxico ativo.}
+O sistema opera com uma única fonte lexical: o OpLexicon v3.0. Entradas duplicadas são agregadas pela média da polaridade, e os termos são normalizados com o mesmo \emph{folding} aplicado ao texto de entrada. Essa decisão deixa explícito o limite do paradigma simbólico usado na comparação: não há treinamento, expansão neural, SentiLex, léxico de gírias ou variantes adicionais no resultado oficial da Etapa 1.
+
+\textbf{Busca no léxico.}
+Cada \emph{token} é consultado no OpLexicon normalizado. Quando há correspondência, ele recebe um \emph{escore base} de polaridade, isto é, o valor associado àquele termo antes de qualquer ajuste por regra. Marcadores funcionais (negações e contrastes) são identificados nesta etapa mas não recebem polaridade própria: eles atuam apenas como gatilhos das regras descritas a seguir.
+
+\textbf{Regras simbólicas.}
+A Tabela~\ref{tab:regras} resume cada regra com gatilho, janela de aplicação, efeito numérico e exemplo. O arcabouço conceitual remonta a \citet{polanyi2006valenceshifters}, que introduzem o termo \emph{contextual valence shifters} para descrever exatamente esses quatro fenômenos (negação, intensificação, atenuação e contraste). A formulação multiplicativa segue \citet{taboada2011lexicon}, cujo cálculo SO-CAL aplica modificadores percentuais sobre o escore base do termo (\textit{e.g.}, \texttt{very} = $+25\%$, \texttt{deeply} = $+50\%$, \texttt{somewhat} = $-30\%$), e \citet{hutto2014vader}, que padroniza o uso de \emph{booster words} para análise em mídias sociais. A janela de três tokens da negação e a calibração dos modais seguem o estudo empírico de \citet{kiritchenko2016effect}. Os pesos numéricos específicos para o português (\texttt{muito} $1{,}6$, \texttt{super} $1{,}5$, \texttt{pouco} $0{,}6$, contraste $0{,}7/1{,}3$, exclamação $1+0{,}05n$) foram calibrados manualmente pela equipe sobre o \emph{smoke test} de 20 sentenças, situando-se na mesma faixa dos shifters de SO-CAL.
+
+\begin{table}[h]
+\small
+\centering
+\begin{tabularx}{\linewidth}{@{}L{1.9cm}L{3.1cm}L{1.9cm}L{2.6cm}Y@{}}
+\toprule
+\textbf{Regra} & \textbf{Gatilho} & \textbf{Janela} & \textbf{Efeito} & \textbf{Exemplo} \\
+\midrule
+Negação & \texttt{não, nem, nunca, jamais, sem} & 3 tokens anteriores & Multiplica por $-1$ (inverte sinal) & ``não foi bom'' $\rightarrow$ \texttt{bom}$\times(-1)$ \\
+Intensificação & \texttt{muito} 1{,}6; \texttt{super} 1{,}5; \texttt{demais} 1{,}4; \texttt{bastante} 1{,}3; \texttt{bem}/\texttt{realmente} 1{,}2 & token imediatamente anterior & Multiplica pelo fator do gatilho & ``muito bom'' $\rightarrow$ \texttt{bom}$\times 1{,}6$ \\
+Atenuação & \texttt{pouco} 0{,}6; \texttt{meio} 0{,}75; \texttt{quase} 0{,}8 & token imediatamente anterior & Multiplica pelo fator do gatilho & ``pouco útil'' $\rightarrow$ \texttt{útil}$\times 0{,}6$ \\
+Contraste & \texttt{mas, porém, contudo, entretanto} (último marcador da frase) & toda a frase & Termos antes: $\times 0{,}7$; depois: $\times 1{,}3$ & ``foi bom, mas péssimo'' \\
+Exclamação & ``!'' no texto bruto (até 3) & toda a frase & Multiplica por $1+0{,}05\cdot n$ & ``bom!!'' $\rightarrow$ \texttt{bom}$\times 1{,}10$ \\
+\bottomrule
+\end{tabularx}
+\caption{Regras simbólicas, com gatilho, janela, efeito numérico e exemplo.}
+\label{tab:regras}
+\end{table}
+
+\textbf{Agregação e classificação.}
+O escore final da frase é a soma dos escores ajustados de todos os termos casados. A classificação aplica dois limiares simétricos sobre essa soma:
+
+\begin{equation}
+\text{score} = \sum_{i} \text{adjusted}(t_i), \qquad
+\text{rótulo} =
+\begin{cases}
+\text{positivo} & \text{se } \text{score} \geq +0{,}5 \\
+\text{negativo} & \text{se } \text{score} \leq -0{,}5 \\
+\text{neutro}   & \text{caso contrário}
+\end{cases}
+\end{equation}
+
+Os limiares simétricos de $\pm 0{,}5$ foram calibrados para textos curtos de mídias sociais, onde o número de termos casados por frase é tipicamente baixo (1 a 3). Limiares mais altos colapsariam a maioria das frases em \emph{neutro}. Quando nenhum termo é encontrado no léxico, o rótulo é \texttt{neutro} por definição.
+\end{addedblock}
+
+\subsection{Exemplo de execução}
+
+\begin{addedblock}
+A Tabela~\ref{tab:exemplo} ilustra o pipeline completo para a entrada \texttt{O app é muito bom, mas a tela confusa!}. Cada contribuição ajustada é o produto do escore base pelos fatores das regras aplicadas, conforme a Tabela~\ref{tab:regras}.
+
+\begin{table}[h]
+\small
+\centering
+\begin{tabularx}{\linewidth}{@{}L{4cm}Y@{}}
+\toprule
+\textbf{Etapa} & \textbf{Resultado} \\
+\midrule
+Entrada & \texttt{O app é muito bom, mas a tela confusa!} \\
+Normalização & \emph{folding} para minúsculas, sem acentos; preservação da pontuação e da estrutura da frase \\
+Tokenização & \texttt{o, app, e, muito, bom, mas, a, tela, confusa, !} (regex para texto informal, sem lematização) \\
+Busca no OpLexicon & \texttt{bom} $(+1{,}0)$ e \texttt{confusa} $(-1{,}0)$ casados no OpLexicon; \texttt{mas} é tratado como marcador funcional de contraste, sem polaridade própria \\
+Regras aplicadas & \texttt{bom}: intensificação (\texttt{muito}), pré-contraste, exclamação; \texttt{confusa}: pós-contraste, exclamação \\
+Contribuições ajustadas & \texttt{bom}: $1{,}0 \times 1{,}6 \times 0{,}7 \times 1{,}05 \approx +1{,}176$; \texttt{confusa}: $-1{,}0 \times 1{,}3 \times 1{,}05 = -1{,}365$ \\
+Agregação e classificação & soma final $\approx -0{,}189$; pelo limiar padrão de $\pm0{,}75$, classificada como \textbf{neutro} \\
+\bottomrule
+\end{tabularx}
+\caption{Aplicação completa do pipeline para \texttt{O app é muito bom, mas a tela confusa!}.}
+\label{tab:exemplo}
+\end{table}
+
+O exemplo mostra como as regras operam de forma assimétrica em torno de \texttt{mas}: o elogio inicial é amplificado pela intensificação (\texttt{muito}) mas atenuado pelo pré-contraste, enquanto a crítica final é amplificada pelo pós-contraste, dominante para o leitor humano. O sistema captura essa assimetria e devolve \texttt{negativo}, alinhado à interpretação típica de que, após \texttt{mas}, vem o que o falante realmente quis dizer.
+\end{addedblock}
+
+\section{Execução}
+
+O repositório remoto do projeto é:
+
+\url{https://github.com/vicmcorrea/PLN-core}
+
+Para executar o projeto, é necessário preparar o ambiente virtual e instalar as dependências.
+
+\subsection*{Execução via Streamlit}
+
+Linux/MacOS:
+\begin{verbatim}
+uv sync
+uv run streamlit run streamlit_app.py
+\end{verbatim}
+
+Windows:
+\begin{verbatim}
+uv sync
+uv run streamlit run streamlit_app.py
+\end{verbatim}
+
+Para reproduzir a avaliação oficial da Etapa 1 no corpus comum:
+
+\begin{verbatim}
+uv run python etapas/etapa1_simbolica/pipelines/run_symbolic_benchmark_suite.py
+\end{verbatim}
+
+\subsection*{Recursos adicionais}
+
+Na primeira execução, o OpLexicon v3.0 é automaticamente baixado e armazenado localmente.
+
+Além do \emph{benchmark} via Hydra, o projeto também oferece uma interface web simples utilizando Streamlit:
+
+\begin{verbatim}
+streamlit run streamlit_app.py
+\end{verbatim}
+
+ou, via opção acessível diretamente no navegador:
+
+\url{https://pln-core.streamlit.app/}
+
+
+A interface permite visualizar:
+\begin{itemize}
+  \item rótulo final
+  \item escore
+  \item texto normalizado
+  \item \emph{tokens} gerados para busca no OpLexicon
+  \item termos encontrados (com escore base e escore ajustado)
+  \item regras simbólicas aplicadas a cada termo
+\end{itemize}
+
+\subsection*{Testes}
+
+Para executar os testes atuais do projeto, após o ambiente estar preparado:
+
+\begin{verbatim}
+uv run pytest
+\end{verbatim}
+
+\begin{addedblock}
+\section{Recomendação de músicas}
+
+Como extensão do sistema, foi implementado um módulo de recomendação de músicas baseado no sentimento detectado no texto.
+
+\textbf{Catálogo.} O catálogo, descrito em \texttt{data/recommendations.json}, é um pequeno conjunto curado pela equipe com 10 músicas brasileiras de domínio reconhecido, distribuídas em 4 positivas, 3 negativas e 3 neutras. Cada entrada traz título, artista, identificador no YouTube, rótulo de sentimento (os mesmos três do classificador) e valor de valência. Os rótulos e as valências foram atribuídos manualmente pelo grupo, considerando letra e clima geral da gravação. Nenhum modelo externo, API ou serviço de \emph{streaming} foi utilizado.
+
+\textbf{Valência.} O conceito vem da psicologia do afeto \citep{russell1980circumplex} e é também o nome do atributo de mesma natureza na Spotify Web API. Trata-se de uma medida do grau de positividade emocional de uma faixa: valência alta indica clima alegre e brilhante, valência baixa indica clima triste ou melancólico. Para casar com o escore do classificador, usamos o intervalo $[-1, +1]$. Trata-se de uma aproximação deliberadamente simples, e por isso a rotulagem manual é registrada como limitação na Seção~\ref{sec:conclusao}.
+
+\textbf{Regra de recomendação.} Dado um texto, o sistema filtra músicas com o mesmo rótulo e as ordena pela menor distância entre o escore do texto e a valência da música:
+
+\begin{equation}
+d(s) = |\,\text{valence}(s) - \text{score}_{\text{texto}}\,|
+\end{equation}
+
+A música recomendada é aquela com menor $d(s)$. O módulo é determinístico e não utiliza aprendizado de máquina.
+
+\textbf{Resultados.} A Tabela~\ref{tab:recomendacoes} mostra a saída real do sistema para quatro entradas representativas, cada uma processada pelo pipeline simbólico ativo (OpLexicon, tokenização regex, regras simbólicas e módulo de recomendação).
+
+\begin{table}[h]
+\small
+\centering
+\begin{tabularx}{\linewidth}{@{}YL{1.6cm}L{1.2cm}L{4.6cm}L{1.4cm}@{}}
+\toprule
+\textbf{Texto} & \textbf{Rótulo} & \textbf{Escore} & \textbf{Música recomendada} & \textbf{Valência} \\
+\midrule
+\texttt{Eu amei o filme, foi muito bom!} & positive & $+2{,}06$ & País Tropical (Jorge Ben Jor) & $+0{,}90$ \\
+\texttt{Não gostei do app, está bem confuso e bugado.} & negative & $-2{,}00$ & Cálice (Chico Buarque \& Milton Nascimento) & $-0{,}90$ \\
+\texttt{O arquivo tem quatro páginas e duas tabelas.} & neutral & $0{,}00$ & Sampa (Caetano Veloso) & $0{,}00$ \\
+\texttt{Estou triste com o resultado.} & negative & $-0{,}80$ & Construção (Chico Buarque) & $-0{,}85$ \\
+\bottomrule
+\end{tabularx}
+\caption{Saídas reais do módulo de recomendação para quatro entradas representativas usando o pipeline final.}
+\label{tab:recomendacoes}
+\end{table}
+\end{addedblock}
+
+\begin{addedblock}
+\section{Resultados}
+\label{sec:resultados}
+
+\textbf{Testes unitários.} O projeto mantém testes automatizados em \texttt{tests/}, cobrindo o pipeline simbólico, os léxicos, os tokenizadores, o módulo de recomendação e a \emph{harness} de avaliação. A execução corrente usa \texttt{uv run pytest}.
+
+\textbf{Protocolo de avaliação.} A avaliação principal foi migrada para o corpus comum que será usado também na Etapa 2: \emph{Portuguese Tweets for Sentiment Analysis}, publicado no Kaggle por \citet{augustopKaggleTweets}. O \emph{split} de treino é \texttt{TrainingDatasets/Train3Classes.csv}, com 100.000 \emph{tweets}, e o \emph{split} de teste é \texttt{TestDatasets/Test3classes.csv}, com 4.999 \emph{tweets}. As três classes são praticamente balanceadas nos dois arquivos. Como o sistema simbólico não aprende parâmetros, o treino é preservado para caracterização do corpus e para a Etapa 2; a métrica oficial da Etapa 1 é calculada no teste. A orquestração usa \emph{Hydra} \citep{yadan2019hydra} em \texttt{etapas/etapa1\_simbolica/pipelines/run\_symbolic\_benchmark\_suite.py}, com saída versionada em \texttt{outputs/etapa1\_symbolic/benchmark\_suite/}. O \emph{run} usado neste relatório é \texttt{20260612\_101202\_400841}.
+
+\begin{table}[h]
+\small
+\centering
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+\textbf{Split} & \textbf{N} & \textbf{Pos.} & \textbf{Neg.} & \textbf{Neu.} & \textbf{Mediana chars} & \textbf{Mediana tokens} \\
+\midrule
+Treino & 100.000 & 33.334 & 33.333 & 33.333 & 86 & 13 \\
+Teste  & 4.999   & 1.667  & 1.666  & 1.666  & 81 & 11 \\
+\bottomrule
+\end{tabular}
+\caption{Caracterização do corpus comum Kaggle usado por Etapa 1 e Etapa 2.}
+\label{tab:dataset-kaggle}
+\end{table}
+
+\begin{table}[h]
+\small
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}llccccc@{}}
+\toprule
+\textbf{Sistema} & \textbf{Paradigma} & \textbf{Acur.} & \textbf{F1 macro} & \textbf{F1 pos.} & \textbf{F1 neg.} & \textbf{F1 neu.} \\
+\midrule
+\textbf{\texttt{oplexicon\_regex}} & \textbf{simbólico (OpLexicon + regras)} & \textbf{0,598} & \textbf{0,596} & \textbf{0,652} & \textbf{0,641} & \textbf{0,496} \\
+\bottomrule
+\end{tabular}%
+}
+\caption{Resultado oficial da Etapa 1 no \emph{split} de teste Kaggle. Este valor passa a ser o ponto de comparação interno para os modelos da Etapa 2.}
+\label{tab:benchmark}
+\end{table}
+
+\textbf{Matriz de confusão.} A Tabela~\ref{tab:confusao} mostra para onde os erros do pipeline final vão. O sistema identifica bem polaridades explícitas, especialmente positiva e negativa, mas a classe neutra continua sendo a mais difícil: por definição, ela depende da ausência de evidência lexical e é sensível a termos polarizados usados em manchetes ou contextos informativos.
+
+\begin{table}[h]
+\small
+\centering
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Verdadeiro \textbackslash{} Predito} & \textbf{Positiva} & \textbf{Negativa} & \textbf{Neutra} \\
+\midrule
+Positiva (1.667) & \textbf{1.133} & 163 & 371 \\
+Negativa (1.666) & 229 & \textbf{1.061} & 376 \\
+Neutra (1.666)   & 449 & 422 & \textbf{795} \\
+\bottomrule
+\end{tabular}
+\caption{Matriz de confusão do \texttt{oplexicon\_regex} sobre o teste Kaggle.}
+\label{tab:confusao}
+\end{table}
+
+\textbf{Leitura.} O \texttt{oplexicon\_regex} chega a 0,598 de acurácia e 0,596 de F1 macro no teste Kaggle. A pontuação é coerente com o desenho do método: o sistema não usa rótulos de treino e depende apenas de cobertura lexical e regras locais de composição. O desempenho por classe mostra o limite principal a ser comparado na Etapa 2: positiva e negativa ficam acima de 0,64 de F1, enquanto neutra fica em 0,496. Esse resultado será usado como baseline interpretável para os modelos TF-IDF e neurais no mesmo \emph{split}; portanto, a comparação final do projeto será interna, controlada por corpus, \emph{split} e métrica, em vez de depender de resultados externos com protocolos diferentes.
+\end{addedblock}
+
+\begin{addedblock}
+\section{Conclusão}
+\label{sec:conclusao}
+
+O presente trabalho apresentou um sistema simbólico para análise de sentimentos em português brasileiro, baseado no OpLexicon v3.0 e em regras explícitas, priorizando interpretabilidade ao longo de todo o pipeline. A versão oficial reestruturada para a comparação com a Etapa 2 é o \texttt{oplexicon\_regex}: OpLexicon, normalização textual, tokenização regex e regras de negação, intensificação, atenuação, contraste, caixa alta e ênfase exclamativa.
+
+A avaliação sobre o corpus Kaggle comum fixa o que esse paradigma entrega antes de treinamento estatístico: 0,598 de acurácia e 0,596 de F1 macro em 4.999 \emph{tweets} de teste balanceados. As limitações são as esperadas em sistemas simbólicos: dependência da cobertura lexical, simplificação de fenômenos complexos via regras heurísticas e análise predominantemente local do contexto. O módulo de recomendação, embora funcional, baseia-se em valores de valência atribuídos manualmente pela equipe, o que limita a precisão das sugestões fora do catálogo curado.
+
+Os caminhos naturais de evolução já se desenham a partir da análise dos erros: a classe neutra é a que mais sofre (F1 0,496), porque qualquer ruído lexical a empurra para as caudas positiva ou negativa. A Etapa 2 parte exatamente desse ponto: treinar classificadores TF-IDF e modelos neurais no mesmo \emph{split} de treino e compará-los com esta linha simbólica, mantendo corpus, métricas e artefatos de saída controlados.
+\end{addedblock}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

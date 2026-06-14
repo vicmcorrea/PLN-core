@@ -1,3 +1,0 @@
-# Production stack: OpLexicon v3.0 + spaCy pt_core_news_sm lemmas.
-name: oplexicon
-kwargs: {}

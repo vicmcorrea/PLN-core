@@ -13,6 +13,8 @@ if str(SRC_DIR) not in sys.path:
 
 from pln_core.factory import (
     PRODUCTION_ANALYZER_LABEL as ANALYZER_STACK_LABEL,
+)
+from pln_core.factory import (
     build_production_analyzer,
 )
 from pln_core.lexicon import LexiconDownloadError

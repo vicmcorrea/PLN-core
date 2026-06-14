@@ -5,22 +5,29 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "pln-core"
 version = "0.1.0"
-description = "Symbolic sentiment analysis baseline for Brazilian Portuguese"
+description = "Brazilian Portuguese sentiment analysis with symbolic and subsymbolic experiments"
 requires-python = ">=3.10"
 dependencies = [
     "datasets>=2.14",
     "hydra-core>=1.3.2",
+    "kaggle>=1.7.4.5",
+    "matplotlib>=3.10.9",
     "pt-core-news-sm @ https://github.com/explosion/spacy-models/releases/download/pt_core_news_sm-3.8.0/pt_core_news_sm-3.8.0-py3-none-any.whl",
     "scikit-learn>=1.3",
     "spacy",
     "streamlit>=1.50.0",
 ]
 
-[project.scripts]
-pln-sentiment = "pln_core.cli:main"
+[project.optional-dependencies]
+transformers = [
+    "accelerate>=1.12",
+    "torch>=2.2",
+    "transformers>=4.57,<5",
+]
 
 [dependency-groups]
 dev = [
+    "pytest",
     "ruff",
 ]
 
@@ -31,7 +38,7 @@ dev = [
 where = ["src"]
 
 [tool.setuptools.package-data]
-pln_core = ["data/*.json"]
+pln_core = ["data/*.json", "data/*.tsv"]
 
 [tool.ruff]
 line-length = 100

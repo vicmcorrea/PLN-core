@@ -1,0 +1,36 @@
+# Etapa 2 classical benchmark suite on the shared Kaggle corpus.
+defaults:
+  - dataset: kaggle_portuguese_tweets
+  - _self_
+
+seed: 42
+output_dir: outputs/etapa2_subsymbolic/benchmark_suite
+model_output_dir: data/models/etapa2_subsymbolic
+run_id: ${now:%Y%m%d_%H%M%S_%f}
+overwrite: false
+save_predictions: true
+save_models: true
+make_figures: true
+fail_fast: false
+text_treatment: raw
+
+models:
+  - tfidf_logreg
+  - tfidf_linear_svm
+
+symbolic_baseline:
+  name: oplexicon_regex
+  stage: etapa1_simbolica
+  run_id: "20260612_152415_135433"
+  text_treatment: raw
+  accuracy: 0.5979195839167833
+  macro_f1: 0.595953419202016
+  positive_f1: 0.6515238642898218
+  negative_f1: 0.6407004830917874
+  neutral_f1: 0.4956359102244389
+
+hydra:
+  run:
+    dir: ${output_dir}/_hydra/${run_id}
+  job:
+    chdir: false
