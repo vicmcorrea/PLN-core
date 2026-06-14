@@ -332,7 +332,7 @@ Condição sem emoticons e URLs & Diagnóstico feito nos dados & A remoção tes
 \label{tab:decisoes}
 \end{table}
 
-As métricas principais são acurácia e F1 macro. A acurácia mede a proporção total de acertos. O F1 combina precisão e revocação de uma classe. A precisão mede, entre tudo que o modelo chamou de uma classe, quanto estava correto. A revocação mede, entre tudo que realmente era daquela classe, quanto o modelo encontrou. O F1 macro calcula esse valor separadamente para positivo, negativo e neutro e depois tira a média simples. Essa métrica é importante porque o objetivo não é apenas acertar uma classe fácil, mas manter desempenho equilibrado entre polaridades.
+As métricas principais são acurácia, precisão macro, revocação macro e F1 macro. A acurácia mede a proporção total de acertos. A precisão mede, entre tudo que o modelo chamou de uma classe, quanto estava correto. A revocação mede, entre tudo que realmente era daquela classe, quanto o modelo encontrou. O F1 combina precisão e revocação em uma medida única. Na versão macro, precisão, revocação e F1 são calculados separadamente para positivo, negativo e neutro, e depois resumidos por uma média simples. Essa leitura é importante porque o objetivo não é apenas acertar uma classe fácil, mas manter desempenho equilibrado entre polaridades. As métricas seguem a mesma convenção do relatório de classificação usado pelo scikit-learn \citep{pedregosa2011scikit}.
 
 \begin{table}[h]
 \small
@@ -453,7 +453,7 @@ Albertina 100M pt-BR & 3.000 & 4.999 & bruto com pistas & 0,9972 & 0,9972 \\
 \end{table}
 \FloatBarrier
 
-A Tabela~\ref{tab:f1-classe-limpa} e a Figura~\ref{fig:confusao-limpa} detalham a condição principal, sem emoticons e URLs. Uma matriz de confusão cruza o rótulo esperado nas linhas com a predição nas colunas. A diagonal representa os acertos, enquanto os valores fora da diagonal mostram para qual classe cada sistema desloca seus erros. A figura foi normalizada por classe real para que positivo, negativo e neutro tenham o mesmo peso visual, mesmo quando olhamos classes separadamente. A condição bruta e a baseline de pistas não aparecem aqui porque esta análise busca comparar os sistemas sem o vazamento mais direto de rótulo.
+A Tabela~\ref{tab:metricas-limpa} e a Figura~\ref{fig:confusao-limpa} detalham a condição principal, sem emoticons e URLs. A tabela mostra as métricas clássicas de classificação para cada sistema. A matriz de confusão cruza o rótulo esperado nas linhas com a predição nas colunas. A diagonal representa os acertos, enquanto os valores fora da diagonal mostram para qual classe cada sistema desloca seus erros. A figura foi normalizada por classe real para que positivo, negativo e neutro tenham o mesmo peso visual, mesmo quando olhamos classes separadamente. A condição bruta e a baseline de pistas não aparecem aqui porque esta análise busca comparar os sistemas sem o vazamento mais direto de rótulo.
 
 \begin{table}[h]
 \small
@@ -461,19 +461,19 @@ A Tabela~\ref{tab:f1-classe-limpa} e a Figura~\ref{fig:confusao-limpa} detalham 
 \altrowcolors
 \begin{tabular}{@{}lrrrr@{}}
 \toprule
-\textbf{Sistema} & \textbf{F1 pos.} & \textbf{F1 neg.} & \textbf{F1 neut.} & \textbf{F1 macro} \\
+\textbf{Sistema} & \textbf{Acurácia} & \textbf{Precisão macro} & \textbf{Revocação macro} & \textbf{F1 macro} \\
 \midrule
-OpLexicon com regras & 0,3959 & 0,3174 & 0,3870 & 0,3668 \\
-TF-IDF + Reg. Logística & \textbf{0,7321} & \textbf{0,7417} & 0,9545 & \textbf{0,8094} \\
-TF-IDF + SVM linear & 0,7157 & 0,7373 & 0,9562 & 0,8030 \\
-DistilBERT multilíngue & 0,5785 & 0,6944 & 0,9425 & 0,7385 \\
-XLM-R base & 0,5814 & 0,7117 & 0,9552 & 0,7494 \\
-Albertina 100M pt-BR & 0,6807 & 0,7005 & \textbf{0,9612} & 0,7808 \\
+OpLexicon com regras & 0,3697 & 0,3821 & 0,3697 & 0,3668 \\
+TF-IDF + Reg. Logística & \textbf{0,8086} & \textbf{0,8109} & \textbf{0,8086} & \textbf{0,8094} \\
+TF-IDF + SVM linear & 0,8020 & 0,8043 & 0,8020 & 0,8030 \\
+DistilBERT multilíngue & 0,7465 & 0,7426 & 0,7466 & 0,7385 \\
+XLM-R base & 0,7586 & 0,7638 & 0,7586 & 0,7494 \\
+Albertina 100M pt-BR & 0,7822 & 0,7798 & 0,7822 & 0,7808 \\
 \bottomrule
 \end{tabular}
 \clearrowcolors
-\caption{F1 por classe na condição sem emoticons e URLs. Os valores em negrito indicam o maior resultado de cada coluna entre as rodadas válidas apresentadas.}
-\label{tab:f1-classe-limpa}
+\caption{Métricas clássicas de classificação na condição sem emoticons e URLs. Os valores em negrito indicam o maior resultado de cada coluna entre as rodadas válidas apresentadas.}
+\label{tab:metricas-limpa}
 \end{table}
 
 \begin{figure}[h]
@@ -483,7 +483,7 @@ Albertina 100M pt-BR & 0,6807 & 0,7005 & \textbf{0,9612} & 0,7808 \\
 \label{fig:confusao-limpa}
 \end{figure}
 
-O padrão principal é que os modelos estatísticos e neurais reconhecem muito bem a classe neutra, mas ainda confundem bastante positivo e negativo. Esse comportamento combina com a natureza dos tweets depois da limpeza. Muitos textos ficam curtos, irônicos ou dependentes de contexto, e uma parte deles perde justamente o emoticon que sustentava o rótulo original. O OpLexicon sofre mais nesse cenário porque depende de palavras encontradas no léxico e tende a deslocar muitos casos para neutro. Entre os métodos treinados, a Regressão Logística com TF-IDF fica com o melhor F1 macro da condição limpa, enquanto Albertina apresenta o melhor F1 da classe neutra entre as rodadas neurais.
+O padrão principal é que os modelos estatísticos e neurais reconhecem muito bem a classe neutra, mas ainda confundem bastante positivo e negativo. Esse comportamento combina com a natureza dos tweets depois da limpeza. Muitos textos ficam curtos, irônicos ou dependentes de contexto, e uma parte deles perde justamente o emoticon que sustentava o rótulo original. O OpLexicon sofre mais nesse cenário porque depende de palavras encontradas no léxico e tende a deslocar muitos casos para neutro. Entre os métodos treinados, a Regressão Logística com TF-IDF fica com o melhor conjunto de métricas na condição limpa, liderando acurácia, precisão macro, revocação macro e F1 macro. Albertina fica como o melhor resultado neural, mas ainda abaixo do TF-IDF nessa execução de desenvolvimento.
 \FloatBarrier
 
 \section{Diagnóstico de artefatos e dificuldades encontradas}
