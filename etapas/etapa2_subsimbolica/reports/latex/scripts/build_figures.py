@@ -47,10 +47,10 @@ def _save(fig: plt.Figure, name: str) -> None:
 
 def plot_macro_f1_tracks() -> None:
     systems = [
-        "Cue-only",
-        "OpLexicon\nregex",
-        "TF-IDF\nLogReg",
-        "TF-IDF\nSVM",
+        "Baseline\nde pistas",
+        "OpLexicon\n+ regras",
+        "TF-IDF\nReg. Log.",
+        "TF-IDF\nSVM linear",
         "DistilBERT",
         "XLM-R",
         "Albertina",
@@ -89,7 +89,7 @@ def plot_macro_f1_tracks() -> None:
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.annotate(
-        "cue-only = 0,997\nresolve o teste bruto\nsem ler sentimento",
+        "baseline de pistas = 0,997\nresolve o teste bruto\nsem ler sentimento",
         xy=(raw_bars[0].get_x() + raw_bars[0].get_width() / 2, raw[0]),
         xytext=(0.58, 1.04),
         textcoords=("data", "data"),
@@ -100,7 +100,7 @@ def plot_macro_f1_tracks() -> None:
         color=OKABE_ITO["red"],
     )
     ax.annotate(
-        "OpLexicon tambem cai:\n0,596 -> 0,367",
+        "OpLexicon também cai:\n0,596 -> 0,367",
         xy=(x[1], stripped[1]),
         xytext=(0.78, 0.86),
         textcoords=("data", "data"),
