@@ -45,6 +45,23 @@ def _save(fig: plt.Figure, name: str) -> None:
     plt.close(fig)
 
 
+def _to_linear_srgb(channel: float) -> float:
+    if channel <= 0.04045:
+        return channel / 12.92
+    return ((channel + 0.055) / 1.055) ** 2.4
+
+
+def _contrast_text_color(rgba: tuple[float, float, float, float]) -> str:
+    red, green, blue, _alpha = rgba
+    linear_red = _to_linear_srgb(red)
+    linear_green = _to_linear_srgb(green)
+    linear_blue = _to_linear_srgb(blue)
+    luminance = 0.2126 * linear_red + 0.7152 * linear_green + 0.0722 * linear_blue
+    black_contrast = (luminance + 0.05) / 0.05
+    white_contrast = 1.05 / (luminance + 0.05)
+    return "black" if black_contrast >= white_contrast else "white"
+
+
 def plot_macro_f1_tracks() -> None:
     systems = [
         "Baseline\nde pistas",
@@ -208,6 +225,7 @@ def plot_transformer_drop() -> None:
 
 def plot_clean_confusion_matrices() -> None:
     labels = ["positivo", "negativo", "neutro"]
+    cmap = plt.get_cmap("cividis")
     systems = [
         (
             "OpLexicon\nF1 macro 0,367",
@@ -275,7 +293,7 @@ def plot_clean_confusion_matrices() -> None:
     for ax, (title, counts) in zip(axes.flat, systems, strict=True):
         row_totals = counts.sum(axis=1, keepdims=True)
         percentages = counts / row_totals
-        image = ax.imshow(percentages, cmap="cividis", vmin=0, vmax=1)
+        image = ax.imshow(percentages, cmap=cmap, vmin=0, vmax=1)
         ax.set_title(title)
         ax.set_xticks(np.arange(len(labels)), [f"Prev. {label}" for label in labels])
         ax.set_yticks(np.arange(len(labels)), [f"Real {label}" for label in labels])
@@ -284,14 +302,13 @@ def plot_clean_confusion_matrices() -> None:
         for row in range(counts.shape[0]):
             for col in range(counts.shape[1]):
                 value = percentages[row, col]
-                color = "white" if value > 0.55 else "black"
                 ax.text(
                     col,
                     row,
                     f"{value:.0%}\n({counts[row, col]})",
                     ha="center",
                     va="center",
-                    color=color,
+                    color=_contrast_text_color(cmap(value)),
                     fontsize=7,
                 )
 
