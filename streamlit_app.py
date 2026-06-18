@@ -287,41 +287,9 @@ def render_comparison_selector(models: tuple[AppModelInfo, ...]) -> tuple[AppMod
     return tuple(model_by_id[model_id] for model_id in selected_ids if model_id in model_by_id)
 
 
-def _prediction_matches_model(
-    prediction: AppPrediction | None,
-    model: AppModelInfo,
-) -> bool:
-    return prediction is not None and prediction.model.id == model.id
-
-
-def render_model_card(
-    model: AppModelInfo,
-    prediction: AppPrediction | None = None,
-) -> None:
+def render_recommendation_card(prediction: AppPrediction | None = None) -> None:
     with st.container(border=True):
-        st.caption("Modo escolhido")
-        st.markdown(f"### {model.display_name}")
-        st.write(model.description)
-        if model.metrics:
-            accuracy = model.metrics.get("accuracy")
-            macro_f1 = model.metrics.get("macro_f1")
-            metric_parts = []
-            if macro_f1 is not None:
-                metric_parts.append(f"macro F1 `{macro_f1:.3f}`")
-            if accuracy is not None:
-                metric_parts.append(f"accuracy `{accuracy:.3f}`")
-            if metric_parts:
-                st.caption(" · ".join(metric_parts))
-        if not model.can_predict:
-            st.info(
-                "Esta opção é mostrada para comparar as melhores versões, mas não "
-                "classifica frases nesta versão leve da demonstração.",
-                icon=":material/info:",
-            )
-        st.divider()
-        render_recommendation_panel(
-            prediction if _prediction_matches_model(prediction, model) else None
-        )
+        render_recommendation_panel(prediction)
 
 
 def render_comparison_model_card(models: tuple[AppModelInfo, ...]) -> None:
@@ -548,10 +516,7 @@ def main() -> None:
 
         with control_col:
             if selected_model is not None:
-                render_model_card(
-                    selected_model,
-                    current_single_prediction_for(selected_model),
-                )
+                render_recommendation_card(current_single_prediction_for(selected_model))
             else:
                 render_comparison_model_card(selected_models)
 
